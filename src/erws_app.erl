@@ -12,7 +12,7 @@ start(_StartType, _StartArgs) ->
         %% Name, NbAcceptors, Transport, TransOpts, Protocol, ProtoOpts  
         %% Listen in 10100/tcp for http connections.  
         cowboy:start_listener(erws_websocket, 100,  
-            cowboy_tcp_transport, [{port, 10000}],  
+            cowboy_tcp_transport, [{port, 80}],  
             cowboy_http_protocol, [{dispatch, Dispatch}]  
         ),  
         

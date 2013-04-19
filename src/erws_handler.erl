@@ -98,13 +98,13 @@ handle(Req, State) ->
      { Path, Req1} = cowboy_http_req:path(Req),
      ?DEBUG("Unexpected request: ~p~n", [Path]),
      {Username, Password, Req2} = credentials(Req1),
-     {ok, NewReq} = 
-      case {Username, Password} of
-            {?USERNAME, ?PASSWORD} ->
-                 echo(my_join(Path), Req2, State);
-            _ ->
-                unauthorized(Req2)
-      end,    
+     {ok, NewReq} = echo(my_join(Path), Req2, State),
+%       case {Username, Password} of
+%             {?USERNAME, ?PASSWORD} ->
+%                  echo(my_join(Path), Req2, State);
+%             _ ->
+%                 unauthorized(Req2)
+%       end,    
       { ok,NewReq,State}
       
 .

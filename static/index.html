@@ -16,31 +16,39 @@
     var editor;
     var LOADED = 0;
     WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
+    function send_req(obj){
+		 Code = $.trim(obj.value);	
+		 if(Code.charAt(Code.length - 1) != "."){
+			  Code +=".";
+			 
+		
+		 }
+		 var Var  = "<p>| -? " + obj.value+"</p>";
+		 var Var1 = obj.value;
+		 Var1 = Var1.replace("\n","");
+		 Var1 = Var1 + " ";
+		 obj.value ="";
+		 $("#sse").html("<p>| -? " + Var +"</p>");
+		 history[$.trim(Var1)] = 1 ;	  
+		 index = 0;
+		 send(Var1);
+		 $("#code").prop("disabled", true);      
     
+    }
+    function but_search(){
+	  var obj = document.getElementById("code");
+	  if( $("#code").prop("disabled") )
+	      return ;
+	      
+	  send_req(obj);
+    
+    }
     function listen(obj, E){
 	  if(E.keyCode == 13 ){
-		Code = $.trim(obj.value);
-
-		
-		if( Code.charAt(Code.length - 1) == "." ){
-		
-			  var Var  = "<p>| -? " + obj.value+"</p>";
-			  var Var1 = obj.value;
-			  Var1 = Var1.replace("\n","");
-			  Var1 = Var1 + " ";
-			  obj.value ="";
-			  $("#sse").html("<p>| -? " + Var +"</p>");
-			  history[$.trim(Var1)] = 1 ;
-			  index = 0;
-			  send("no.");    
-			  send(Var1);
-			  
-//      	  	          $("#code").prop("disabled", true);     
-
-		}
+		send_req(obj);
 	  
 	  }
-	   if(E.keyCode == 38 ){//up
+	  if(E.keyCode == 38 ){//up
 		  if(index == 0)
 			return ;
 		
@@ -49,23 +57,20 @@
 			document.getElementById("code").value = "";
 			index = 0;
 			return ;
-		  }
-		  
+		  } 
 		  var i = 0;
 		  for(key in history){
 			  if(i+1 == index){
 			   
 			  	document.getElementById("code").value = key;
 
-// 				$("#code").attr( { "value": key } );
+ 				$("#code").attr( { "value": key } );
 				index = i;
 				return ;
 
 			  }
 			  i++;
 		  }
-		  
-	
 	  }
 	  if(E.keyCode == 40 ){//down
 	  
@@ -74,7 +79,7 @@
 		 for(key in history){
 			  if(i-1 ==  index){
 			  	document.getElementById("code").value = key;
-// 				$("#code").attr(  "value", key  );
+				$("#code").attr(  "value", key  );
 				index = i;
 				return ;
 			  }
@@ -96,12 +101,23 @@
 
     function send(Code)
     {
-    
-	ws.send(Code);
+	hide_choose();
+	send_txt = Code + "\n\n\n";
+	ws.send(send_txt);
 	console.log('Message sent');
     }
+    function hide_choose(){
+	
+	$("#choose_menu").hide("fast");
     
-
+    
+    }
+    function show_choose(){
+	
+	$("#choose_menu").show("fast");
+    
+    
+    }
 
 
 
@@ -206,14 +222,20 @@
 				      ">
 		<p class='console_p'> Using Prolog 0.6 </p>
 		 <div style="float:left">
-			    <input id="code"  style="border:1px solid #0088CC ; width:775px; height:20px;font-size:16px" 
-				      onkeyup="listen(this,event)" />
+			    <input id="code"  style="border:1px solid #0088CC ; width:740px; height:20px;font-size:16px" 
+				      onkeyup="listen(this,event)" /> 
 			  </div> 
+		<div style='float:right'> <a class="btn pull-right" href="javascript:but_search()"> Run </a>  </div>
 	      <br/><br/>
 			<div id="sse" >
 			   
 			  
 			  
+			</div>
+			<div id='choose_menu' style='display:none; float:left;width:20em'>
+			 <a class="btn btn-danger pull-left" href="javascript:send('no.')"> No </a>
+			 <a class="btn btn-success pull-right" href="javascript:send('yes.')"> Yes </a>
+
 			</div>
 			
 		</div>
@@ -236,7 +258,7 @@
 <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     $(document).ready(function() {
-    
+	  $("#code").prop("disabled", false);    
 	
 	Key = Math.random();
 	// Handler for .ready() called.
@@ -251,13 +273,21 @@
 	    console.log("Received: " + received_msg);
 	    
 	    var patt=/looking next \?/;
+	    
 	    var result=patt.test(received_msg);
 	    if(result){
 		wait_answer = 1;
+		show_choose();
+		
+	    }else{
+		  $("#code").prop("disabled", false);    
+		  $("#code").focus();
+		  
 		
 	    }
 	    $("#sse").html("<p>" + received_msg +"</p>");
-	    $("#code").focus();
+	    
+
 
 	};
 	ws.onclose = function()

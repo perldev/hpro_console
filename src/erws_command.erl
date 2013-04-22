@@ -83,7 +83,7 @@ echo([<<"plain_code">>], Req, _State)->
 ;
 
 echo(Path1, Req, _State)->
-	  Path = "static/test_console.html",	
+	  Path = "static/index.html",	
           ?DEBUG("~p try to find file ~p",[?LINE,Path]),
           Type = mochiweb_mime:from_extension(filename:extension( Path ) ),
     	  case file(Path) of
@@ -94,6 +94,7 @@ echo(Path1, Req, _State)->
           		?DEBUG("~p  find file ~p ~n",[?LINE, Type ]),
          		cowboy_req:reply(200, [{<<"Content-Type">>, Type }], Val, Req)
 	 end
+
 
 	 .
 

@@ -18,11 +18,6 @@
     WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
     function send_req(obj){
 		 Code = $.trim(obj.value);	
-		 if(Code.charAt(Code.length - 1) != "."){
-			  Code +=".";
-			 
-		
-		 }
 		 var Var  = "<p>| -? " + obj.value+"</p>";
 		 var Var1 = obj.value;
 		 Var1 = Var1.replace("\n","");
@@ -32,19 +27,31 @@
 		 history[$.trim(Var1)] = 1 ;	  
 		 index = 0;
 		 send(Var1);
-		 $("#code").prop("disabled", true);      
+		 disable_run();     
     
     }
     function but_search(){
 	  var obj = document.getElementById("code");
 	  if( $("#code").prop("disabled") )
 	      return ;
-	      
+	  Code = obj.value;
+	  if(Code.charAt(Code.length-1) != "."){
+			  Code +=".";
+			 
+	  }   
+	  obj.value = Code;  
 	  send_req(obj);
     
     }
     function listen(obj, E){
 	  if(E.keyCode == 13 ){
+		 Code = obj.value;
+	  
+		if(Code.charAt(Code.length-1) != "."){
+			  Code +=".";
+			 
+	        } 
+		obj.value = Code;
 		send_req(obj);
 	  
 	  }
@@ -94,15 +101,25 @@
 	  
     }
 
+    function disable_run(){
+		  $("#code").prop("disabled", true);    
+		  $("#search_but").hide("slow");
     
-    
+    }
 
     
+    function enable_run(){
+		  $("#code").prop("disabled", false);    
+		  $("#search_but").show("slow");
+		  $("#code").focus();
+    
+    }
 
     function send(Code)
     {
 	hide_choose();
-	send_txt = Code + "\n\n\n";
+	send_txt = Code;
+
 	ws.send(send_txt);
 	console.log('Message sent');
     }
@@ -214,7 +231,7 @@
     </div>
 
 
-      <div id='console' style='margin-left: 7em;  width:800px;  margin-top: 2em; float:left'  >
+      <div id='console' style='  margin-left: 22em;  width:800px;  margin-top: 2em; float:left'  >
 		
 		<div id="msgs" style="font-size: 16px;
 				      width: 800px;
@@ -225,7 +242,6 @@
 			    <input id="code"  style="border:1px solid #0088CC ; width:740px; height:20px;font-size:16px" 
 				      onkeyup="listen(this,event)" /> 
 			  </div> 
-		<div style='float:right'> <a class="btn pull-right" href="javascript:but_search()"> Run </a>  </div>
 	      <br/><br/>
 			<div id="sse" >
 			   
@@ -237,6 +253,8 @@
 			 <a class="btn btn-success pull-right" href="javascript:send('yes.')"> Yes </a>
 
 			</div>
+		      <div id="search_but" style='float:left;margin-left:20em'> <a class="btn pull-right" href="javascript:but_search()"> Queue </a>  </div>
+
 			
 		</div>
       </div>
@@ -280,8 +298,7 @@
 		show_choose();
 		
 	    }else{
-		  $("#code").prop("disabled", false);    
-		  $("#code").focus();
+		  enable_run();
 		  
 		
 	    }

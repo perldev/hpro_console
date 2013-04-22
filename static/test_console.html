@@ -12,11 +12,11 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    HOST = "codeide.com/";
+    HOST = "new.deepmemo.com";
     var wait_answer = 0 ;
     var editor;
     var LOADED = 0;
-    WHOST = "ws://" + HOST; //"ws://hd-test-2.ceb.loc:10100";
+    WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
     
     function listen(obj, E){
 	  if(E.keyCode == 13 ){
@@ -160,7 +160,7 @@
 		    var  params = { code: editor.getValue()  };
 	            $.ajax({
                         type: "POST",
-                        url: "http://" + HOST +"reload" ,
+                        url: "http://" + HOST +"/command/reload" ,
                         data: params,
                         success: new_function
                         
@@ -214,7 +214,7 @@
 		$.ajax({
 			    type: "GET",
 			    contentType: 'text/plain',
-			    url: "http://" + HOST +"plain_code" ,
+			    url: "http://" + HOST +"/command/plain_code" ,
 			    success: new_function,
 			    }
 		);
@@ -242,7 +242,7 @@
 		    var  params = { code: Code   };
 	            $.ajax({
                         type: "POST",
-                        url: "http://" + HOST +"upload_code" ,
+                        url: "http://" + HOST +"/command/upload_code" ,
                         data: params,
                         success: new_function
                         

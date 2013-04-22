@@ -1,6 +1,4 @@
 -module(erws_handler).
--behaviour(cowboy_http_handler).
--behaviour(cowboy_http_websocket_handler).
 
 
 -import(lists, [foldl/3,foreach/2]).
@@ -8,110 +6,32 @@
 -include("prolog.hrl").
 -compile(export_all).
 
--define(USERNAME, <<"test">>).
--define(PASSWORD, <<"test">>).
-
-
 % Behaviour cowboy_http_handler
--export([init/3, handle/2, terminate/2]).
+-export([init/3,  terminate/2]).
 
 % Behaviour cowboy_http_websocket_handler
--export([
-    websocket_init/3, websocket_handle/3,
-    websocket_info/3, websocket_terminate/3
-]).
+-behaviour(cowboy_websocket_handler).
+
+-export([init/3]).
+-export([websocket_init/3]).
+-export([websocket_handle/3]).
+-export([websocket_info/3]).
+-export([websocket_terminate/3]).
 
 % Called to know how to dispatch a new connection.
 init({tcp, http}, Req, _Opts) ->
-    ?DEBUG("Request: ~p ~n", [Req]),
-     { Path, Req3} = cowboy_http_req:path(Req),
-    
+
     % "upgrade" every request to websocket,
     % we're not interested in serving any other content.
-    case Path of
-	[<<"static">>| Tail] ->
-	      {ok, Req, undefined};
-	[<<"plain_code">>] ->
-	      {ok, Req, undefined};	      
-	[<<"upload_code">>] ->
-	      {ok, Req, undefined};	  
-	[<<"show_code">>] ->
-	      {ok, Req, undefined};	  
-	[<<"reload">>] ->
-	      {ok, Req, undefined};
-	 _ ->
-	  {upgrade, protocol, cowboy_http_websocket}
-    end.
+    
+    {upgrade, protocol, cowboy_websocket}.
     
 terminate(_Req, _State) ->
     ok.
  
-%% private
-credentials(Req@) ->
-    {AuthorizationHeader, Req@} = cowboy_http_req:header('Authorization', Req@),
-    case AuthorizationHeader of
-        undefined ->
-            {undefined, undefined, Req@};
-        _ ->
-            {Username, Password} = credentials_from_header(AuthorizationHeader),
-            {Username, Password, Req@}
-    end.
- 
-credentials_from_header(AuthorizationHeader) ->
-    case binary:split(AuthorizationHeader, <<$ >>) of
-        [<<"Basic">>, EncodedCredentials] ->
-            decoded_credentials(EncodedCredentials);
-        _ ->
-            {undefined, undefined}
-    end.
- 
-decoded_credentials(EncodedCredentials) ->
-    DecodedCredentials = base64:decode(EncodedCredentials),
-    case binary:split(DecodedCredentials, <<$:>>) of
-        [Username, Password] ->
-            {Username, Password};
-        _ ->
-            {undefined, undefined}
-    end.
- 
-unauthorized(Req1) ->
-    {ok, Req2} = cowboy_http_req:set_resp_header(<<"Www-Authenticate">>, <<"Basic realm=\"Secure Area\"">>, Req1),
-    {ok, Req3} = cowboy_http_req:set_resp_body(unauthorized_body(), Req2),
-    cowboy_http_req:reply(401, Req3).
- 
-unauthorized_body() ->
-    <<"
-    <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"
-     \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dt\">
-    <HTML>
-      <HEAD>
-        <TITLE>Error</TITLE>
-        <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\">
-      </HEAD>
-      <BODY><H1>401 Unauthorized.</H1></BODY>
-    </HTML>
-    ">>.
-    
-    
-% Should never get here.
-handle(Req, State) ->
-     { Path, Req1} = cowboy_http_req:path(Req),
-     ?DEBUG("Unexpected request: ~p~n", [Path]),
-     {Username, Password, Req2} = credentials(Req1),
-     {ok, NewReq} = echo(my_join(Path), Req2, State),
-%       case {Username, Password} of
-%             {?USERNAME, ?PASSWORD} ->
-%                  echo(my_join(Path), Req2, State);
-%             _ ->
-%                 unauthorized(Req2)
-%       end,    
-      { ok,NewReq,State}
-      
-.
 
 
-
-start_link_session([<<"trace">>, Session],TreeEts)->
+start_link_session([ <<"trace">>, Session],TreeEts)->
         PidTrace = spawn_link(?MODULE, start_trace_process, []),
         SessKey = binary_to_list(Session),
         [ {SessKey, Pid, ?UNDEF} ] = ets:lookup(?ERWS_LINK, SessKey),%%do not use one session
@@ -120,7 +40,7 @@ start_link_session([<<"trace">>, Session],TreeEts)->
         ets:insert(?ERWS_LINK,{PidTrace, Pid,'trace', SessKey} ),    
 	PidTrace;
 	
-start_link_session([Session],TreeEts)->
+start_link_session([ Session],TreeEts)->
         Pid = spawn_link(?MODULE, start_shell_process, [ TreeEts ]),
         SessKey = binary_to_list(Session),
         [  ] = ets:lookup(?ERWS_LINK, SessKey), %%do not use one session
@@ -132,12 +52,12 @@ start_link_session([Session],TreeEts)->
 websocket_init(Any, Req, []) ->
     ?DEBUG("~nNew client ~p",[Req]),
 
-    {Key, Req1} = cowboy_http_req:header(<<"Sec-Websocket-Key">>, Req),
+    {Key, Req1} = cowboy_req:header(<<"sec-websocket-key">>, Req),
     TreeEts = list_to_atom( binary_to_list( Key ) ),
-    { Path, Req_} = cowboy_http_req:path(Req1) ,
+    { Path, Req_} = cowboy_req:path_info(Req1) ,
     %TODO make key from server
     ?DEV_DEBUG("~n new session ~p",[ Path ]),
-    Req2 = cowboy_http_req:compact(Req_),
+    Req2 = cowboy_req:compact(Req_),
     Pid = start_link_session(Path, TreeEts), 
     {ok, Req2, Pid , hibernate}.
 
@@ -288,80 +208,6 @@ trace_loop(wait_aim, Pid )->
 
 
 
-
-my_join([])->
-    <<>>;
-my_join([Head|Tail])->
-    my_join(Tail, Head).
-my_join([], Acum)->
-      Acum;
-my_join([Head|Tail], Acum)->
-    my_join(Tail, <<Acum/binary,"/", Head/binary>> ).
- 
-echo(<<"reload">>, Req, State)->
-	  prolog:delete_inner_structs(),
-	  ?INCLUDE_HBASE,    
-	  echo(<<"show_code">>, Req, State)
-; 
-echo(<<"upload_code">>, Req, _State)->
-	   Got = cowboy_http_req:body_qs(Req),
-	   ?DEBUG("~p code here ~p ~n",[?LINE,Got]),
-	   {PostVals, Req2}  = Got, 
-	   Code = proplists:get_value(<<"code">>, PostVals),
-	   NewBinary = binary:replace(Code,[<<"\n">>,<<"\t">>],<<"">>, [ global ] ),
-	   CodeList = binary:split(NewBinary, [<<".">>],[global]),
-           ?DEBUG("~p code chuncks ~p ~n",[?LINE,CodeList]),
-	   prolog:delete_inner_structs(),
-	   Res = compile_foldl(CodeList),
-           ?DEBUG("~p code here ~p ~n",[?LINE,Code]),
-    	   cowboy_http_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
-					Res, Req2)
-    
-;
-echo(<<"show_code">>, Req, _State)->
-	   ResBin = prolog_shell:get_code_memory_html(),		  
-    	   cowboy_http_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
-					ResBin, Req)
-    
-;
-echo(<<"plain_code">>, Req, _State)->
-	   ResBin = prolog_shell:get_code_memory(),		  
-    	   cowboy_http_req:reply(200, [{<<"Content-Type">>, <<"text/plain">>}],
-					ResBin, Req)
-    
-;
-echo(Path1, Req, _State)->
-	   
-	  Path = binary_to_list(Path1),	
-          ?DEBUG("~p try to find file ~p",[?LINE,Path]),
-          Type = mochiweb_mime:from_extension(filename:extension( Path ) ),
-    	  case file(Path) of
-		{error,_} ->
-		        cowboy_http_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
-                <<"<html><head><title>may be i m working</title></head></html>">>,Req);
-               Val -> 		
-          		?DEBUG("~p  find file ~p ~n",[?LINE, Type ]),
-         		cowboy_http_req:reply(200, [{<<"Content-Type">>, Type }], Val, Req)
-	 end
-.
-
-file(Fname) ->
-            case file:open(Fname, [read, raw, binary]) of
-		{ok, Fd} ->
-		    scan_file(Fd, <<>>, file:read(Fd, 1024));
-		{error, Reason} ->
-		    {error, Reason}
-            end.
-
-scan_file(Fd, Occurs, {ok, Binary}) ->
-    scan_file(Fd, <<Occurs/binary,Binary/binary>>, file:read(Fd, 1024));
-scan_file(Fd, Occurs, eof) ->
-    file:close(Fd),
-    Occurs;
-scan_file(Fd, _Occurs, {error, Reason}) ->
-    file:close(Fd),
-    {error, Reason}.
-  
   
 compile_foldl([Head|Tail] )->
     Res = compile_patterns(Head),

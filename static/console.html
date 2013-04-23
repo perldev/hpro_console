@@ -223,7 +223,9 @@
     }
     function show_online(){
     
+	    close_help();
 	    close_console1();
+	    
 	    if(LOADED==0){
 		var new_function=function(Data){
 		      editor.setValue(Data);
@@ -280,7 +282,15 @@
 	ws.send(Code);
 	console.log('Message sent');
     }
+    function help(){
+	close_console1();
+	close_editor();
+	$("#container_help").show("fast");
     
+    }
+    function close_help(){
+	  $("#container_help").hide("fast");
+    }
     function close_console(){
 	 	  document.getElementById("container").innerHTML="Good bye";
 		  ws.close();
@@ -334,7 +344,13 @@
           realtimeLoader.get_file(fileId,update_editor);
       }
     }
-
+    function save_file(){
+      
+    
+	alert("not implementer");
+	
+    }
+    
     
     function open_console()
     {
@@ -343,6 +359,7 @@
 	    return;
 	}
 	close_editor();
+	close_help();
 	$("#console").slideDown("slow");
 	$("#code").prop("disabled", false);
 	$("#code").focus();
@@ -439,7 +456,7 @@
 	  
 	  <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
-	    <button class="btn  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sig in via Google</button> 
+	    <button class="btn  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sigin via Google</button> 
 	    </ul>
           </div>
       
@@ -459,8 +476,7 @@
 	  <div  id='tabs' >
 	        <a style='padding-left: 1em;' href="javascript:open_console()">Console</a>
 		<a style='padding-left: 1em;' href="javascript:show_online()">Online IDE</a>
-
-
+		<a style='padding-left: 1em;' href="javascript:help()">Help</a>
 
           </div>
      </div>    
@@ -517,13 +533,28 @@
    
     </div> <!--right part-->
    
+      <div id='container_help' > 
+      
+			  <div class="hero-unit">
+			    <h4>Use prolog in your application</h4>
+			    <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+			</div>
+
+			
+      
+      
+      </div>
+
    
       <div id='container_editor' > 
       
 			<h4> Editor  </h4><div class="right">
 			<a  style='padding-left: 1em;' href="javascript:load_code()">Load Code</a>
-			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> 
-      			<a  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">Get  from Google</a></div> 
+			<a  style='padding-left: 1em;' id='filePicker' href="javascript:save_file()">Save</a>
+      			<a  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">Get  from Google</a>
+      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> 
+
+      			</div> 
 
 			<div id='editor'></div>
 			

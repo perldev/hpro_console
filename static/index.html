@@ -30,6 +30,24 @@
 		 disable_run();     
     
     }
+    function onFileLoaded(doc) {
+      var string = doc.getModel().getRoot().get('text');
+      string +="\n";      
+      editor.setValue(string);
+    } 
+    function  update_editor(string){
+	    editor.setValue(string);
+    
+    }
+    
+    function initializeModel(model){
+    
+	  return;
+    }
+    function my_after_auth(){
+	  $("#authorizeButton").hide("fast");
+    } 
+   
     function but_search(){
 	  var obj = document.getElementById("code");
 	  if( $("#code").prop("disabled") )

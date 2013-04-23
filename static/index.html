@@ -274,6 +274,8 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery1.9.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/realtime-client-utils.js"></script>
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
 
 <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
@@ -340,6 +342,46 @@
 	
 	
     });
+    var realtimeOptions = {
+      /**
+       * Client ID from the APIs Console.
+       */
+      clientId: '768399903870.apps.googleusercontent.com',
+
+      /**
+       * The ID of the button to click to authorize. Must be a DOM element ID.
+       */
+      authButtonElementId: 'authorizeButton',
+
+      /**
+       * Function to be called when a Realtime model is first created.
+       */
+      initializeModel: initializeModel,
+
+      /**
+       * Autocreate files right after auth automatically.
+       */
+      autoCreate: false,
+
+      /**
+       * Autocreate files right after auth automatically.
+       */
+       defaultTitle: "New  Prolog Code",
+
+      /**
+       * Function to be called every time a Realtime file is loaded.
+       */
+      onFileLoaded: onFileLoaded
+    };
+
+    /**
+     * Start the Realtime loader with the options.
+     */
+     var realtimeLoader;
+    function startRealtime() {
+      realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
+      realtimeLoader.start(my_after_auth);
+    }
     
 </script>
 

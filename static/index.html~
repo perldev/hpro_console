@@ -12,50 +12,35 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    HOST = "new.deepmemo.com";
+    HOST = "hd-test-2.ceb.loc:10000/";
     var editor;
     var LOADED = 0;
-    WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
-    function send_req(obj){
-		 Code = $.trim(obj.value);	
-		 var Var  = "<p>| -? " + obj.value+"</p>";
-		 var Var1 = obj.value;
-		 Var1 = Var1.replace("\n","");
-		 Var1 = Var1 + " ";
-		 obj.value ="";
-		 $("#sse").html("<p>| -? " + Var +"</p>");
-		 history[$.trim(Var1)] = 1 ;	  
-		 index = 0;
-		 send(Var1);
-		 disable_run();     
+    WHOST = "ws://" + HOST; //"ws://hd-test-2.ceb.loc:10100";
     
-    }
-    function but_search(){
-	  var obj = document.getElementById("code");
-	  if( $("#code").prop("disabled") )
-	      return ;
-	  Code = obj.value;
-	  if(Code.charAt(Code.length-1) != "."){
-			  Code +=".";
-			 
-	  }   
-	  obj.value = Code;  
-	  send_req(obj);
-    
-    }
     function listen(obj, E){
 	  if(E.keyCode == 13 ){
-		 Code = obj.value;
-	  
-		if(Code.charAt(Code.length-1) != "."){
-			  Code +=".";
-			 
-	        } 
-		obj.value = Code;
-		send_req(obj);
+		Code = $.trim(obj.value);
+
+		
+		if( Code.charAt(Code.length - 1) == "." ){
+		
+			  var Var  = "<p>| -? " + obj.value+"</p>";
+			  var Var1 = obj.value;
+			  Var1 = Var1.replace("\n","");
+			  Var1 = Var1 + " ";
+			  obj.value ="";
+			  $("#sse").html("<p>| -? " + Var +"</p>");
+			  history[$.trim(Var1)] = 1 ;
+			  index = 0;
+			  send("no.");    
+			  send(Var1);
+			  
+//      	  	          $("#code").prop("disabled", true);     
+
+		}
 	  
 	  }
-	  if(E.keyCode == 38 ){//up
+	   if(E.keyCode == 38 ){//up
 		  if(index == 0)
 			return ;
 		
@@ -64,19 +49,23 @@
 			document.getElementById("code").value = "";
 			index = 0;
 			return ;
-		  } 
+		  }
+		  
 		  var i = 0;
 		  for(key in history){
 			  if(i+1 == index){
 			   
 			  	document.getElementById("code").value = key;
- 				$("#code").attr( { "value": key } );
+
+// 				$("#code").attr( { "value": key } );
 				index = i;
 				return ;
 
 			  }
 			  i++;
 		  }
+		  
+	
 	  }
 	  if(E.keyCode == 40 ){//down
 	  
@@ -85,7 +74,7 @@
 		 for(key in history){
 			  if(i-1 ==  index){
 			  	document.getElementById("code").value = key;
-				$("#code").attr(  "value", key  );
+// 				$("#code").attr(  "value", key  );
 				index = i;
 				return ;
 			  }
@@ -100,40 +89,19 @@
 	  
     }
 
-    function disable_run(){
-		  $("#code").prop("disabled", true);    
-		  $("#search_but").hide("slow");
     
-    }
+    
 
     
-    function enable_run(){
-		  $("#code").prop("disabled", false);    
-		  $("#search_but").show("slow");
-		  $("#code").focus();
-    
-    }
 
     function send(Code)
     {
-	hide_choose();
-	send_txt = Code;
-
-	ws.send(send_txt);
+    
+	ws.send(Code);
 	console.log('Message sent');
     }
-    function hide_choose(){
-	
-	$("#choose_menu").hide("fast");
     
-    
-    }
-    function show_choose(){
-	
-	$("#choose_menu").show("fast");
-    
-    
-    }
+
 
 
 
@@ -193,47 +161,30 @@
   </head>
 
   <body>
-  <div class="container"  >
+
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
-      <div class="container"  >
+        <div class="container"  >
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<!--             <span class="icon-bar"></span> -->
+<!--             <span class="icon-bar"></span> -->
+<!--             <span class="icon-bar"></span> -->
           </button>
-          <a class="brand" href="#">PocketOracle</a>
+          <a class="brand" href="#">Oracul</a>
           
-          <div class="nav-collapse collapse" style='float:left' >
+          <div class="nav-collapse collapse">
             <ul class="nav">
-            <a class="btn btn-success pull-right greenbtn" href="/index.html">Queue</a>
-            </ul>
+<!--               <li class="active"><a href="#">Home</a></li> -->
+<!--               <li><a href="#about">About</a></li> -->
+<!--               <li><a href="#contact">Contact</a></li> -->
+            </ul>\
           </div><!--/.nav-collapse -->
-          
-          <div class="nav-collapse collapse" style='float:right' >
-            <ul class="nav">
-            <a class="btn btn-success pull-right greenbtn" href="/console.html"> Make your own </a>
-	    </ul>
-          </div>
-          
-          <div class="nav-collapse collapse" style='float:right' >
-            <ul class="nav">
-	    <a class="btn btn-success pull-right greenbtn" href="/dev_help.html"> Developer SDK</a> 
-	    </ul>
-          </div>
-	  
-	  <div class="nav-collapse collapse" style='float:right' >
-            <ul class="nav">
-	    <button class="btn  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sig in via Google</button> 
-	    </ul>
-          </div>
-      
-   
-   
-        </div>
         </div>
       </div>
     </div>
 
 
-      <div id='console' style='  margin-left: 13em;  width:800px;  margin-top: 2em; float:left'  >
+      <div id='console' style='margin-left: 7em;  width:800px;  margin-top: 2em; float:left'  >
 		
 		<div id="msgs" style="font-size: 16px;
 				      width: 800px;
@@ -241,8 +192,8 @@
 				      ">
 		<p class='console_p'> Using Prolog 0.6 </p>
 		 <div style="float:left">
-			    <input id="code"  style="border:1px solid #0088CC ; width:740px; height:20px;font-size:16px" 
-				      onkeyup="listen(this,event)" /> 
+			    <input id="code"  style="border:1px solid #0088CC ; width:775px; height:20px;font-size:16px" 
+				      onkeyup="listen(this,event)" />
 			  </div> 
 	      <br/><br/>
 			<div id="sse" >
@@ -250,20 +201,13 @@
 			  
 			  
 			</div>
-			<div id='choose_menu' style='display:none; float:left;width:20em'>
-			 <a class="btn btn-danger pull-left" href="javascript:send('no.')"> No </a>
-			 <a class="btn btn-success pull-right" href="javascript:send('yes.')"> Yes </a>
-
-			</div>
-		      <div id="search_but" style='float:left;margin-left:20em'> <a class="btn pull-right" href="javascript:but_search()"> Queue </a>  </div>
-
 			
 		</div>
       </div>
 
 
       
-      
+   
    
     </div>
 
@@ -278,7 +222,7 @@
 <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     $(document).ready(function() {
-	  $("#code").prop("disabled", false);    
+    
 	
 	Key = Math.random();
 	// Handler for .ready() called.
@@ -293,20 +237,13 @@
 	    console.log("Received: " + received_msg);
 	    
 	    var patt=/looking next \?/;
-	    
 	    var result=patt.test(received_msg);
 	    if(result){
 		wait_answer = 1;
-		show_choose();
-		
-	    }else{
-		  enable_run();
-		  
 		
 	    }
 	    $("#sse").html("<p>" + received_msg +"</p>");
-	    
-
+	    $("#code").focus();
 
 	};
 	ws.onclose = function()

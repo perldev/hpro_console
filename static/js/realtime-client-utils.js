@@ -541,7 +541,7 @@ rtclient.RealtimeLoader.prototype.createNewFileAndRedirect = function() {
     var CookieName = "ide_doc_path";  
     var CURRENT_DOCUMENT = "";
     var PARENT_DIRECTORY="";
-    WHOST = "ws://" + HOST+"/websocket/";
+    var WHOST = "ws://" + HOST+"/websocket/";
     
     function onFileLoaded(doc) {
       var string = doc.getModel().getRoot().get('text');

@@ -335,9 +335,9 @@ function insert_file(Title, FolderID){
   fileData.fileName = Title + ".pl";
   fileData.type = 'application/octet-stream';
   
-  const boundary = '-------314159265358979323846';
-  const delimiter = "\r\n--" + boundary + "\r\n";
-  const close_delim = "\r\n--" + boundary + "--";
+  var boundary = '-------314159265358979323846';
+  var delimiter = "\r\n--" + boundary + "\r\n";
+  var close_delim = "\r\n--" + boundary + "--";
 
 //   var reader = new FileReader();
 //   reader.readAsBinaryString(fileData);
@@ -382,9 +382,9 @@ function insert_file(Title, FolderID){
 
 function gd_updateFile(fileId, folderId, text, callback) {
 
-    const boundary = '-------314159265358979323846';
-    const delimiter = "\r\n--" + boundary + "\r\n";
-    const close_delim = "\r\n--" + boundary + "--";
+    var boundary = '-------314159265358979323846';
+    var delimiter = "\r\n--" + boundary + "\r\n";
+    var close_delim = "\r\n--" + boundary + "--";
 
     var contentType ='application/octet-stream'; // "text/plain";
     var metadata = {'mimeType': contentType,};

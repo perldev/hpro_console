@@ -37,7 +37,7 @@
     var LOADED = 0;
     var WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
     function send_req(obj){
-		 Code = $.trim(obj.value);	
+		 var Code = $.trim(obj.value);	
 		 var Var  = "<p>| -? " + obj.value+"</p>";
 		 var Var1 = obj.value;
 		 Var1 = Var1.replace("\n","");

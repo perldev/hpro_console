@@ -7,155 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
    
-    <script type="text/javascript">
-    var ws = new Object;
-    var ws_trace = new Object;
-    var history = new Array();
-    var index = 0;
-    HOST = "new.deepmemo.com";
-    var editor;
-    var LOADED = 0;
-    WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
-    function send_req(obj){
-		 Code = $.trim(obj.value);	
-		 var Var  = "<p>| -? " + obj.value+"</p>";
-		 var Var1 = obj.value;
-		 Var1 = Var1.replace("\n","");
-		 Var1 = Var1 + " ";
-		 obj.value ="";
-		 $("#sse").html("<p>| -? " + Var +"</p>");
-		 history[$.trim(Var1)] = 1 ;	  
-		 index = 0;
-		 send(Var1);
-		 disable_run();     
     
-    }
-    function onFileLoaded(doc) {
-      var string = doc.getModel().getRoot().get('text');
-      string +="\n";      
-      editor.setValue(string);
-    } 
-    function  update_editor(string){
-	    editor.setValue(string);
-    
-    }
-    
-    function initializeModel(model){
-    
-	  return;
-    }
-    function my_after_auth(){
-	  $("#authorizeButton").hide("fast");
-    } 
-   
-    function but_search(){
-	  var obj = document.getElementById("code");
-	  if( $("#code").prop("disabled") )
-	      return ;
-	  Code = obj.value;
-	  if(Code.charAt(Code.length-1) != "."){
-			  Code +=".";
-			 
-	  }   
-	  obj.value = Code;  
-	  send_req(obj);
-    
-    }
-    function listen(obj, E){
-	  if(E.keyCode == 13 ){
-		 Code = obj.value;
-	  
-		if(Code.charAt(Code.length-1) != "."){
-			  Code +=".";
-			 
-	        } 
-		obj.value = Code;
-		send_req(obj);
-	  
-	  }
-	  if(E.keyCode == 38 ){//up
-		  if(index == 0)
-			return ;
-		
-		  if(index == 1){
-		  
-			document.getElementById("code").value = "";
-			index = 0;
-			return ;
-		  } 
-		  var i = 0;
-		  for(key in history){
-			  if(i+1 == index){
-			   
-			  	document.getElementById("code").value = key;
- 				$("#code").attr( { "value": key } );
-				index = i;
-				return ;
-
-			  }
-			  i++;
-		  }
-	  }
-	  if(E.keyCode == 40 ){//down
-	  
-		 var i = 1;
-		 
-		 for(key in history){
-			  if(i-1 ==  index){
-			  	document.getElementById("code").value = key;
-				$("#code").attr(  "value", key  );
-				index = i;
-				return ;
-			  }
-			  i++;
-			  
-		  }
-	  
-	  
-	  
-	  }
-	  
-	  
-    }
-
-    function disable_run(){
-		  $("#code").prop("disabled", true);    
-		  $("#search_but").hide("slow");
-    
-    }
-
-    
-    function enable_run(){
-		  $("#code").prop("disabled", false);    
-		  $("#search_but").show("slow");
-		  $("#code").focus();
-    
-    }
-
-    function send(Code)
-    {
-	hide_choose();
-	send_txt = Code;
-
-	ws.send(send_txt);
-	console.log('Message sent');
-    }
-    function hide_choose(){
-	
-	$("#choose_menu").hide("fast");
-    
-    
-    }
-    function show_choose(){
-	
-	$("#choose_menu").show("fast");
-    
-    
-    }
-
-
-
-    </script>
     <!-- Le styles -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -201,6 +53,7 @@
       }
     </style>
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/my.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -227,13 +80,13 @@
           
           <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
-            <a class="btn btn-success pull-right greenbtn" href="/console.html"> Make your own </a>
+            <a class="btn btn-success pull-right greenbtn" href="/console.html">Advanced </a>
 	    </ul>
           </div>
           
           <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
-	    <a class="btn btn-success pull-right greenbtn" href="/dev_help.html">API</a> 
+	    <a class="btn btn-success pull-right greenbtn" href="/dev_help.html"> API</a> 
 	    </ul>
           </div>
 	  
@@ -294,7 +147,8 @@
     <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/realtime-client-utils.js"></script>
     <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
-
+    <script type="text/javascript" src='js/simple_que.js' ></script>
+    
 <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     $(document).ready(function() {
@@ -312,7 +166,7 @@
 	    var received_msg = evt.data;
 	    console.log("Received: " + received_msg);
 	    
-	    var patt=/looking next \?/;
+	    var patt=/looking next/;
 	    
 	    var result=patt.test(received_msg);
 	    if(result){

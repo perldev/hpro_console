@@ -310,20 +310,120 @@ rtclient.RealtimeLoader.prototype.start = function(afterAuth) {
   });
 }
 
+rtclient.RealtimeLoader.prototype.new_project = function(callback){
+	
+  var access_token = gapi.auth.getToken("token",null);
+   var request = gapi.client.request({
+       'path': '/drive/v2/files/',
+       'method': 'POST',
+       'headers': {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer ' + access_token.access_token,             
+       },
+       'body':{
+           "title" : "PrologProject",
+           "mimeType" : "application/vnd.google-apps.folder",
+       }
+   });
+   request.execute( callback  );    
+
+     
+}
+function insert_file(Title, FolderID){
+
+  var fileData = new Object();
+  fileData.fileName = Title + ".pl";
+  fileData.type = 'application/octet-stream';
+  
+  const boundary = '-------314159265358979323846';
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const close_delim = "\r\n--" + boundary + "--";
+
+//   var reader = new FileReader();
+//   reader.readAsBinaryString(fileData);
+//   reader.onload = function(e) {
+    var contentType = fileData.type || 'application/octet-stream';
+    var metadata = {
+       'title': fileData.fileName,
+       'mimeType': contentType,
+       'parents' : [{
+		      "kind": "drive#parentReference",
+		      "id": FolderID,
+		      "isRoot": false
+		    }]
+    };
+
+    var base64Data = btoa("first");
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n' +
+        'Content-Transfer-Encoding: base64\r\n' +
+        '\r\n' +
+        base64Data +
+        close_delim;
+
+    var request = gapi.client.request({
+        'path': "/upload/drive/v2/files",
+        'method': 'POST',
+        'params': {'uploadType': 'multipart'},
+        'headers': {
+          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+        },
+        'body': multipartRequestBody});
+
+     var callback =  function(resp){
+	  gd_updateFile(resp.id, FolderID, SampleCode[Title], 0 )  
+     }
+     request.execute(callback);  
+}
+
+function gd_updateFile(fileId, folderId, text, callback) {
+
+    const boundary = '-------314159265358979323846';
+    const delimiter = "\r\n--" + boundary + "\r\n";
+    const close_delim = "\r\n--" + boundary + "--";
+
+    var contentType ='application/octet-stream'; // "text/plain";
+    var metadata = {'mimeType': contentType,};
+
+    var multipartRequestBody =
+        delimiter +  'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter + 'Content-Type: ' + contentType + '\r\n' + '\r\n' +
+        text +
+        close_delim;
+
+    if (!callback) { callback = function(file) { return }; }
+
+    gapi.client.request({
+        'path': '/upload/drive/v2/files/'+folderId+"?fileId="+fileId+"&uploadType=multipart",
+        'method': 'PUT',
+        'params': {'fileId': fileId, 'uploadType': 'multipart'},
+        'headers': {'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'},
+        'body': multipartRequestBody,
+        callback:callback,
+    });
+    
+}
+
+
 rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
     
   
-    var handleErrors = function(e) {
-    if(e.type == gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
-      authorizer.authorize();
-    } else if(e.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-      alert("An Error happened: " + e.message);
-//       window.location.href= "/console.html";
-    } else if(e.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
-      alert("The file was not found. It does not exist or you do not have read access to the file.");
-//       window.location.href= "/console.html";
-    }
-   };
+	var handleErrors = function(e) {
+	if(e.type == gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
+	  authorizer.authorize();
+	} else if(e.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
+	  alert("An Error happened: " + e.message);
+    //       window.location.href= "/console.html";
+	} else if(e.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
+	  alert("The file was not found. It does not exist or you do not have read access to the file.");
+    //       window.location.href= "/console.html";
+	}
+       };
 
 	var request = gapi.client.request({
 	  'fileId': fileId,
@@ -335,9 +435,11 @@ rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
 
 	});
 
-    return;
+	return;
   
 }
+
+
 
 function downloadFile(file, callback) {
 	if (file.downloadUrl) {
@@ -372,10 +474,10 @@ rtclient.RealtimeLoader.prototype.load = function() {
       authorizer.authorize();
     } else if(e.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
       alert("An Error happened: " + e.message);
-      window.location.href= "/";
+//       window.location.href= "/";
     } else if(e.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
       alert("The file was not found. It does not exist or you do not have read access to the file.");
-      window.location.href= "/";
+//       window.location.href= "/";
     }
   };
 

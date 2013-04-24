@@ -179,32 +179,31 @@ process_prove_erws(TempAim , Goal, BackPid, WebPid,  StartTime)->
 	   
 	    {'EXIT',FromPid,Reason}->
 		  ?DEBUG(" ~p exit aim ~p~n",[?LINE,FromPid]),
-		  MainRes = io_lib:format("No~n",[]),
+		  MainRes = io_lib:format("No<br/>",[]),
 		  FinishTime = erlang:now(),
-		  ElapsedTime = io_lib:format("elapsed time ~p ~n ", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] ),
+		  ElapsedTime = time_string(FinishTime, StartTime ), 
 		  Main =  concat_result( [MainRes,ElapsedTime] ),
 		  ?LOG("~p send back restul to web console ~p",[{?MODULE,?LINE},{Main, WebPid}]),
 		  WebPid ! {result, Main, finish, self() },
 		  finish_web_session();
 		
-		
 	    finish ->
-		   MainRes = io_lib:format("No~n",[]),FinishTime = erlang:now(),
-    		   ElapsedTime = io_lib:format(" elapsed time ~p ~n", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] ),
+		   MainRes = io_lib:format("No<br/>",[]),FinishTime = erlang:now(),
+    		   ElapsedTime = time_string(FinishTime, StartTime),
     		   Main =  concat_result( [MainRes,ElapsedTime] ),
 		   WebPid ! {result, Main, finish, self() },
 		   finish_web_session();
 
 	    {result, {false, _ } }->
-		   MainRes = io_lib:format("No~n",[]),FinishTime = erlang:now(),
-     		   ElapsedTime = io_lib:format(" elapsed time ~p ~n", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] ),
+		   MainRes = io_lib:format("No<br/>",[]),FinishTime = erlang:now(),
+     		  ElapsedTime = time_string(FinishTime, StartTime),
      		   Main =  concat_result( [MainRes,ElapsedTime] ),
 		   WebPid ! {result, Main, finish, self() },
 		   finish_web_session();
 
 	    {result, {empty, _ } }->
-		   MainRes = io_lib:format("No~n",[]),FinishTime = erlang:now(),
-    		   ElapsedTime = io_lib:format(" elapsed time ~p ~n", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] ),
+		   MainRes = io_lib:format("No<br/>",[]),FinishTime = erlang:now(),
+    		  ElapsedTime = time_string(FinishTime, StartTime),
     		   Main =  concat_result( [MainRes,ElapsedTime] ),
 		   WebPid ! {result, Main, finish, self() },
 		   finish_web_session();
@@ -219,8 +218,9 @@ process_prove_erws(TempAim , Goal, BackPid, WebPid,  StartTime)->
 					
 		  ?DEBUG("~p got from prolog shell aim ~p~n",[?LINE, {WebPid,Result,  ProtoType, NewLocalContext} ]),
 		  VarsRes = lists:map(fun shell_var_match_str/1, dict:to_list(NewLocalContext) ),
-  		  ElapsedTime = io_lib:format(" Yes, elapsed time ~p ~n looking next ? ~n", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] ),
-		  Main =  concat_result( [VarsRes,ElapsedTime] ),
+		  ElapsedTime = time_string(FinishTime, StartTime),
+  		  ResStr = io_lib:format("Yes looking next ?",[] ),
+		  Main =  concat_result( [VarsRes, ResStr, ElapsedTime] ),
 		  
 		  WebPid ! {result, Main, has_next, self() },
  		  receive 
@@ -462,5 +462,10 @@ get_code_memory_html()->
 	   FormatedCode = binary:replace(FormatedCode1,[<<":-">>],<<"</strong>:-<br/>">>, [ global ] ),
 	   ResBin = << "<br/>", MetaCode/binary, FactsCode/binary,FormatedCode/binary >>,
 	   ResBin.
+	   
+	   
+time_string(FinishTime, StartTime)->
+  io_lib:format("<br/><span class='time'> elapsed time ~p secs </span><br/>", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] )
+.
 
  

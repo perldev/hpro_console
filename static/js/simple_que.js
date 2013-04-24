@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
- "use strict";
 
 /**
  * @fileoverview Common utility functionality for Google Drive Realtime API,

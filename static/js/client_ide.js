@@ -298,7 +298,7 @@
 		    var new_function = function(Data){
 // 			  $("<p>| -? " + Data +"</p>").appendTo("#msgs");
 			  alert("Code loaded");
-			  
+			  open_console();
 		    }
 		    Code = editor.getValue(),
 		    //hack for numbers

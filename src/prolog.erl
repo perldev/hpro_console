@@ -38,9 +38,8 @@ create_inner_structs()->
     ets:new(?SCANNERS_HOSTS_LINK,[named_table, set, public]),   
     ets:new(?HBASE_INDEX,[named_table, bag, public]),   
     ets:new(?APPLICATION,[named_table, set, public]),   
-    ets:new(?STAT,[named_table, set, public])
-%     ,  
-%     lists:foreach(fun(E)-> ets:insert(?SCANNERS_HOSTS_TABLE, {E,0,0} )  end,?HBASE_HOSTS)
+    ets:new(?STAT,[named_table, set, public]),
+    lists:foreach(fun(E)-> ets:insert(?SCANNERS_HOSTS_TABLE, {E,0,0} )  end,?HBASE_HOSTS)
 .
 
 

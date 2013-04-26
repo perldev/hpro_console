@@ -608,7 +608,7 @@ hbase_get_key(ProtoType, Table, Family, Key)->
 check_index(ProtoType, Name)->
 	
 	{_, FindKey, OutVals, WholeKeyReverse} = lists:foldl(fun(E, {Index,In, Vals, WholeKey})->
-						case prolog:is_var(E) of
+						case prolog_matching:is_var(E) of
 						      true->
 							  {Index+1,In, Vals,[ integer_to_list(Index) | WholeKey] };
 						      Val ->
@@ -758,7 +758,7 @@ start_recr(Facts, ProtoType)->
 	InIndex = 1,
 	{Filters, _I} = lists:foldl(fun(Pat,  {In,Index} )->
 					  Elem = integer_to_list(Index),
-					  case prolog:is_var(Pat) of
+					  case prolog_matching:is_var(Pat) of
 					      true ->   {In, Index+1 };
 					      _ -> Var = create_hbase_json_filter( {Pat, Elem} ),  
 						    ?DEBUG(" ~p generate ~p~n",[{?MODULE,?LINE}, { Pat, Elem } ]),

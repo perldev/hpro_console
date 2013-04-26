@@ -22,7 +22,6 @@ init([]) ->
 	 prolog:create_inner_structs(),
          ?INCLUDE_HBASE,
          ets:new(?ERWS_LINK, [set, public,named_table ]),
-      	 converter_monitor:start_converter(),
          { ok, #monitor{proc_table = ets:new( process_information, [named_table ,public ,set ] ) } }
 .
 

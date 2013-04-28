@@ -310,26 +310,37 @@ rtclient.RealtimeLoader.prototype.start = function(afterAuth) {
   });
 }
 
-rtclient.RealtimeLoader.prototype.new_project = function(callback){
+rtclient.RealtimeLoader.prototype.new_project = function(callback, Name, Parent){
 	
-  var access_token = gapi.auth.getToken("token",null);
+   var access_token = gapi.auth.getToken("token",null);
+       
+   var parents = [];
+   if(Parent&&Parent!=""){
+		    parents =  [{
+			    "kind": "drive#parentReference",
+			    "id": Parent,
+			     "isRoot": false
+		    }];
+    
+    }
    var request = gapi.client.request({
        'path': '/drive/v2/files/',
        'method': 'POST',
        'headers': {
            'Content-Type': 'application/json',
            'Authorization': 'Bearer ' + access_token.access_token,             
-       },
+       },      
        'body':{
-           "title" : "PrologProject",
+           "title" : Name,
            "mimeType" : "application/vnd.google-apps.folder",
+	   'parents' : parents
        }
    });
    request.execute( callback  );    
 
      
 }
-function insert_file(Title, FolderID){
+function insert_file(Title, Code, Parent){
 
   var fileData = new Object();
   fileData.fileName = Title + ".pl";
@@ -343,14 +354,20 @@ function insert_file(Title, FolderID){
 //   reader.readAsBinaryString(fileData);
 //   reader.onload = function(e) {
     var contentType = fileData.type || 'application/octet-stream';
+    var parents = [];
+    if(Parent&&Parent!=""){
+		    parents =  [{
+		      "kind": "drive#parentReference",
+		      "id": Parent,
+		      "isRoot": false
+		    }];
+	 
+	}
+    
     var metadata = {
        'title': fileData.fileName,
        'mimeType': contentType,
-       'parents' : [{
-		      "kind": "drive#parentReference",
-		      "id": FolderID,
-		      "isRoot": false
-		    }]
+       'parents' : parents 
     };
 
     var base64Data = btoa("first");
@@ -375,7 +392,9 @@ function insert_file(Title, FolderID){
         'body': multipartRequestBody});
 
      var callback =  function(resp){
-	  gd_updateFile(resp.id, FolderID, SampleCode[Title], 0 )  
+	  
+     
+	  gd_updateFile(resp.id, Parent, Code, 0 )  
      }
      request.execute(callback);  
 }
@@ -397,9 +416,16 @@ function gd_updateFile(fileId, folderId, text, callback) {
         close_delim;
 
     if (!callback) { callback = function(file) { return }; }
-
+    var ReqStr="";
+    if(folderId&&folderId!=""){
+      ReqStr = "/upload/drive/v2/files/"+folderId+"?fileId="+fileId+"&uploadType=multipart";
+      
+    }else{
+      ReqStr = "/upload/drive/v2/files?fileId="+fileId+"&uploadType=multipart";
+    }
+    
     gapi.client.request({
-        'path': '/upload/drive/v2/files/'+folderId+"?fileId="+fileId+"&uploadType=multipart",
+        'path': ReqStr,
         'method': 'PUT',
         'params': {'fileId': fileId, 'uploadType': 'multipart'},
         'headers': {'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'},
@@ -441,6 +467,7 @@ rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
 
 
 
+
 function downloadFile(file, callback) {
 	if (file.downloadUrl) {
 	  var accessToken = gapi.auth.getToken().access_token;
@@ -448,14 +475,14 @@ function downloadFile(file, callback) {
 	  xhr.open('GET', file.downloadUrl);
 	  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
 	  xhr.onload = function() {
-	    callback(xhr.responseText);
+	    callback(xhr.responseText, file);
 	  };
 	  xhr.onerror = function() {
-	    callback(null);
+	    callback(null,file);
 	  };
 	  xhr.send();
 	} else {
-	  callback(null);
+	  callback(null,file);
 	}
 }
 

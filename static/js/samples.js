@@ -1,5 +1,5 @@
    var  SampleCode = {
-	  "calculate_any_queens" : 
+	  "any_queens" : 
 	  "\n\
 %%call common_queens(9,X) for any number \n\
 gen( N, N, [N]).\n\
@@ -32,7 +32,7 @@ del(A, [B | Tail], [B | Tail1 ] ) :-\n\
         del( A, Tail, Tail1).\n\
 	\n\
 	  ",
-	  "calculate_8_queens":
+	  "queens_8":
 	  "%call pattern(S),call_chess(S). for find how place 8 queens on chess board \n\
 	  \n\
 pattern( [1/Y1, 2/Y2, 3/Y3, 4/Y4, 5/Y5, 6/Y6, 7/Y7, 8/Y8]).\n\

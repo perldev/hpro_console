@@ -22,14 +22,14 @@
 		position: relative;
 /*		right: 0;*/
 /*		top: 100px;*/
-		width: 800px;
+		width: 700px;
       }
       #container_editor{
 /*	  float: right;*/
 	    display: none;
 	    margin-left: 7em;
 /*     margin-top: 100px; */
-	    width: 800px;
+	    width: 810px;
       
       }
       #right_part{
@@ -104,7 +104,7 @@
 	    data-scope="https://www.googleapis.com/auth/plus.login">
 	  </span>
 	</span>-->
-	  <button class="btn btn-danger  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sign in</button>
+	  <button class="btn btn-danger  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sign up</button>
 	    </ul>
           </div>
       
@@ -123,16 +123,17 @@
     <div class="container" id="container" style='border-bottom: 1px solid gray' >
 	  <div  id='tabs' >
 	        <a style='padding-left: 1em;' href="javascript:open_console()">Console</a>
-	        <a id='create_new_project' style='padding-left: 1em;' href="javascript:create_new_project()">Create Project</a>
+	        <a id='create_new_project' style='padding-left: 1em;' href="javascript:create_new_project_common()">Create Project</a>
 
-		<a id='online_ide_button' style='display:none;padding-left: 1em;' href="javascript:show_online()">Online IDE</a>
+		<a id='online_ide_button' style='padding-left: 1em;' href="javascript:show_online()">Online IDE</a>
 		<a style='padding-left: 1em;' href="javascript:help()">Help</a>
 
           </div>
      </div>    
       <div id='console' style='margin-left: 7em;  width:800px; display:none; margin-top: 2em; float:left'  >
 		<div class="right"><!--<a  style='padding-left: 1em;' href="javascript:clear_console()">Clear</a>-->
-				    <a  style='padding-left: 1em;' href="javascript:close_console1()">Close console</a></div>  
+<!--				    <a  style='padding-left: 1em;' href="javascript:close_console1()">Close console</a>-->
+				    </div>  
 		<p>*Type 'help' for listing inner commands </p>
 		
 		<div id="msgs" style="font-size: 14px;padding:12px; height:300px;
@@ -195,22 +196,35 @@
       
       </div>
 
-   
-      <div id='container_editor' > 
       
-			<h4> Editor  </h4><div class="right">
-			<a  style='padding-left: 1em;' href="javascript:load_code()">Run</a>
-			<a  style='padding-left: 1em;' id='filePicker' href="javascript:save_file()">Save</a>
-      			<a  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">GoogleDoc</a>
-      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> 
-
-      			</div> 
-
-			<div id='editor'></div>
+	  <div id='container_editor' > 
+			    <div class='right' id='project_files'>  
+						<h5> Project's files: </h5>
+						
+			    </div>
+			    <h4> Editor  </h4>
+			    
+			   <div class="left" id='project_title'> 
+			   
+			   
+			   </div> 
+			    <div class="right">
+    <!--			<a  style='padding-left: 1em;' href="javascript:load_code()">Run</a>-->
+			    <a class="btn btn-primary"  style='padding-left: 1em;' id='filePicker' href="javascript:save_an_load_file()">Save&amp;Run</a>
+			    <a class="btn btn-info"  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">GoogleDrive</a>
+    <!--      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> -->
+			   
+			   </div> 
 			
+
+			   
+    
+			    <div id='editor'></div>
       
-      
-      </div>
+	</div>
+
+
+	
 
    
     </div>
@@ -294,12 +308,7 @@
 	    console.log('Connection closed');
 	};
 	editor = ace.edit("editor");
-	var Path = readCookie(CookieName);
-	if(Path){
-	    PARENT_DIRECTORY = Path;
-	    show("online_ide_button");
-	    hide("create_new_project");
-	 }   
+	 
 	      
     
 

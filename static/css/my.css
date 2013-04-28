@@ -1,3 +1,10 @@
 .time{
       font-size:10px;  
 }
+#project_files{
+    width:100px;
+    margin-left: 10px;
+    margin-top: 55px;  
+    line-height:38px;
+}
+

@@ -11,10 +11,13 @@
     var realtimeLoader;
     var editor;
     var picker;
-    var LOADED = 0;
+    var LOADED = 1;
     var CookieName = "ide_doc_path";  
     var CURRENT_DOCUMENT = "";
+    var CURRENT_NAME = "";
     var PARENT_DIRECTORY="";
+    var SUB_DIRECTORY_NAME = ""
+    var SUB_DIRECTORY="";
     var WHOST = "ws://" + HOST+"/websocket/";
     
     function onFileLoaded(doc) {
@@ -59,17 +62,20 @@
     function create_new_project(){
 		
 	  var picker_creater = function(resp){
-	      PARENT_DIRECTORY = resp.id;
-	      insert_file("calculate_8_queens", resp.id);
-	      insert_file("calculate_any_queens",resp.id);
-	      insert_file("simple_recursion", resp.id);
-	      insert_file("simple_operation", resp.id);
-	      createCookie(CookieName, PARENT_DIRECTORY);
-	      hide("create_new_project");
-	      show("online_ide_button");
+	      insert_file("queens_8", SampleCode["calculate_8_queens"] ,resp.id);
+	      insert_file("any_queens", SampleCode["any_queens"] , resp.id);
+	      insert_file("simple_recursion", SampleCode["simple_recursion"] ,resp.id);
+	      insert_file("simple_operation", SampleCode["simple_operation"] , resp.id);
+	      SUB_DIRECTORY = resp.id;
+	      SUB_DIRECTORY_NAME = "PrologSamples";
+	      setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },3000);
+	      alert("We create a sample  project PrologSamples  in your GoogleDrive ");
+	      
+// 	      hide("create_new_project");
+// 	      show("online_ide_button");
 	  };
 	  
-	  realtimeLoader.new_project( picker_creater );     
+	  realtimeLoader.new_project( picker_creater, "PrologSamples", PARENT_DIRECTORY );     
 	 
       
     }    
@@ -79,9 +85,90 @@
     }
     function my_after_auth(){
 	  $("#authorizeButton").hide("fast");
-	  open_console();
+	  show_online();
+	  var Path = readCookie(CookieName);
+	  
+	  if(Path||Path==""){
+	    PARENT_DIRECTORY = Path;
+	   
+// 	    show("online_ide_button");
+// 	    hide("create_new_project");
+	  }else{  
+	     create_working_dir();	     
+	        
+	  }  
     } 
-   
+    function create_working_dir(){
+    	 
+      
+	if(confirm("Could i create a working folder on your google drive?") ){
+	      var access_token = gapi.auth.getToken("token",null);
+	      
+	      var callback = function(resp){
+		PARENT_DIRECTORY = resp.id;
+		createCookie(CookieName, PARENT_DIRECTORY);
+		if(confirm("Do you want create sample project") ){
+		    create_new_project();
+		    
+		}	
+		
+	      };
+	      
+	      var request = gapi.client.request({
+		  'path': '/drive/v2/files/',
+		  'method': 'POST',
+		  'headers': {
+		      'Content-Type': 'application/json',
+		      'Authorization': 'Bearer ' + access_token.access_token,             
+		  },
+		  
+		  'body':{
+		      "title" : "PrologWorkSpace",
+		      "mimeType" : "application/vnd.google-apps.folder",
+		  }
+	      });
+	      request.execute( callback  );
+	    
+	}else{
+	  createCookie(CookieName, "");
+	  
+	  
+	}
+    
+      
+		      
+    }
+    function update_empty_titles(Name){
+      
+      $("#project_title").html("<h6>" + Name+" &gt; new untitled file </h6>");
+      Str = "<h5> Project's files: </h5>";
+      $("#project_files").html(Str);
+      
+    }
+    
+    function create_new_project_common(){
+	   
+	    var Name = prompt("Please enter project's name","ProjectName");
+	    if (Name==null || Name=="")
+	    {
+		alert("The name of project can't be empty");
+		return;
+		
+	    } 	    
+            var callback = function(resp){
+		alert("The project "+ Name + " was created successfully");	      
+		editor.setValue("");
+		CURRENT_DOCUMENT = "";
+		SUB_DIRECTORY = resp.id;
+		update_empty_titles(Name);
+		
+		
+	    };
+	    SUB_DIRECTORY_NAME = Name;
+	    realtimeLoader.new_project(callback, Name, PARENT_DIRECTORY );     
+
+     
+    }
     function listen(obj, E){
 	  if(E.keyCode == 13 ){
 		Code = $.trim(obj.value);
@@ -370,43 +457,137 @@
        */
 
       function createPicker() {
-	  var view = new google.picker.View(google.picker.ViewId.DOCS);
-	  if(PARENT_DIRECTORY)
-		view.setParent(PARENT_DIRECTORY);
+// 	  var view = new google.picker.View(google.picker.ViewId.DOCS);
+	  var view_d = new google.picker.View(google.picker.ViewId.FOLDERS);
+	  var upload_v = new google.picker.DocsUploadView();
+	  upload_v.setIncludeFolders(true);
+	  
+ 	  if(PARENT_DIRECTORY && PARENT_DIRECTORY != "")
+//  		view.setParent(PARENT_DIRECTORY);
+		view_d.setParent(PARENT_DIRECTORY);  
 //       view.setMimeTypes("txt/plain");    
 // 	  var access_token = gapi.auth.getToken("token",null);
+// 	  view.setIncludeFolders(true);
 	  picker = new google.picker.PickerBuilder()
 	     
 //           .enableFeature(google.picker.Feature.NAV_HIDDEN)
 //           .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
           .setAppId('768399903870')
 // 	  .setOAuthToken(access_token) //Optional: The auth token used in the current Drive API session.
-          .addView(view)
-          .addView(new google.picker.DocsUploadView())
+//           .addView(view)
+	  .addView(view_d)
+          .addView(upload_v)
           .setCallback(pickerCallback)
           .build();
        
     }
-    function  update_editor(string){
-	    editor.setValue(string);
+    function  update_editor(string, meta){
+	  editor.setValue(string);	    
+	  CURRENT_NAME = meta.title;
+  	  SUB_DIRECTORY =  meta.parents[0].id;
+	  update_title();
+	  fill_project_list(SUB_DIRECTORY);
     
     }
+    function update_name_title(name){
+    	    $("#project_title").html("<h6>" + SUB_DIRECTORY_NAME +" &gt; " + name + "</h6>");
+
+      
+    }
+    function update_title(){
+	  
+      var request = gapi.client.request({
+	  'fileId': SUB_DIRECTORY,
+	   method: 'GET',
+	   path: "/drive/v2/files/"+SUB_DIRECTORY
+	});
+	request.execute(function(resp) {
+	    SUB_DIRECTORY_NAME= resp.title;
+	    $("#project_title").html("<h6>" + resp.title+" &gt; " + CURRENT_NAME + "</h6>");
+
+	});
+
+    } 
     // A simple callback implementation.
     function pickerCallback(data) {
       if (data.action == google.picker.Action.PICKED) {
 	  var fileId = data.docs[0].id;
+	  
 	  CURRENT_DOCUMENT = fileId;
           realtimeLoader.get_file(fileId, update_editor);
       }
     }
-    function save_file(){
+    function retrieveAllFiles(callback, Dir) {
       
-       
-	alert("not implementer");
+      
+	var retrievePageOfFiles = function(request, result) {
+	  request.execute(function(resp) {
+	    result = result.concat(resp.items);
+	    var nextPageToken = resp.nextPageToken;
+	    if (nextPageToken) {
+	      request = gapi.client.drive.files.list({
+		'pageToken': nextPageToken,
+		"q": "'"+ Dir +"' in parents "
+	      });
+	      retrievePageOfFiles(request, result);
+	    } else {
+	      callback(result);
+	    }
+	  });
+	}
+	var initialRequest = gapi.client.drive.files.list({"q": "'"+ Dir +"' in parents "});
+	
+	retrievePageOfFiles(initialRequest, []);
 	
     }
+    function open_file(FileId){
+      realtimeLoader.get_file(FileId, update_editor);
+      
+      
+    }
     
-    
+    function process(Result){
+      
+      Str = "<h5> Project's files: </h5>";
+      for(item in Result){
+	    Str += "<a class=\"btn\" href=\"javascript:open_file('"+Result[item].id+"')\">"+ Result[item].title +" </a>";
+      }
+      $("#project_files").html(Str);
+    }
+    function fill_project_list(Dir){
+      
+        gapi.client.load('drive', 'v2', function() {
+	    retrieveAllFiles(process, Dir);
+	});
+      
+      
+      
+      
+    }
+    function save_file(Code){
+	  gd_updateFile(CURRENT_DOCUMENT, SUB_DIRECTORY, Code, 0 );
+      
+    }
+    function save_an_load_file(){
+	
+      if(CURRENT_DOCUMENT ==""){
+	    var name = prompt("Please enter the filname","");
+	    if (name!=null && name!=""){	
+		  insert_file(name, editor.getValue(), SUB_DIRECTORY ); 
+		  setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },5000);
+		  update_name_title(name);
+		  load_code();
+	    }else{
+	        alert("The filename can't be empty");
+		return;
+	    }
+	    
+      }else{
+	      load_code();
+	      save_file( editor.getValue() );
+      }
+       
+    }
     function open_console()
     {
 	if (!("WebSocket" in window)) {

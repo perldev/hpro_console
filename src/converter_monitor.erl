@@ -87,15 +87,12 @@ handle_info({'DOWN',_,_,Pid,Reason}, State)->
        
        ?WAIT("~p process  msg ~p  ~n",
                            [ {?MODULE,?LINE}, { Pid,Reason } ]),
-       
        ets:delete(State#monitor.proc_table, Pid),
-       
        {noreply,  State}
 ;
 handle_info(Info, State) ->
     ?WAIT("get msg  unregistered msg ~p ~n",
                            [Info]),
-
     {noreply,  State}.
 
 

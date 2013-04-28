@@ -16,7 +16,7 @@
     var CURRENT_DOCUMENT = "";
     var CURRENT_NAME = "";
     var PARENT_DIRECTORY="";
-    var SUB_DIRECTORY_NAME = ""
+    var SUB_DIRECTORY_NAME = "";
     var SUB_DIRECTORY="";
     var WHOST = "ws://" + HOST+"/websocket/";
     
@@ -141,8 +141,6 @@
     function update_empty_titles(Name){
       
       $("#project_title").html("<h6>" + Name+" &gt; new untitled file </h6>");
-      Str = "<h5> Project's files: </h5>";
-      $("#project_files").html(Str);
       
     }
     
@@ -160,11 +158,14 @@
 		editor.setValue("");
 		CURRENT_DOCUMENT = "";
 		SUB_DIRECTORY = resp.id;
-		update_empty_titles(Name);
-		
+		SUB_DIRECTORY_NAME = Name;
+		update_empty_titles(SUB_DIRECTORY_NAME);
+		Str = "<h5> Project's files: </h5>";
+		$("#project_files").html(Str);
+
 		
 	    };
-	    SUB_DIRECTORY_NAME = Name;
+	    
 	    realtimeLoader.new_project(callback, Name, PARENT_DIRECTORY );     
 
      
@@ -503,7 +504,7 @@
 	});
 	request.execute(function(resp) {
 	    SUB_DIRECTORY_NAME= resp.title;
-	    $("#project_title").html("<h6>" + resp.title+" &gt; " + CURRENT_NAME + "</h6>");
+	    $("#project_title").html("<h6>" + SUB_DIRECTORY_NAME+" &gt; " + CURRENT_NAME + "</h6>");
 
 	});
 
@@ -568,10 +569,49 @@
 	  gd_updateFile(CURRENT_DOCUMENT, SUB_DIRECTORY, Code, 0 );
       
     }
+    function new_file(){
+      
+    
+	  if(SUB_DIRECTORY==""){
+		alert("Create project  at first");
+		return;
+	    
+	    
+	  }
+	   var  text = editor.getValue();
+	   if(CURRENT_DOCUMENT !=""){
+		if(confirm("Do you want to save current file")){
+		      save_file( editor.getValue() );		  
+		}
+	     
+	   }
+	   if(text!=""&&CURRENT_DOCUMENT==""){
+	     if(confirm("Do you want to save current file")){
+		var name = prompt("Please enter the filename","");
+		if (name!=null && name!=""){	
+		  insert_file(name, text, SUB_DIRECTORY ); 
+		  setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },5000);	       
+	        }
+	     
+	    }else{
+		   alert("The filename can't be empty");
+		   return;
+	      
+	    }
+	   
+	     
+	   }
+	   CURRENT_DOCUMENT = "";
+	   update_empty_titles(SUB_DIRECTORY_NAME);
+	   editor.setValue("");
+	     
+      
+    }
+    
     function save_an_load_file(){
 	
       if(CURRENT_DOCUMENT ==""){
-	    var name = prompt("Please enter the filname","");
+	    var name = prompt("Please enter the filename","");
 	    if (name!=null && name!=""){	
 		  insert_file(name, editor.getValue(), SUB_DIRECTORY ); 
 		  setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },5000);

@@ -12,7 +12,7 @@
     var editor;
     var picker;
     var LOADED = 1;
-    var CookieName = "ide_doc_path";  
+    var CookieName = "ide_doc_path_prolog";  
     var CURRENT_DOCUMENT = "";
     var CURRENT_NAME = "";
     var PARENT_DIRECTORY="";

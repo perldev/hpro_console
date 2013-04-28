@@ -340,7 +340,7 @@ rtclient.RealtimeLoader.prototype.new_project = function(callback, Name, Parent)
 
      
 }
-function insert_file(Title, Code, Parent){
+function insert_file(Title, Code, Parent, callback_user ){
 
   var fileData = new Object();
   fileData.fileName = Title + ".pl";
@@ -392,8 +392,9 @@ function insert_file(Title, Code, Parent){
         'body': multipartRequestBody});
 
      var callback =  function(resp){
-	  
-     
+	    
+          if(callback_user)
+	      callback_user(resp);
 	  gd_updateFile(resp.id, Parent, Code, 0 )  
      }
      request.execute(callback);  
@@ -415,7 +416,7 @@ function gd_updateFile(fileId, folderId, text, callback) {
         text +
         close_delim;
 
-    if (!callback) { callback = function(file) { CURRENT_DOCUMENT = fileId }; }
+    if (!callback) { callback = function(file) {  }; }
     var ReqStr="";
     if(folderId&&folderId!=""){
       ReqStr = "/upload/drive/v2/files/"+folderId+"?fileId="+fileId+"&uploadType=multipart";

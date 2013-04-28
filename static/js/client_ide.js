@@ -62,13 +62,16 @@
     function create_new_project(){
 		
 	  var picker_creater = function(resp){
-	      insert_file("queens_8", SampleCode["calculate_8_queens"] ,resp.id);
-	      insert_file("any_queens", SampleCode["any_queens"] , resp.id);
-	      insert_file("simple_recursion", SampleCode["simple_recursion"] ,resp.id);
-	      insert_file("simple_operation", SampleCode["simple_operation"] , resp.id);
+	      insert_file("queens_8", SampleCode["calculate_8_queens"] ,resp.id, 0);
+	      insert_file("any_queens", SampleCode["any_queens"] , resp.id, 0);
+	      insert_file("simple_recursion", SampleCode["simple_recursion"] ,resp.id, 0);
+	      insert_file("simple_operation", SampleCode["simple_operation"] , resp.id, 0);
 	      SUB_DIRECTORY = resp.id;
 	      SUB_DIRECTORY_NAME = "PrologSamples";
 	      setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },3000);
+	      CURRENT_DOCUMENT = "";
+	      update_empty_titles(SUB_DIRECTORY_NAME);
+	      editor.setValue("");
 	      alert("We create a sample  project PrologSamples  in your GoogleDrive ");
 	      
 // 	      hide("create_new_project");
@@ -589,7 +592,8 @@
 	     if(confirm("Do you want to save current file")){
 		var name = prompt("Please enter the filename","");
 		if (name!=null && name!=""){	
-		  insert_file(name, text, SUB_DIRECTORY ); 
+		  
+		  insert_file(name, text, SUB_DIRECTORY, 0 ); 
 		  setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },5000);	       
 	        }
 	     
@@ -613,7 +617,11 @@
       if(CURRENT_DOCUMENT ==""){
 	    var name = prompt("Please enter the filename","");
 	    if (name!=null && name!=""){	
-		  insert_file(name, editor.getValue(), SUB_DIRECTORY ); 
+		  var callback_user  = function(reps){
+			CURRENT_DOCUMENT = reps.id;
+		  };
+	      
+		  insert_file(name, editor.getValue(), SUB_DIRECTORY, callback_user ); 
 		  setTimeout(function(){ fill_project_list(SUB_DIRECTORY) },5000);
 		  update_name_title(name);
 		  load_code();

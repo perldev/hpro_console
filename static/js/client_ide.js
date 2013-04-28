@@ -62,7 +62,7 @@
     function create_new_project(){
 		
 	  var picker_creater = function(resp){
-	      insert_file("queens_8", SampleCode["calculate_8_queens"] ,resp.id, 0);
+	      insert_file("queens_8", SampleCode["queens_8"] ,resp.id, 0);
 	      insert_file("any_queens", SampleCode["any_queens"] , resp.id, 0);
 	      insert_file("simple_recursion", SampleCode["simple_recursion"] ,resp.id, 0);
 	      insert_file("simple_operation", SampleCode["simple_operation"] , resp.id, 0);

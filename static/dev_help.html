@@ -71,8 +71,8 @@
 <!--      <div class="hero-unit">-->
 <!--      <div class="row">-->
         <h4>Use prolog in your application</h4>
-        <p>Our api let you work with your prolog code in our syste from your application via REST -interface</p>
-        <p>For example you have such code in new.deepmemo.com:</p>
+        <p>Our api let you work with your prolog code in our system from your application via REST-interface</p>
+        <p>For example you have this code in new.deepmemo.com:</p>
 <pre>        
 parent("FirstHumen", pam).
 parent(pam, bob).
@@ -87,11 +87,11 @@ predecessor(X, Y) :-
 	parent(X, Z),
 	predecessor(Z, Y).
 </pre>
-<p>Now in order to got result for request like this </p>
+<p>Now, in order to get result for request like this: </p>
 <pre>
 ?- predecessor(X, Y)
 </pre>
-You need sent request like this 
+You need  to send request  like this : 
 <pre>
 curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://new.deepmemo.com:8313/prolog/create/predecessor
 curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://new.deepmemo.com:8313/prolog/create/predecessor
@@ -100,8 +100,8 @@ curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://new.deepmemo.com:
 </pre>
 <p> POST "params" contain json array of arguments for aim "predecessor",</p>
 <p> If you want use unbound variables X and Y </p>
-<p> you must set it like json object {"name":"X"}, where X it's common name of prolog variable  </p>
-<p> for attoms use object like this {"atom":"bob"} </p>
+<p> you must set it like json an object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
+<p> for atoms use object like this {"atom":"bob"} </p>
 <p> in other cases lists, strings and numbers use constants </p>
 <p> If everything is good, you will receive response json like this <p>
 <pre>
@@ -117,7 +117,7 @@ curl     http://new.deepmemo.com:8313/prolog/process/12esf32453 # for checking r
 curl     http://new.deepmemo.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
 curl     http://new.deepmemo.com:8313/prolog/finish/12esf32453 # for finish process of working
 </pre>
-<p>First request return you Json with bounded variables of your request</p>
+<p>First request return you json with bounded variables of your request</p>
 <pre>
 {"X": {"atom": "pat" } , "Y": {"atom":"jim"} } # for first example 
 {"X": {"atom": "tom" }   } # for second example
@@ -132,6 +132,8 @@ curl     http://new.deepmemo.com:8313/prolog/next/12esf32453
 curl     http://new.deepmemo.com:8313/prolog/finish/12esf32453 
 </pre>
 <p>Session is created per each reqest and it will be deleted after finishing request  </p>
+<p>As you noticed, all work  is asynchronous</p>
+
 
 
 </div>

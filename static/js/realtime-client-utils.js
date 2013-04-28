@@ -415,7 +415,7 @@ function gd_updateFile(fileId, folderId, text, callback) {
         text +
         close_delim;
 
-    if (!callback) { callback = function(file) { return }; }
+    if (!callback) { callback = function(file) { CURRENT_DOCUMENT = fileId }; }
     var ReqStr="";
     if(folderId&&folderId!=""){
       ReqStr = "/upload/drive/v2/files/"+folderId+"?fileId="+fileId+"&uploadType=multipart";

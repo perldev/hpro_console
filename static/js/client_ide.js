@@ -543,7 +543,7 @@
     }
     function open_file(FileId){
       realtimeLoader.get_file(FileId, update_editor);
-      
+      CURRENT_DOCUMENT = FileId;
       
     }
     

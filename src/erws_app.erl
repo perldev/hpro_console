@@ -1,7 +1,9 @@
 -module(erws_app).  
 -behaviour(application).  
 -export([start/2, stop/1, start/0]).  
--include("prolog.hrl").
+
+-include("erws_console.hrl").
+
 start(_StartType, _StartArgs) ->  
         %% {Host, list({Path, Handler, Opts})}  
         %% Dispatch the requests (whatever the host is) to  
@@ -32,9 +34,8 @@ start(_StartType, _StartArgs) ->
 
 				 ]}
 				  ]),
-	{ok, _} = cowboy:start_http(http, 100, [{port, 80}],
+	{ok, _} = cowboy:start_http(http, 100, [{port, ?LISTEN_PORT}],
 						 [{env, [{dispatch, Dispatch}]}]),
-	io:format("there "),
         erws_sup:start_link().  
         
 start()->
@@ -42,7 +43,7 @@ start()->
   ok = application:start(crypto),
   ok = application:start(ranch),
   ok = application:start(cowboy),
-  ok =  application:start(compiler),
+  ok = application:start(compiler),
   ok = application:start(syntax_tools),
   application:start(erws)
 

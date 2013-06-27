@@ -31,7 +31,7 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    var HOST = "127.0.0.1:8080";
+    var HOST = "codeide.com";//"127.0.0.1:8080";
     var editor;
     var SESSION_KEY;
     var LOADED = 0;

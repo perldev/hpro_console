@@ -72,7 +72,7 @@
         <div class="container"  >
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
           </button>
-          <a class="brand" href="#">PocketOracle</a>
+            <a class="brand" href="/index.html">PocketOracle</a>
           
           <div class="nav-collapse collapse" style='float:left' >
             <ul class="nav">
@@ -80,6 +80,18 @@
             </ul>
           </div><!--/.nav-collapse -->
           
+          <div class="nav-collapse collapse" style='float:right' >
+            <ul class="nav">
+            <a class="btn btn-success pull-right greenbtn" href="#"> Database </a>
+            </ul>
+          </div>
+          
+          <div class="nav-collapse collapse" style='float:right' >
+            <ul class="nav">
+            <a class="btn btn-success pull-right greenbtn" href="#"> Make Expert System </a>
+            </ul>
+          </div>
+  
           <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
             <a class="btn btn-success pull-right greenbtn" href="#"> Advanced </a>
@@ -252,6 +264,7 @@
 	// Handler for .ready() called.
 	
 	ws = new WebSocket(WHOST+Key);
+        SESSION_KEY = Key;
 	ws.onopen = function() {
 	    console.log('Connected');
 	};
@@ -267,13 +280,12 @@
 	    if(result){
 		wait_answer = 1;
 	    }
-
-	    $("<p>| -? " + received_msg +"</p>").insertBefore("#sse");	    
-
-	    $("#trace_input").prop("disabled", true);
-    	    $("#code").prop("disabled", false);
-	    $("#code").focus();
-// 	    $("#sse").animate({ scrollTop: $("#sse").height() }, "slow");
+	    
+	    if(interactive_commands(received_msg)){  
+		  return ;
+	    }
+	    
+	    draw_msg(received_msg); 
 	    scroll_console();
 	    
 	    // 	    obj.scrollTo(0, obj.scrollHeight);

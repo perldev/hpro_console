@@ -6,8 +6,9 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    var HOST = "new.deepmemo.com";
+    var HOST = "127.0.0.1:8080";
     var wait_answer = 0 ;
+    var SESSION_KEY = "";
     var realtimeLoader;
     var editor;
     var picker;
@@ -305,7 +306,44 @@
 	  
 	  
     }
-   
+    function draw_msg(Msg){
+      
+	    $("<p>| -? " + Msg +"</p>").insertBefore("#sse");	    
+	    $("#trace_input").prop("disabled", true);
+    	    $("#code").prop("disabled", false);
+	    $("#code").focus();	   
+	    
+    }
+    function  draw_char_input(){
+      
+	    $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)'  maxLength='1' style='width: 10px;'></p>").insertBefore("#sse");	    
+	    $("#trace_input").prop("disabled", true);
+    	    $("#code").prop("disabled", true);
+      
+    }
+    function  draw_input(){
+      
+	    $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)' size='100'></p>").insertBefore("#sse");	    
+	    $("#trace_input").prop("disabled", true);
+    	    $("#code").prop("disabled", true);
+    }
+    function draw_output(Msg){
+	    $("<p>| -? "+Msg+"</p>").insertBefore("#sse");	    
+	    $("#trace_input").prop("disabled", true);
+    	    $("#code").prop("disabled", true);
+      
+    }
+    function user_input(obj, E){
+	       if(E.keyCode == 13 ){
+			Code = $.trim(obj.value);
+			$("<p>| -? "+Code+" </p>").insertBefore("#sse");
+			scroll_console();
+			ws.send(Code);
+			obj.style.display="none";
+				
+	      }
+     
+    }
     function  reloadall_code(){
 		    var new_function = function(Data){
 			  $("<p>| -? " + Data +"</p>").insertBefore("#sse");
@@ -400,7 +438,7 @@
 		    var  params = { code: Code   };
 	            $.ajax({
                         type: "POST",
-                        url: "http://" + HOST +"/command/upload_code" ,
+                        url: "http://" + HOST +"/command/upload_code/"+ SESSION_KEY ,
                         data: params,
                         success: new_function
                         
@@ -636,6 +674,36 @@
       }
        
     }
+    function interactive_commands(received_msg){
+      
+	    //alert(received_msg);
+	    var patt = /^read_term/;
+	    var result = patt.test(received_msg);
+	    if(result){
+		draw_input();
+		scroll_console();
+		return 1;
+	    }
+	    patt = /^get_char/;
+	    result = patt.test(received_msg);
+	    if(result){
+		draw_char_input();
+		scroll_console();
+		return 1;
+	    }
+	    patt = /^prolog_write/;
+	    result = patt.test(received_msg);
+	    if(result){
+		var Msg = received_msg.split(",");
+		draw_output(Msg[1]);
+		scroll_console();
+		ws.send("prolog_write_pong");
+		return 1;
+	    }
+	    return 0;
+      
+    }
+    
     function open_console()
     {
 	if (!("WebSocket" in window)) {

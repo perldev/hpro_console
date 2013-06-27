@@ -31,8 +31,9 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    var HOST = "new.deepmemo.com";
+    var HOST = "127.0.0.1:8080";
     var editor;
+    var SESSION_KEY;
     var LOADED = 0;
     var WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
     function send_req(obj){
@@ -142,8 +143,60 @@
 		  $("#search_but").hide("slow");
     
     }
-
+    function interactive_commands(received_msg){
+      
+            //alert(received_msg);
+            var patt = /^read_term/;
+            var result = patt.test(received_msg);
+            if(result){
+                draw_input();
+                return 1;
+            }
+            patt = /^get_char/;
+            result = patt.test(received_msg);
+            if(result){
+                draw_char_input();
+                return 1;
+            }
+            patt = /^prolog_write/;
+            result = patt.test(received_msg);
+            if(result){
+                var Msg = received_msg.split(",");
+                draw_output(Msg[1]);
+                ws.send("prolog_write_pong");
+                return 1;
+            }
+            return 0;
+      
+      }
+      function draw_msg(Msg){
+      
+            $("<p>| -? " + Msg +"</p>").insertBefore("#sse");       
+            $("#trace_input").prop("disabled", true);
+            $("#code").prop("disabled", false);
+            $("#code").focus();    
+            
+      }
     
+      function  draw_char_input(){
+      
+            $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)'  maxLength='1' style='width: 10px;'></p>").insertBefore("#sse");      
+            $("#trace_input").prop("disabled", true);
+            $("#code").prop("disabled", true);
+      
+     }
+    function  draw_input(){
+      
+            $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)' size='100'></p>").insertBefore("#sse");       
+            $("#trace_input").prop("disabled", true);
+            $("#code").prop("disabled", true);
+    }
+    function draw_output(Msg){
+            $("<p>| -? "+Msg+"</p>").insertBefore("#sse");          
+            $("#trace_input").prop("disabled", true);
+            $("#code").prop("disabled", true);
+      
+    }
     function enable_run(){
 		  $("#code").prop("disabled", false);    
 		  $("#search_but").show("slow");

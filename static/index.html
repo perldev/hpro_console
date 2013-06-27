@@ -65,20 +65,32 @@
   </head>
 
   <body>
+  
   <div class="container"  >
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
-      <div class="container"  >
+  
+  <div class="container"  >
           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
           </button>
-          <a class="brand" href="#">PocketOracle</a>
+          <a class="brand" href="/index.html">PocketOracle</a>
           
           <div class="nav-collapse collapse" style='float:left' >
             <ul class="nav">
             <a class="btn btn-success pull-right greenbtn" href="/index.html">Queue</a>
             </ul>
           </div><!--/.nav-collapse -->
+          <div class="nav-collapse collapse" style='float:right' >
+            <ul class="nav">
+            <a class="btn btn-success pull-right greenbtn" href="#"> Database </a>
+            </ul>
+          </div>
           
+          <div class="nav-collapse collapse" style='float:right' >
+            <ul class="nav">
+            <a class="btn btn-success pull-right greenbtn" href="#"> Make Expert System </a>
+            </ul>
+          </div>
           <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
             <a class="btn btn-success pull-right greenbtn" href="/console.html">Advanced </a>
@@ -93,7 +105,6 @@
 	  
 	  <div class="nav-collapse collapse" style='float:right' >
             <ul class="nav">
-<!--	    <button class="btn  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sig in via Google</button> -->
 	    </ul>
           </div>
       
@@ -132,7 +143,7 @@
 			
 		</div>
       </div>
-
+    
 
       
       
@@ -153,11 +164,10 @@
 <script src="js/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     $(document).ready(function() {
-	  $("#code").prop("disabled", false);    
-	
+	$("#code").prop("disabled", false);   
 	Key = Math.random();
 	// Handler for .ready() called.
-	
+	SESSION_KEY = Key;
 	ws = new WebSocket(WHOST+Key);
 	ws.onopen = function() {
 	    console.log('Connected');
@@ -196,6 +206,9 @@
 	{
 	    var received_msg = evt.data;
 	    console.log("Received: " + received_msg);
+	    if(interactive_commands(received_msg)){  
+                  return ;
+            }
 	    if(received_msg !="finish"){
 	    
 // 		$("#trace_input").prop("disabled", false);

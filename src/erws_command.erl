@@ -56,16 +56,22 @@ echo([<<"reload">>], Req, State)->
 	  ?INCLUDE_HBASE(""),    
 	  echo([<<"show_code">>], Req, State)
 ; 
-echo([<<"upload_code">>], Req, _State)->
+echo([<<"upload_code">>, Session], Req, _State)->
 	   Got = cowboy_req:body_qs(Req),
+	   SessKey = binary_to_list(Session),
 	   ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
 	   {ok, PostVals, Req2}  = Got, 
 	   Code = proplists:get_value(<<"code">>, PostVals),
 	   NewBinary = binary:replace(Code,[<<"\n">>,<<"\t">>],<<"">>, [ global ] ),
 	   CodeList = binary:split(NewBinary, [<<".">>],[global]),
            ?CONSOLE_LOG("~p code chuncks ~p ~n",[?LINE,CodeList]),
-	   prolog:delete_inner_structs(""),
-	   Res = compile_foldl(CodeList,""),
+           [ {SessKey, _Pid, _Pid2, NameSpace } ] = ets:lookup(?ERWS_LINK, SessKey),
+           
+	   ResDelete = ( catch prolog:delete_structs( NameSpace ) ),
+	   ?CONSOLE_LOG("~p delete prev database ~p ~n",[?LINE,{NameSpace, ResDelete}]),
+	   ResCreate = (catch prolog:create_inner_structs( NameSpace )),
+	   ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{NameSpace, ResCreate}]),
+	   Res = compile_foldl(CodeList, NameSpace),
            ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Code]),
     	   cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
 					Res, Req2)

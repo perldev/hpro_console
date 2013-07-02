@@ -36,11 +36,14 @@ start(_StartType, _StartArgs) ->
 				  ]),
 	{ok, _} = cowboy:start_http(http, 100, [{port, ?LISTEN_PORT}],
 						 [{env, [{dispatch, Dispatch}]}]),
+	log4erl:conf("log.conf"),
+	
         erws_sup:start_link().  
         
 start()->
   inets:start(),
   ok = application:start(crypto),
+  ok = application:start(log4erl),
   ok = application:start(ranch),
   ok = application:start(cowboy),
   ok = application:start(compiler),

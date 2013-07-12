@@ -82,7 +82,7 @@
 <!--      <div class="row">-->
         <h4>Use prolog in your application</h4>
         <p>Our api let you work with your prolog code in our system from your application via REST-interface</p>
-        <p>For example you have this code in new.deepmemo.com:</p>
+        <p>For example you have this code in codeide.com:</p>
 <pre>        
 parent("FirstHumen", pam).
 parent(pam, bob).
@@ -97,23 +97,33 @@ predecessor(X, Y) :-
 	parent(X, Z),
 	predecessor(Z, Y).
 </pre>
-<p>Now, in order to get result for request like this: </p>
+<p>Now, in order to get result for prolog request like this: </p>
 <pre>
 ?- predecessor(X, Y)
 </pre>
-You need  to send request  like this : 
+
+
+<p>At first you need load your namspace “my_expert_system”, send http request</p>
+
+<pre>http://codeide.com:8313/prolog/auth/my_expert_system</pre>
+<p>
+Permissions to your namespace is avalible only from ip that you have gave us before :
+</p>
+
+
+You need  to send such http-request  : 
 <pre>
-curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://new.deepmemo.com:8313/prolog/create/predecessor
-curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://new.deepmemo.com:8313/prolog/create/predecessor
-curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://new.deepmemo.com:8313/prolog/create/predecessor
+curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
 
 </pre>
 <p> POST "params" contain json array of arguments for aim "predecessor",</p>
-<p> If you want use unbound variables X and Y </p>
-<p> you must set it like json an object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
+<p> If you want use unbound variables X or Y </p>
+<p> you must set it like  a json  object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
 <p> for atoms use object like this {"atom":"bob"} </p>
 <p> in other cases lists, strings and numbers use constants </p>
-<p> If everything is good, you will receive response json like this <p>
+<p> If everything is good, you will receive response json  <p>
 <pre>
 {"status":"ok","session":"12esf32453"} 
 or
@@ -123,26 +133,38 @@ or
 <p>For working with thise process you have three commands</p>
 
 <pre>
-curl     http://new.deepmemo.com:8313/prolog/process/12esf32453 # for checking results
-curl     http://new.deepmemo.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
-curl     http://new.deepmemo.com:8313/prolog/finish/12esf32453 # for finish process of working
+curl     http://codeide.com:8313/prolog/process/12esf32453 # for checking results
+curl     http://codeide.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
+curl     http://codeide.com:8313/prolog/finish/12esf32453 # for finish process of working
 </pre>
-<p>First request return you json with bounded variables of your request</p>
+<p>First request will return to you json with bounded variables of your request</p>
 <pre>
-{"X": {"atom": "pat" } , "Y": {"atom":"jim"} } # for first example 
-{"X": {"atom": "tom" }   } # for second example
-{"Y": {"atom": "pam" }   } # for third example
+{"status":true, result:[ {"X": {"atom": "pat" }} , {"Y": {"atom":"jim"}} ] } # for first example 
+{"status":true, result:[ {"X": {"atom": "tom" } }] } # for second example
+{"status":true, result:[{"Y": {"atom": "pam" }   }] } # for third example
 </pre>
-<p> After you can ask Prolog to find another solution by sending</p>
+<p>
+If aim was not reached any solution the response will be :
+</p>
+
 <pre>
-curl     http://new.deepmemo.com:8313/prolog/next/12esf32453 
+{"status":false, result:[ ] }
+</pre>
+
+<p> After you are able  ask Prolog to find another solution by sending</p>
+<pre>
+curl     http://codeide.com:8313/prolog/next/12esf32453 
 </pre>
 <p>or you can finish work</p>
 <pre>
-curl     http://new.deepmemo.com:8313/prolog/finish/12esf32453 
+curl     http://codeide.com:8313/prolog/finish/12esf32453 
 </pre>
 <p>Session is created per each reqest and it will be deleted after finishing request  </p>
 <p>As you noticed, all work  is asynchronous</p>
+<p>You do not need load namespace after each aim request, you can do it only once</p>
+
+
+
 
 
 

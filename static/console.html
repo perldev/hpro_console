@@ -27,7 +27,7 @@
       #container_editor{
 /*	  float: right;*/
 	    display: none;
-	    margin-left: 7em;
+/*	    margin-left: 7em;*/
 /*     margin-top: 100px; */
 	    width: 810px;
       
@@ -37,8 +37,8 @@
 	  width: 600px;
 	  margin-left:1em;*/
 	  margin-top:2em;
-	     margin-left: 7em;
-	    width: 800px;
+/*	     margin-left: 7em;*/
+/*	    width: 800px;*/
       
       }
       div.right{
@@ -48,7 +48,7 @@
 	float:left
       }
       #trace{
-	    width:800px;
+/*	    width:800px;*/
 	    display:none;
 	    
 /*	    float:right*/
@@ -66,7 +66,11 @@
   </head>
 
   <body onload="startRealtime()">
+  
+<!--   TOP MENU  -->
   <div class="container"  >
+  
+  
        <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container"  >
@@ -119,7 +123,6 @@
 	  <button class="btn btn-danger  pull-right greenbtn" id='authorizeButton' href="javascript:startRealtime()"> Sign up</button>
 	    </ul>
           </div>
-      
    
    
         </div>
@@ -129,9 +132,11 @@
         
         
         </div>
-      </div>
-    </div>
 
+    
+    
+
+<!--     SECONDARY MENU -->
     <div class="container" id="container" style='border-bottom: 1px solid gray' >
 	  <div  id='tabs' >
 	        <a style='padding-left: 1em;' href="javascript:open_console()">Console</a>
@@ -142,99 +147,105 @@
 
           </div>
      </div>    
-      <div id='console' style='margin-left: 7em;  width:800px; display:none; margin-top: 2em; float:left'  >
-		<div class="right"><!--<a  style='padding-left: 1em;' href="javascript:clear_console()">Clear</a>-->
-<!--				    <a  style='padding-left: 1em;' href="javascript:close_console1()">Close console</a>-->
-				    </div>  
-		<p>*Type 'help' for listing inner commands </p>
-		
-		<div id="msgs" style="font-size: 14px;padding:12px; height:300px;
-				      width: 800px;border:1px solid black;
-				       overflow: auto;
-				      ">
-		<p class='console_p'> Prolog 0.5 </p>
-		
-		
-	      
-			<div id="sse" >
-			  <div style="float:left;font-size: 14px;">| - ?&nbsp;</div>
-			    <div style="float:left">
-			    <input id="code"  style="border:1px solid #0088CC;line-height:1.5em;
-						      width:775px; height:20px;font-size:14px" 
-				      onkeyup="listen(this,event)" />
-			  </div> 
-			  
-			  
-			</div>
-			
-		</div>
-      </div>
-      <div id='right_part' >
-      <div id='trace'  >
-      <h4>Trace :  </h4>
-		<div id="trace_msg" style=" overflow: auto;font-size: 12px;height:200px; width: 800px;border:1px solid black;">
-		
-		
-		
-		    		<div id="trace_sse" >
-				  <div style="float:left;font-size: 12px;">| - ?&nbsp;</div>
-				  <div style="float:left">
-				      <input id="trace_input" rows='3' style="border:1px solid #0088CC;
-						      width:775px; height:20px; 
-						      font-size:12px" 
-						      onkeyup="listen_trace(this,event)" />
-				  </div> 
-			      </div>
-		    
-		    
-		    
-		    
-		    
-		</div>
-      </div>
+     
+<!--     SECONDARY MENU -->
 
-   
-    </div> <!--right part-->
-   
-      <div id='container_help' > 
-      
-			  <div class="hero-unit">
-			    <h4>Use prolog in your application</h4>
-			    <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-			</div>
+<!-- WORKING BLOCK -->
+<div class="container">
 
-			
-      
-      
-      </div>
+                <div id='console' class="container" style='display:none; margin-top: 2em;'  >
+                            <div class="right"><!--<a  style='padding-left: 1em;' href="javascript:clear_console()">Clear</a>-->
+            <!--				    <a  style='padding-left: 1em;' href="javascript:close_console1()">Close console</a>-->
+                                                </div>  
+                            <p>*Type 'help' for listing inner commands </p>
+                            
+                            <div id="msgs" style="font-size: 14px;padding:12px; height:300px;
+                                                width: 800px;border:1px solid black;
+                                                overflow: auto;
+                                                ">
+                            <p class='console_p'> Prolog 0.5 </p>
+                            
+                            
+                        
+                                    <div id="sse" >
+                                    <div style="float:left;font-size: 14px;">| - ?&nbsp;</div>
+                                        <div style="float:left">
+                                        <input id="code"  style="border:1px solid #0088CC;line-height:1.5em;
+                                                                width:775px; height:20px;font-size:14px" 
+                                                onkeyup="listen(this,event)" />
+                                    </div> 
+                                    
+                                    
+                                    </div>
+                                    
+                            </div>
+                </div>
+                <div id='right_part'  class="container">
+                <div id='trace'  >
+                <h4>Trace :  </h4>
+                            <div id="trace_msg" style=" overflow: auto;font-size: 12px;height:200px; width: 800px;border:1px solid black;">
+                            
+                            
+                            
+                                            <div id="trace_sse" >
+                                            <div style="float:left;font-size: 12px;">| - ?&nbsp;</div>
+                                            <div style="float:left">
+                                                <input id="trace_input" rows='3' style="border:1px solid #0088CC;
+                                                                width:775px; height:20px; 
+                                                                font-size:12px" 
+                                                                onkeyup="listen_trace(this,event)" />
+                                            </div> 
+                                        </div>
+                                
+                                
+                                
+                                
+                                
+                            </div>
+                </div>
 
-      
-	  <div id='container_editor' > 
-			    <div class='right' id='project_files'>  
-						<h5> Project's files: </h5>
-						
-			    </div>
-			    <h4> Editor  </h4>
-			    
-			   <div class="left" id='project_title'> 
-			   
-			   
-			   </div> 
-			    <div class="right">
-    <!--			<a  style='padding-left: 1em;' href="javascript:load_code()">Run</a>-->
-   			    <a class="btn btn-primary"  style='padding-left: 1em;' id='filePicker' href="javascript:new_file()">New</a>
-			    <a class="btn btn-primary"  style='padding-left: 1em;' id='filePicker' href="javascript:save_an_load_file()">Save&amp;Run</a>
-			    <a class="btn btn-info"  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">GoogleDrive</a>
-    <!--      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> -->
-			   
-			   </div> 
-			
+            
+                </div> <!--right part-->
+            
+                <div id='container_help' class="container" > 
+                
+                                    <div class="hero-unit">
+                                        <h4>Use prolog in your application</h4>
+                                        <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                                    </div>
 
-			   
-    
-			    <div id='editor'></div>
-      
-	</div>
+                                    
+                
+                
+                </div>
+
+                
+                    <div id='container_editor' class="container left"> 
+                                        <div class='right' id='project_files'>  
+                                                            <h5> Project's files: </h5>
+                                                            
+                                        </div>
+                                        <h4> Editor  </h4>
+                                        
+                                    <div class="left" id='project_title'> 
+                                    
+                                    
+                                    </div> 
+                                        <div class="right">
+                <!--			<a  style='padding-left: 1em;' href="javascript:load_code()">Run</a>-->
+                                        <a class="btn btn-primary"  style='padding-left: 1em;' id='filePicker' href="javascript:new_file()">New</a>
+                                        <a class="btn btn-primary"  style='padding-left: 1em;' id='filePicker' href="javascript:save_an_load_file()">Save&amp;Run</a>
+                                        <a class="btn btn-info"  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">GoogleDrive</a>
+                <!--      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> -->
+                                    
+                                    </div> 
+                                    
+
+                                    
+                
+                                        <div id='editor'></div>
+                
+                    </div>
 
 
 	

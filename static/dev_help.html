@@ -16,6 +16,7 @@
      </style>
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
     <link href="css/my.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -77,103 +78,201 @@
       </div>
 
 
+    <div class="doc_content_box">
+        <div class="span3 bs-docs-sidebar doc_menu_fixed">
+            <ul class="nav nav-list bs-docs-sidenav">   
+                <li>
+                <a href="#setup" class="e_doc_title">
+                <i class="icon-chevron-right"></i><b>Making expert system</b></a>
+                <ul class="doc_inst_list e_doc_list" style="display: none;">
+                    <li><a href="#setup_simple">Getting started</a></li>
+                    <li><a href="#setup_adv">Advance console</a></li>
+                    <li><a href="#setup_batch">Import data</a></li>
+                </ul>
+                </li>
+            
+                <li>
+                <a href="#pro" class="e_doc_title"><i class="icon-chevron-right"></i><b>Protocol</b></a>
+                <ul class="doc_inst_list e_doc_list" style="display: none;">
+                    <li><a href="#pro_auth">Authorization</a></li>
+                    <li><a href="#pro_aim">Making Request</a></li>
+                    <li><a href="#pro_check">Checking result</a></li>
+                    <li><a href="#pro_check">Get next result</a></li>
+                    <li><a href="#pro_check">Finish process</a></li>
+                </ul>
+                </li>
+                
+                
+                <li>
+                <a href="#man" class="e_doc_title"><i class="icon-chevron-right"></i><b>Managing</b></a>
+                <ul class="doc_inst_list e_doc_list" style="display: block;">
+                </ul>
+                </li>
+            
+                
+                <li>
+                <a href="#stat" class="e_doc_title"><i class="icon-chevron-right"></i><b>Statistic</b></a>
+                <ul class="doc_inst_list e_doc_list" style="display: none;">
 
-<!--      <div class="hero-unit">-->
-<!--      <div class="row">-->
-        <h4>Use prolog in your application</h4>
-        <p>Our api let you work with your prolog code in our system from your application via REST-interface</p>
-        <p>For example you have this code in codeide.com:</p>
-<pre>        
-parent("FirstHumen", pam).
-parent(pam, bob).
-parent(tom, bob).
-parent(tom, liz).
-parent(bob, ann).
-parent(bob, pat).
-parent(pat, jim).
+                </ul>
+                </li>
+                    
+                
 
-predecessor(X, Y) :- parent(X, Y).
-predecessor(X, Y) :-
-	parent(X, Z),
-	predecessor(Z, Y).
-</pre>
-<p>Now, in order to get result for prolog request like this: </p>
-<pre>
-?- predecessor(X, Y)
-</pre>
+                
+            </ul>
+        </div>    
+   
+        <section id="setup" class="doc_main_content">
+               <h4>Use prolog in your application</h4>
+        
+        
+        
+        
+        </section>
+        <section id="setup_simple" class="doc_main_content">
+               <h4>Getting started</h4>
+        
+        
+        
+        
+        </section>
+         <section id="setup_adv" class="doc_section">
+               <h4>Advance console</h4>
+        
+        
+        
+        
+        </section>
+        
+        <section id="setup_batch" class="doc_section">
+               <h4>Import data</h4>
+        
+        
+        
+        
+        </section>
+          <section id="pro" class="doc_section">
+            <!--      <div class="hero-unit">-->
+            <!--      <div class="row">-->
+                    <h4>Protocol</h4>
+                    <p>Our api let you work with your prolog code in our system from your application via REST-interface</p>
+                    <p>For example you have this code in codeide.com:</p>
+                    
+            
+            
+                    <pre>        
+                    parent("FirstHumen", pam).
+                    parent(pam, bob).
+                    parent(tom, bob).
+                    parent(tom, liz).
+                    parent(bob, ann).
+                    parent(bob, pat).
+                    parent(pat, jim).
 
+                    predecessor(X, Y) :- parent(X, Y).
+                    predecessor(X, Y) :-
+                            parent(X, Z),
+                            predecessor(Z, Y).
+                    </pre>
+            </section>
+            
+            <section id="pro_auth" class="doc_section">
+         
+                <h4>Authorization</h4>
 
-<p>At first you need load your namspace “my_expert_system”, send http request</p>
+                    <p>At first you need load your namspace “my_expert_system”, send http request</p>
 
-<pre>http://codeide.com:8313/prolog/auth/my_expert_system</pre>
-<p>
-Permissions to your namespace is avalible only from ip that you have gave us before :
-</p>
+                    <pre>http://codeide.com:8313/prolog/auth/my_expert_system</pre>
+                    <p>
+                    Permissions to your namespace is avalible only from ip that you have gave us before :
+                    </p>
+            </section>
+            
+           <section id="pro_aim" class="doc_section">
+                        <h4>Making a request</h4>
+                        <p>Now, in order to get result for prolog request like this: </p>
+                        <pre>
+                        ?- predecessor(X, Y)
+                        </pre>
+                        You need  to send such http-request  : 
+                        <pre>
+                        curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+                        curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+                        curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
 
+                        </pre>
+                        <p> POST "params" contain json array of arguments for aim "predecessor",</p>
+                        <p> If you want use unbound variables X or Y </p>
+                        <p> you must set it like  a json  object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
+                        <p> for atoms use object like this {"atom":"bob"} </p>
+                        <p> in other cases lists, strings and numbers use constants </p>
+                        <p> If everything is good, you will receive response json  <p>
+                        <pre>
+                        {"status":"ok","session":"12esf32453"} 
+                        or
+                        {"status":"fail","description":"some description of mistake"} 
+                        </pre>
+            </section>            
+             <section id="pro_check" class="doc_section">    
+                    <h4>Checking a result</h4>
+                    <p>Our kernel start process  your request  </p>
+                    <p>For working with thise process you have three commands</p>
 
-You need  to send such http-request  : 
-<pre>
-curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
-curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
-curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+                    <pre>
+                    curl     http://codeide.com:8313/prolog/process/12esf32453 # for checking results
+                    curl     http://codeide.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
+                    curl     http://codeide.com:8313/prolog/finish/12esf32453 # for finish process of working
+                    </pre>
+                    <p>First request will return to you json with bounded variables of your request</p>
+                    <pre>
+                    {"status":true, result:[ {"X": {"atom": "pat" }} , {"Y": {"atom":"jim"}} ] } # for first example 
+                    {"status":true, result:[ {"X": {"atom": "tom" } }] } # for second example
+                    {"status":true, result:[{"Y": {"atom": "pam" }   }] } # for third example
+                    </pre>
+                    <p>
+                    If aim was not reached any solution the response will be :
+                    </p>
 
-</pre>
-<p> POST "params" contain json array of arguments for aim "predecessor",</p>
-<p> If you want use unbound variables X or Y </p>
-<p> you must set it like  a json  object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
-<p> for atoms use object like this {"atom":"bob"} </p>
-<p> in other cases lists, strings and numbers use constants </p>
-<p> If everything is good, you will receive response json  <p>
-<pre>
-{"status":"ok","session":"12esf32453"} 
-or
-{"status":"fail","description":"some description of mistake"} 
-</pre>
-<p>Our kernel start process  your request  </p>
-<p>For working with thise process you have three commands</p>
+                    <pre>
+                    {"status":false, result:[ ] }
+                    </pre>
 
-<pre>
-curl     http://codeide.com:8313/prolog/process/12esf32453 # for checking results
-curl     http://codeide.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
-curl     http://codeide.com:8313/prolog/finish/12esf32453 # for finish process of working
-</pre>
-<p>First request will return to you json with bounded variables of your request</p>
-<pre>
-{"status":true, result:[ {"X": {"atom": "pat" }} , {"Y": {"atom":"jim"}} ] } # for first example 
-{"status":true, result:[ {"X": {"atom": "tom" } }] } # for second example
-{"status":true, result:[{"Y": {"atom": "pam" }   }] } # for third example
-</pre>
-<p>
-If aim was not reached any solution the response will be :
-</p>
+                    <p> After you are able  ask Prolog to find another solution by sending</p>
+                    <pre>
+                    curl     http://codeide.com:8313/prolog/next/12esf32453 
+                    </pre>
+                    <p>or you can finish work</p>
+                    <pre>
+                    curl     http://codeide.com:8313/prolog/finish/12esf32453 
+                    </pre>
+                    <p>Session is created per each reqest and it will be deleted after finishing request  </p>
+                    <p>As you noticed, all work  is asynchronous</p>
+                    <p>You do not need load namespace after each aim request, you can do it only once</p>
+            </section>
+            <section id="man" class="doc_section">
+         
+                <h4>Managing a system</h4>
 
-<pre>
-{"status":false, result:[ ] }
-</pre>
+                    <p>We have a builtin tool for managing your database of knowledge - vizualization,learning, exporting data </p>
 
-<p> After you are able  ask Prolog to find another solution by sending</p>
-<pre>
-curl     http://codeide.com:8313/prolog/next/12esf32453 
-</pre>
-<p>or you can finish work</p>
-<pre>
-curl     http://codeide.com:8313/prolog/finish/12esf32453 
-</pre>
-<p>Session is created per each reqest and it will be deleted after finishing request  </p>
-<p>As you noticed, all work  is asynchronous</p>
-<p>You do not need load namespace after each aim request, you can do it only once</p>
+                   
+            </section>
+          <section id="stat" class="doc_section">
+         
+                <h4>Statistic</h4>
 
+                    <p>Also we are offering a vizualization tool for making various statistical reports</p>
 
-
-
+                   
+            </section>
+        </div>
 
 
 </div>
-
+ 
 
    
-    </div>
-
     <!-- /container -->
 
     <!-- Le javascript
@@ -181,7 +280,18 @@ curl     http://codeide.com:8313/prolog/finish/12esf32453
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery1.9.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+  <script>
+   
+   $(function(){
 
+        $('.e_doc_title').click(function(){
+                $('.e_doc_list').hide();
+                $(this).parent().find('.e_doc_list').slideDown();
+        });
+
+    });
+   
+   </script>
 
 
 </body>

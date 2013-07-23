@@ -162,20 +162,19 @@
                     
             
             
-                    <pre>        
-                    parent("FirstHumen", pam).
-                    parent(pam, bob).
-                    parent(tom, bob).
-                    parent(tom, liz).
-                    parent(bob, ann).
-                    parent(bob, pat).
-                    parent(pat, jim).
-
-                    predecessor(X, Y) :- parent(X, Y).
-                    predecessor(X, Y) :-
-                            parent(X, Z),
-                            predecessor(Z, Y).
-                    </pre>
+<pre>        
+parent("FirstHumen", pam).
+parent(pam, bob).
+parent(tom, bob).
+parent(tom, liz).
+parent(bob, ann).
+parent(bob, pat).
+parent(pat, jim).
+predecessor(X, Y) :- parent(X, Y).
+predecessor(X, Y) :-
+                 parent(X, Z),
+                 predecessor(Z, Y).
+</pre>
             </section>
             
             <section id="pro_auth" class="doc_section">
@@ -193,60 +192,59 @@
            <section id="pro_aim" class="doc_section">
                         <h4>Making a request</h4>
                         <p>Now, in order to get result for prolog request like this: </p>
-                        <pre>
-                        ?- predecessor(X, Y)
-                        </pre>
+<pre>
+?- predecessor(X, Y)
+</pre>
                         You need  to send such http-request  : 
-                        <pre>
-                        curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
-                        curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
-                        curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}  ]"   http://codeide.com:8313/prolog/create/predecessor
+<pre>
+curl -d "params=[{\"name\":\"X\"}, {\"name\":\"Y\"}]" http://codeide.com:8313/prolog/create/predecessor
+curl -d "params=[{\"name\":\"X\"}, {\"atom\":\"bob\"}]" http://codeide.com:8313/prolog/create/predecessor
+curl -d "params=[\"FirstHumen\", {\"name\":\"Y\"}]" http://codeide.com:8313/prolog/create/predecessor
 
-                        </pre>
+</pre>
                         <p> POST "params" contain json array of arguments for aim "predecessor",</p>
                         <p> If you want use unbound variables X or Y </p>
                         <p> you must set it like  a json  object {"name":"X"}, where X is name of variable, which you want use in prolog  </p>
                         <p> for atoms use object like this {"atom":"bob"} </p>
                         <p> in other cases lists, strings and numbers use constants </p>
                         <p> If everything is good, you will receive response json  <p>
-                        <pre>
-                        {"status":"ok","session":"12esf32453"} 
-                        or
-                        {"status":"fail","description":"some description of mistake"} 
-                        </pre>
+<pre>
+{"status":"ok","session":"12esf32453"} 
+or
+{"status":"fail","description":"some description of mistake"} 
+</pre>
             </section>            
              <section id="pro_check" class="doc_section">    
                     <h4>Checking a result</h4>
                     <p>Our kernel start process  your request  </p>
                     <p>For working with thise process you have three commands</p>
 
-                    <pre>
-                    curl     http://codeide.com:8313/prolog/process/12esf32453 # for checking results
-                    curl     http://codeide.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
-                    curl     http://codeide.com:8313/prolog/finish/12esf32453 # for finish process of working
-                    </pre>
+<pre>
+curl     http://codeide.com:8313/prolog/process/12esf32453 # for checking results
+curl     http://codeide.com:8313/prolog/next/12esf32453 # for find next solution of prolog work
+curl     http://codeide.com:8313/prolog/finish/12esf32453 # for finish process of working
+</pre>
                     <p>First request will return to you json with bounded variables of your request</p>
-                    <pre>
-                    {"status":true, result:[ {"X": {"atom": "pat" }} , {"Y": {"atom":"jim"}} ] } # for first example 
-                    {"status":true, result:[ {"X": {"atom": "tom" } }] } # for second example
-                    {"status":true, result:[{"Y": {"atom": "pam" }   }] } # for third example
-                    </pre>
+<pre>
+{"status":true, result:[ {"X": {"atom": "pat" }} , {"Y": {"atom":"jim"}} ] } # for first example 
+{"status":true, result:[ {"X": {"atom": "tom" } }] } # for second example
+{"status":true, result:[{"Y": {"atom": "pam" }   }] } # for third example
+</pre>
                     <p>
                     If aim was not reached any solution the response will be :
                     </p>
 
-                    <pre>
-                    {"status":false, result:[ ] }
-                    </pre>
-
+<pre>
+{"status":false, result:[ ] }
+</pre>
                     <p> After you are able  ask Prolog to find another solution by sending</p>
-                    <pre>
-                    curl     http://codeide.com:8313/prolog/next/12esf32453 
-                    </pre>
+<pre>
+curl     http://codeide.com:8313/prolog/next/12esf32453 
+</pre>
                     <p>or you can finish work</p>
-                    <pre>
-                    curl     http://codeide.com:8313/prolog/finish/12esf32453 
-                    </pre>
+<pre>
+curl     http://codeide.com:8313/prolog/finish/12esf32453 
+</pre>
                     <p>Session is created per each reqest and it will be deleted after finishing request  </p>
                     <p>As you noticed, all work  is asynchronous</p>
                     <p>You do not need load namespace after each aim request, you can do it only once</p>

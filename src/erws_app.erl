@@ -26,6 +26,8 @@ start(_StartType, _StartArgs) ->
 				  {directory, <<"static">>},
 				  {mimetypes, 
 				  [
+				  {<<".png">>, [<<"image/png">>]},
+				  {<<".jpg">>, [<<"image/jpeg">>]},
 				  {<<".html">>, [<<"text/html">>]},
 				  {<<".css">>, [<<"text/css">>]},
 				  {<<".js">>, [<<"application/javascript">>]}]

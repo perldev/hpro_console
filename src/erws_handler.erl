@@ -287,7 +287,7 @@ check_namespace(TreeEts)->
     [{system_record,?PREFIX, Prefix}] = ets:lookup(TreeEts, ?PREFIX),Prefix
 .
 
-
+%%it's like finite state machine
 %%standard answer to prolog console
 wait_user_input(wait, TraceStatus, TreeEts, NextPid)->
 	      receive  
@@ -532,8 +532,7 @@ concat_result(List)->
     list_to_binary(lists:flatten(List)).
 
 
-shell_var_match_str({ { Key }, Val} ) when is_tuple(Val)->
-        shell_var_match_str({ { Key },  io_lib:format("~p",[Val]) } );
+
 shell_var_match_str({ { Key }, Val} ) when is_float(Val)->
         shell_var_match_str({ { Key }, float_to_list(Val) } );
 shell_var_match_str({ { Key }, Val} ) when is_integer(Val)->
@@ -544,20 +543,20 @@ shell_var_match_str({ { Key }, Val} ) when is_binary(Val) ->
 shell_var_match_str({ { Key }, []} )-> 
     io_lib:format("<strong>~p</strong> = nothing ~n", [Key ])
 ;
-shell_var_match_str({ { Key }, Val} )-> 
-
+shell_var_match_str({ { Key }, Val1} )-> 
+    Val  = lists:flatten( erlog_io:write1( Val1 ) ),
+    ?CONSOLE_LOG("~p fill shell vars ~p",[{?MODULE,?LINE}, {  Key , Val, Val1} ]),
     case shell_check(Val) of
 	true ->
-	    ?CONSOLE_LOG("~p fill shell vars ~p",[{?MODULE,?LINE}, {  Key , Val} ]),
-    	    io_lib:format("<strong>~p</strong> = ~ts ~n", [Key,Val]),
-
-	    io_lib:format("<strong>~p</strong> = ~ts ~n", [Key,Val]);
+	    
+	    io_lib:format("<strong>~p</strong> = ~ts ~n", [Key, Val]);
 	false->
-	    io_lib:format("<strong>~p</strong> = ~p ~n", [Key,Val])
+	    io_lib:format("<strong>~p</strong> = ~p ~n", [Key, Val])
     end; 
     
 shell_var_match_str( V )->
     "".    
+    
 shell_check([])->
     true;
 shell_check([Head|Tail]) when Head<20->

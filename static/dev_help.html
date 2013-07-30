@@ -88,18 +88,29 @@
 
     <div class="doc_content_box">
         <div class="span3 bs-docs-sidebar doc_menu_fixed">
-            <ul class="nav nav-list bs-docs-sidenav" style="display: block;">   
+            <ul class="nav nav-list bs-docs-sidenav" style="display: block;"> 
                 <li>
-                <a href="#setup" class="e_doc_title">
-                <i class="icon-chevron-right"></i><b>Quick Start</b></a>
-                <ul class="doc_inst_list e_doc_list" >
-                    <li><a href="#setup_simple">Getting started</a></li>
-                    <li><a href="#setup_adv">Advance console</a></li>
+                <a href="#make_expert" class="e_doc_title">
+                <i class="icon-chevron-right"></i><b>Creating System</b></a>
+                <ul class="doc_inst_list e_doc_list" style="display: none;">
+                    <li><a href="#make_expert_security">Security and Embedding</a></li>
+                    <li><a href="#make_expert_memory">Limitation Memory</a></li>
+                    <li><a href="#make_expert_batch">Import data</a></li>
+                    <li><a href="#make_expert_widget">JavaScript Widget</a></li>               
                 </ul>
                 </li>
             
                 <li>
-                <a href="#pro" class="e_doc_title"><i class="icon-chevron-right"></i><b>Protocol</b></a>
+                <a href="#setup" class="e_doc_title">
+                <i class="icon-chevron-right"></i><b>Quick Start </b></a>
+                <ul class="doc_inst_list e_doc_list" >
+                    <li><a href="#setup">Getting started</a></li>
+                    <li><a href="#setup_adv">Advance console</a></li>
+                </ul>
+                </li>
+          
+                <li>
+                <a href="#pro" class="e_doc_title"><i class="icon-chevron-right"></i><b>API Protocol</b></a>
                 <ul class="doc_inst_list e_doc_list" style="display: none;">
                     <li><a href="#pro_auth">Authorization</a></li>
                     <li><a href="#pro_aim">Making Request</a></li>
@@ -108,15 +119,7 @@
                     <li><a href="#pro_check">Finish process</a></li>
                 </ul>
                 </li>
-                <li>
-                <a href="#make_expert" class="e_doc_title"><i class="icon-chevron-right"></i><b>Making Expert System</b></a>
-                <ul class="doc_inst_list e_doc_list" style="display: none;">
-                    <li><a href="#make_expert_security">Security and Embedding</a></li>
-                    <li><a href="#make_expert_memory">Limitation</a></li>
-                    <li><a href="#make_expert_batch">Import data</a></li>
-                    <li><a href="#make_expert_widget">JavaScript Widget</a></li>               
-                </ul>
-                </li>
+          
                 
                 <li>
                 <a href="#man" class="e_doc_title"><i class="icon-chevron-right"></i><b>Managing</b></a>
@@ -137,24 +140,76 @@
                 
             </ul>
         </div>    
+        <section id="make_expert" class="doc_section">
+               <h4>Creating System</h4> 
+               Для создания своей Polog-системы вам будет достаточно акаунта Google или вы можете заполнить 
+               нашу форму регистрации. После регистрации мы вам выделяни одну базу знаний для хранения ваших
+               фактов и кода. Вы сразу же ее можете использовать через наше <a href="#pro">REST API</a>
+               
+               
+               
+               
+            </section>
+            
+            <section id="make_expert_security" class="doc_section">
+               <h4>Security and Embedding</h4>
+               Если вы планируете использовать вашу пролог систему посредством API или JavaScript
+               Widget-a, вам нужно будет указать секретный и публичные ключи, которые будут использоваться при 
+               взаимодействие через API или JavaScript
+               Widget.
+               
+            </section>
+            
+            <section id="make_expert_memory" class="doc_section">
+               <h4>Limitation</h4>     
+               В стартовом пакете вам доступно 64 Мегабайта оперативной памяти в нашей облачной системе.
+               Вы можете увеличить кол-во хранимых фактов и доступной памяти путем смены пакета. Сейчас
+               в системе доступны три пакет : "Стартовый","Средний", "Промышленный"
+               
+               
+            </section>
+            <section id="make_expert_batch" class="doc_section">
+               <h4>Import your knowledge</h4> 
+               Вы можете импортировать ваши данные в систему двумя способами
+               1) Написав соответствующий код на прологе, и взаимодействуя с ним посредством АПИ импортировать ваши данные
+               2) Загрузить ваши данные  на сервер в соответствующеим csv, json формате 
+               
+               Второй способ будет гораздо быстрее.
+               
+            </section>
+            <section id="make_expert_widget" class="doc_section">
+               <h4>JavaScript widget on you site</h4>  
+               Для средних проектов мы предлагаем создание Widget-а, для импорта на в интерфейсы поддерживающии 
+               html&amp;javascript c доступом к сети.
+               
+            </section>
+       
    
-        <section id="setup" class="doc_main_content">
+        <section id="setup" class="doc_section">
                <h4>Quick start</h4>
-        
-        
-        
+               <p>
+                Самый простой способ ознакомления с системой - наша <a href="/index.html">web-консоль</a>.
+                В этой консоли вы можете попробывать все команды Prolog-а, в том числе и добавлять в оперативную
+                память собственные факты. По умолчанию все факты в системе динамичекие.
+                </p><p>
+                Вычисление арифметического выражения.
+<pre>                
+                ?- X is 6*6.
+</pre>        
+</p><p>
+               Добавление нового факта.
+<pre>                
+                ?- assert(simple_fact(1)).
+</pre>        
+       </p> 
         
         </section>
-        <section id="setup_simple" class="doc_section">
-               <h4>Getting started</h4>
-        
-        
-        
-        
-        </section>
+      
          <section id="setup_adv" class="doc_section">
                <h4>Advance console</h4>
-        
+                Мы разработали web-ide для работы с вашими проектами, которое позволяет 
+                вам хранить ваш код-prologa, пробывать как он работает, создавать несколько проектов, 
+                легко управлять кодом различных баз знаний.
         
         
         
@@ -257,32 +312,16 @@ curl     http://codeide.com:8313/prolog/finish/12esf32453
                     <p>As you noticed, all work  is asynchronous</p>
                     <p>You do not need load namespace after each aim request, you can do it only once</p>
             </section>
-            
-            <section id="make_expert" class="doc_section">
-               <h4>Making Expert System</h4> 
-            </section>
-            
-            <section id="make_expert_security" class="doc_section">
-               <h4>Security and Embedding</h4>
-            </section>
-            
-            <section id="make_expert_memory" class="doc_section">
-               <h4>Limitation</h4>      
-            </section>
-            <section id="make_expert_batch" class="doc_section">
-               <h4>Import your knowledge</h4>      
-            </section>
-            <section id="make_expert_widget" class="doc_section">
-               <h4>JavaScript widget on you site</h4>      
-            </section>
-            <section id="man" class="doc_section">
+          <section id="man" class="doc_section">
          
                 <h4>Managing a system</h4>
 
                     <p>We have a builtin tool for managing your database of knowledge - vizualization,learning, exporting data </p>
 
                    
-            </section>
+          </section>
+        
+            
           <section id="stat" class="doc_section">
          
                 <h4>Statistic</h4>

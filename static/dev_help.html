@@ -124,6 +124,11 @@
                 <li>
                 <a href="#man" class="e_doc_title"><i class="icon-chevron-right"></i><b>Managing</b></a>
                 <ul class="doc_inst_list e_doc_list" style="display: block;">
+                
+                    <li><a href="#man_pub_api">Public API</a></li>
+                    <li><a href="#man_pri_api">Private API</a></li>
+                    <li><a href="#man_widget">JavaScript widget</a></li>
+                    
                 </ul>
                 </li>
             
@@ -158,10 +163,9 @@
             
             <section id="make_expert_security" class="doc_section">
                <h4>Security and Embedding</h4>
-               Если вы планируете использовать вашу пролог систему посредством API или JavaScript
+               Если вы планируете использовать вашу пролог-систему посредством API или JavaScript
                Widget-a, вам нужно будет указать секретный и публичные ключи, которые будут использоваться при 
-               взаимодействие через API или JavaScript
-               Widget.
+               взаимодействие через API или JavaScript Widget, более подробно смотрите в разделе <a href="#man">Managing</a>.
                
             </section>
             
@@ -344,10 +348,47 @@ curl     http://codeide.com:8313/prolog/finish/12esf32453
                 <h4>Managing a system</h4>
 
                     <p>We have a builtin tool for managing your database of knowledge - vizualization,learning, exporting data </p>
-
+                
 
                    
           </section>
+            <section id="man_pub_api" class="doc_section">
+         
+                <h4>Public API</h4>
+
+                    <p>По умолчанию ваша пролог-система в Public доступе, у нас есть набор установок для управления.</p>
+                
+
+                   
+          </section>
+            <section id="man_pri_api" class="doc_section">
+         
+                <h4>Private API</h4>
+
+                    <p>Вы можете сделать вашу пролог систему приватной установив <br/>
+                    1) Установив набор ключей авторизации<br/>
+                    2) Ограничив набор Ip-адресов с которых возможно пользование вашей системой
+                    
+                    </p>
+                
+
+                   
+          </section>
+            <section id="man_widget" class="doc_section">
+         
+                <h4>JavaScript Widget</h4>
+
+                    <p> Для JavaScript Widget для сайтов и систем на основе Web интерфейса
+                    возможна установить http-callBack вызовов, таким образом вы можете сделать доступным 
+                    widget только для авторизированых пользователей.
+                    
+                    
+                    </p>
+                
+
+                   
+          </section>
+          
         
             
           <section id="stat" class="doc_section">
@@ -368,7 +409,7 @@ curl     http://codeide.com:8313/prolog/finish/12esf32453
 
 <p class="c6 c3"><span>Для объявления предиката используется следующий синтаксис. </span></p>
 
-<p class="c6 c3 c5"><span>fact(X, Y):- X =Y.  </span></p>
+<pre><span>fact(X, Y):- X =Y.  </span></pre>
 
 <p class="c6 c3"><span>Где fact -название предиката, а в скобках список аргументов. Факт это предикат без тела, можно считать предикат с телом из одной цели true.</span></p>
 <p class="c0"><span class="c2"></span></p>
@@ -376,10 +417,10 @@ curl     http://codeide.com:8313/prolog/finish/12esf32453
 <p class="c3"><span class="c2">,</span></p>
 <p class="c3"><span class="c2">;</span></p>
 <p class="c3"><span>        Для составления сложных правил, используется предикат конъюнкции “,” и дизъюнкции “;”.</span></p>
-<p class="c6 c3 c5"><span>fact(X, Y, Z):- X =:= 1, Y =:= 2, Z &lt; Y +X.  </span></p>
+<pre><span>fact(X, Y, Z):- X =:= 1, Y =:= 2, Z &lt; Y +X.  </span></pre>
 <p class="c3 c5 c6"><span>в данном примере поочередно будут проверяться все цели, и запрос будет удачным, только если все цели будут успешно достигнуты.</span></p>
 <p class="c0 c6 c5"><span></span></p>
-<p class="c6 c3 c5"><span>fact</span><span>(X, Y, Z):- X =:=1, Y =:=2; Z &lt;10. </span></p>
+<pre><span>fact</span><span>(X, Y, Z):- X =:=1, Y =:=2; Z &lt;10. </span></pre>
 <p class="c3 c5"><span>а в этом случае запрос будет успешным либо в случае, если X будет равным 1 и </span></p>
 <p class="c3 c5"><span>Y равным 2 или только Z будет меньшим 10. </span></p>
 <p class="c0"><span class="c2"></span></p>

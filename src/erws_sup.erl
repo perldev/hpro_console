@@ -22,10 +22,10 @@ init([]) ->
                 permanent, infinity, worker , [ api_auth_demon]
         
         },
-%         ThriftPool = {"thrift_connection_pool",
-%             {thrift_connection_pool, start_link, [ ?DEFAULT_COUNT_THRIFT ] },
-%             permanent, infinity, worker , [ thrift_connection_pool ]
-%         },
+        ThriftPool = {"thrift_connection_pool",
+             {thrift_connection_pool, start_link, [ ?DEFAULT_COUNT_THRIFT ] },
+             permanent, infinity, worker , [ thrift_connection_pool ]
+        },
         Auth = {
             "auth_demon",
            { auth_demon, start_link, [  ] },

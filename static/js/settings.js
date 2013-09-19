@@ -1,4 +1,4 @@
-    var HOST = "127.0.0.1:8080";//"codeide.com" ;"test.codeide.com:8080";//
+    var HOST = "app-oracul-1.ceb.loc:8080";//"codeide.com" ;"test.codeide.com:8080";//
     var QS = (function(a) {
     if (a == "") return {};
     var b = {};

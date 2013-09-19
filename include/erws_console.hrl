@@ -1,23 +1,23 @@
 -define('CONSOLE_LOG'(Str, Params), lager:info(Str, Params) ).
--define(LISTEN_PORT,8080).
+-define(LISTEN_PORT,8081).
 
--define(REGISTERED_FILE, "registered.ets" ).
--define(REGISTERED_NAMESPACE, "namespaces.ets" ).
+-define(REGISTERED_FILE, "../consoledb/registered.ets" ).
+-define(REGISTERED_NAMESPACE, "../consoledb/namespaces.ets" ).
 -define(CACHE_CONNECTION, 10000 ).%miliseconds
--define(DETS_FILE, "regis_users.dets").
+-define(DETS_FILE, "../consoledb/regis_users.dets").
 -define(ETS_REG_USERS, regis_users).
 -define(ETS_REG_USERS_WORKSPACES, path_regis_users).
 
--define(ETS_REG_USERS_WORKSPACES_DETS, "path_regis_users.dets").
+-define(ETS_REG_USERS_WORKSPACES_DETS, "../consoledb/path_regis_users.dets").
 
 
 -define(MSG_FOOTER, <<"looking next ?">>).
 
 
 -define(AUTH_SESSION, google_inner_session).  %%connect google and inner session
--define(PATH_TO_SYSTEM, "expert_system").
+-define(PATH_TO_SYSTEM, "../consoledb/expert_system").
 -define(TEMP_PREFIX, "temp_namespace").
--define(LIMIT_OF_USERS, 10).
+-define(LIMIT_OF_USERS, 1000).
 -define(ETS_TABLE_USERS, multi_user_limit).
 
 -define( TMPLS,[

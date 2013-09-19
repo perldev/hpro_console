@@ -1,5 +1,5 @@
 -define('CONSOLE_LOG'(Str, Params), lager:info(Str, Params) ).
--define(LISTEN_PORT,8081).
+-define(LISTEN_PORT,8080).
 
 -define(REGISTERED_FILE, "registered.ets" ).
 -define(REGISTERED_NAMESPACE, "namespaces.ets" ).

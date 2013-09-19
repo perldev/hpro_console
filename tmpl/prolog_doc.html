@@ -1,0 +1,116 @@
+<h4>Prolog builtin   predicates</h4>
+                    <p>
+                    <p class="c3"><span class="c2">:-</span></p>
+
+<p class="c6 c3"><span>Для объявления предиката используется следующий синтаксис. </span></p>
+
+<pre><span>fact(X, Y):- X =Y.  </span></pre>
+
+<p class="c6 c3"><span>Где fact -название предиката, а в скобках список аргументов. Факт это предикат без тела, можно считать предикат с телом из одной цели true.</span></p>
+<p class="c0"><span class="c2"></span></p>
+<p class="c0"><span class="c2"></span></p>
+<p class="c3"><span class="c2">,</span></p>
+<p class="c3"><span class="c2">;</span></p>
+<p class="c3"><span>        Для составления сложных правил, используется предикат конъюнкции “,” и дизъюнкции “;”.</span></p>
+<pre><span>fact(X, Y, Z):- X =:= 1, Y =:= 2, Z &lt; Y +X.  </span></pre>
+<p class="c3 c5 c6"><span>в данном примере поочередно будут проверяться все цели, и запрос будет удачным, только если все цели будут успешно достигнуты.</span></p>
+<p class="c0 c6 c5"><span></span></p>
+<pre><span>fact</span><span>(X, Y, Z):- X =:=1, Y =:=2; Z &lt;10. </span></pre>
+<p class="c3 c5"><span>а в этом случае запрос будет успешным либо в случае, если X будет равным 1 и </span></p>
+<p class="c3 c5"><span>Y равным 2 или только Z будет меньшим 10. </span></p>
+<p class="c0"><span class="c2"></span></p>
+<p class="c0"><span class="c2"></span></p>
+<p class="c3"><span class="c2">. - </span><span>точка служит для обозначения конца предиката или правила. Каждое объявление предиката или факта заканчивается точкой </span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">true - </span><span>оператор всегда возвращает всегда true</span></p>
+<p class="c3"><span class="c2">false - </span><span>оператор возвращает всегда false</span></p>
+<p class="c3"><span class="c2">! -  </span><span>отсечение решений, после этого оператора пролог не рассматривает возможные решения которые могут быть до него.</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">[] - </span><span> список. </span></p>
+<p class="c3"><span>    Список в прологе представляется в виде головы и хвоста.</span><span class="c2"> [Head | Tail] = List</span><span>, в данном выражение мы получим первый элемент списка List в переменную Head, и список всех оставшихся элементов в переменной Tail, в случае если List не список, то выражение вернет false. Так же возможны следующие варианты этого выражения</span></p>
+<p class="c3"><span class="c2">[Head1,Head2, Head3| Tail] = List</span><span>, в этом случае в переменных </span><span class="c2">Head1, Head2, Head3 </span><span>будут первые три элемента списка </span><span class="c2">List</span><span>, если </span><span class="c2">List</span><span> содержит меньшее количество элементов, то выражение вернет false. Так же пролог поддерживает вложенные списки.</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">is - </span><span>вычисление арифметического выражения, не стоит путать с сопоставлением</span></p>
+<p class="c6 c3"><span>X is 6 +7, запишит в X 13.</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">+  </span><span>арифметическая операция сложения</span></p>
+<p class="c3"><span class="c2">*  </span><span>арифметическая операция умножения</span></p>
+<p class="c3"><span class="c2">/  </span><span>арифметическая операция деления</span></p>
+<p class="c3"><span class="c2">-   </span><span>арифметическая операция вычитания</span></p>
+<p class="c3"><span class="c2">mod - </span><span>остаток от деления</span></p>
+<p class="c3"><span>Вне контекста оператора is, данные операторы могут быть использованы как структуры.</span></p>
+<p class="c3"><span class="c2">&lt;,&gt;,&gt;=,=&lt;, =:=, =\=  - </span><span>операторы  арифметического сравнения</span></p>
+<p class="c3"><span>*Внимание, так как все данные хранятся в строках, то данная реализация пролога в арифметических выражениях будет строку пытаться преобразовать в число, если строка содержит  числовое значение.</span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">assert(X) - </span><span>добавления фактов  и правил</span></p>
+<p class="c3"><span class="c2">asserta(X)</span></p>
+<p class="c3"><span class="c2">assertz(X) </span><span>добавления фактов  и правил в начало списка</span></p>
+<p class="c3"><span class="c2">retract(X)</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span>чтобы добавить правило нужно заключить его в дополнительные скобки, пример </span></p>
+<p class="c3"><span>assertz( ( max(X,Y,Res) :- X&gt;Y,!,Res is X; Res is Y ) ).</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">retract</span><span> удаляет факты  и правила</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">abolish (X) - </span><span>удаляет все факты и правила соответствующие терму X, где X - терм вида </span></p>
+<p class="c3"><span>name/5, name - наименования функтора, 5 арность - всегда возвращает true.</span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">call(X) - </span><span>вызывает</span><span class="c2">  </span><span>правило</span><span class="c2">  </span><span>в X</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">not(X) -</span><span> возвращает true, если аргумент или выражение в скобках возвращает false. - не стандарт !!!</span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span>Системные функции </span></p>
+<p class="c3"><span class="c2">date</span><span>(DateString, year|month|day|hour|minute, Accum) - получить из строки DateString, </span></p>
+<p class="c3"><span>год, месяц, день, час, минуты и записать в Accum, необходимо для работы со временем.</span></p>
+<p class="c3"><span>DateString</span><span class="c2"> </span><span>вида</span><span class="c2"> &quot;Jul 17 2012 08:56&quot;. </span></p>
+<p class="c3"><span>Предикат вида</span><span class="c2"> </span><span>date(&quot;Jul 17 2012 08:56&quot;,hour,8)</span><span class="c2"> </span><span>будет проверяться на правильность.</span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">localtime( </span><span>In</span><span class="c2"> ) - </span><span>унифицирует  в In текущую дату в формате </span><span class="c2">&quot;Jul 17 2012 08:56&quot;</span></p>
+<p class="c0"><span></span></p>
+<p class="c3"><span class="c2">date_diff( </span><span>FirstDate, SecondDate,  Type, Acum</span><span class="c2">) - </span><span>вычисляет разницу во времени между датами которые содержут термы </span><span class="c2">FirstDate</span><span>, </span><span class="c2">SecondDate</span><span>, должны быть строками вида </span></p>
+<p class="c3"><span class="c2">&quot;Jul 17 2012 08:56&quot;, Type - hour|second|day|minute </span><span>атом указывает в каких единицах возвращать разницу во времени, Acum - пеменная которая будет унифицирована </span></p>
+<p class="c3"><span>вычисленным значением. Предикат может генерировать исключительные ситуации </span></p>
+<p class="c3"><span class="c2">invalid_format_date</span></p>
+<p class="c0"><span></span></p>
+<p class="c0"><span></span></p>
+
+<p class="c3"><span class="c1">Проверка типа терма</span></p>
+<p class="c3"><span class="c1">var(X) -переменная</span></p>
+<p class="c3"><span class="c1">nonvar(X) - не переменная</span></p>
+<p class="c3"><span class="c1">atom(X) - атом</span></p>
+<p class="c3"><span class="c1">atomic(X) - </span></p>
+<p class="c3"><span class="c1">integer(X) - число</span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c3"><span class="c1">преобразования термов типа терма</span></p>
+<p class="c3"><span class="c1">to_float(X, Y) - унифицирует терм Y - дробным представлением терма X</span></p>
+<p class="c3"><span class="c1">to_integer(X, Y) - унифицирует терм Y - целочисленным представлением терма X</span></p>
+<p class="c3"><span class="c1">to_list(X, Y) - унифицирует терм Y - строковым представлением терма X</span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c3"><span class="c1">write(X) -  предикат  вывода на экран, или на web-консоль</span></p>
+<p class="c3"><span class="c1">nl, предикат перевода строки</span></p>
+<p class="c3"><span class="c1">writeln(X) - предикат вывода на экран или web-консоль с переводом строки</span></p>
+<p class="c3"><span class="c1">read(X) - чтение терма  с консоли или web - консоли</span></p>
+<p class="c3"><span class="c1">get_char(X) - чтение одного символа с консоли или web-консоли</span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c3"><span class="c1 c2">Внимание!!!</span><span class="c1"> пролог не поддерживает атомы, факты и правил на киррилицы, но  web-консоль поддерживает вывод и ввод киррилицы через операторы write и read.</span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span class="c1"></span></p>
+<p class="c0"><span></span></p>
+
+                    </p>

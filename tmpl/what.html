@@ -1,0 +1,258 @@
+{% include 'header.html' %}
+
+
+    <div class="doc_content_box">
+        <div class="span3 bs-docs-sidebar doc_menu_fixed">
+            <ul class="nav nav-list bs-docs-sidenav" style="display: block;">   
+                <li>
+                <a href="#start" class="e_doc_title">
+                <i class="icon-chevron-right"></i><b>Overview</b></a>
+                </li>
+                
+                <li>
+                <a href="#mind" class="e_doc_title">
+                    <i class="icon-chevron-right"></i><b>Knowledge</b></a>
+                
+                </li>
+            
+            
+                <li>
+                <a href="#old" class="e_doc_title">
+                    <i class="icon-chevron-right"></i><b>Big Data</b></a>
+                
+                </li>
+                <li>
+                <a href="#new" class="e_doc_title">
+                    <i class="icon-chevron-right"></i><b>Our solution</b></a>
+                </li>                          
+            </ul>
+        </div>    
+  
+        <section id="start" class="doc_section">
+               <h4>Overview</h4>
+                <p>     Мы предлагаем подход к информации на основе модели фактов. 
+                . </p>
+                <p>Средний проект хранит   гигабайты информации в базах данных, но использует 
+                ее только для поддержания текущей работы.</p>
+                <p>На примере Google мы понимаем, что обладаем скрытыми знаниями, но мало кто знает  
+                как начать использовать, то что лежит в серверных стойках мертвым грузом.</p>
+                
+               <p> <strong>Мы</strong> предлагаем решение, которое поможет  вам  начать работу с этим
+               знаниями. 
+               </p>
+                
+        
+        
+        
+        </section>
+        
+
+          <section id="mind" class="doc_section">
+            <!--      <div class="hero-unit">-->
+            <!--      <div class="row">-->
+                    <h4>Knowledge</h4>
+                    <p>Сейчас вы храните свои данные как минимум  в нескольких хранилищах - база данных, файлы логов, а если 
+                    у вас действительно много данных, то у вас будет ваши базы данных будут делиться на архивные и рабочии и так
+                    далее, и так далее</p>
+                    
+<!--                    <img src="/cloud.jpg" width="400" />-->
+                    
+<!--                    <p> Не обижайтесь, но это именно так.</p>-->
+                     <p> Вы начинаете работать, и выхватывая кусочки из этого большого облака, </p>
+                     <p>превращаете  их в алгоритмы, а алгоритмы в  бизнес логику.</p>
+                     <p> Формализруя это все вы получаете  "нечто" в вашей базе данных.
+                     </p>
+<!--                    <img src="/transactions1.jpg" width="400" />-->
+                      <br/>
+                      <br/>
+
+                        <p>
+                      Из этой  базы данных вы можете строить красивый графики, отчеты, делаете выборки.
+                      </p>
+                 <!--     <p>
+                      <img src="/reports.jpg" width="400" />
+                      </p>-->
+                      <p>Программисты будут реализовывать реляционные  связи, отделы аналитиков будут аналзириовать
+                      красивые презентации и думать "А что это нам дает".         
+                      </p>
+                       <h4>TONS of it </h4>
+                 
+            
+
+            </section>
+            
+            <section id="old" class="doc_section">
+         
+                <h4>Big Data</h4>
+
+                    <p>Все  базы данных (MySql, PostgreSql, Oracle, SyBase, MsSql) начинались разрабатываться
+                    в конце прошлого столетия.
+                    </p>
+                    <p> 
+                        Важно понимать, что они не рассчитывались на современные реалии.
+                    </p>
+                    <p > Они прекрасно справляются со своими задачами, но в том, что предлагаем мы - они вам
+                        не помощники. Они не расчитаны на оперирование действительно   большими объемами данных 
+                    </p>    
+                    <p> Наиболее стабильным решением работы с огромными объемами данных является Hadoop.</p>
+                    <p>Данная платформа, написанная на Java,  предлагает FrameWork для управление и работы 
+                     с  кластером данных. Есть реализации включающие в себя 4000 машин.</p>
+                     <p>
+                        Краеугольным камнем   стека  Hadoop &amp;Hbase, является метод взаимодействия с большими данными - Map&amp;Reduce. 
+                    </p>
+                     <p>  
+                        Суть которого  - hadoop запускает классы Mapper-ы( сборщики данных ) на всех машинах кластера, а потом весь полученный 
+                     </p>  
+                     <p>
+                        поток направляет на  инстанс класса Reduce, который с ними и выполняет необходимые действия с данными.
+                     </p>
+                     <p>
+                     Типичная реализация Map&amp;Reduce   
+                     <pre>
+package org.myorg;
+     
+import java.io.IOException;
+import java.util.*;
+    
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.*;
+    
+public class WordCount {
+     
+         public static class Map extends MapReduceBase 
+            implements Mapper&lt;LongWritable, Text, Text, IntWritable&gt; {
+           private final static IntWritable one = new IntWritable(1);
+           private Text word = new Text();
+     
+           public void map(LongWritable key, Text value, OutputCollector&lt;Text, 
+                                IntWritable&gt; output, Reporter reporter) throws IOException {
+             String line = value.toString();
+             StringTokenizer tokenizer = new StringTokenizer(line);
+             while (tokenizer.hasMoreTokens()) {
+               word.set(tokenizer.nextToken());
+               output.collect(word, one);
+             }
+           }
+         }
+     
+         public static class Reduce extends MapReduceBase implements 
+                Reducer&lt;Text, IntWritable, Text, IntWritable&gt; {
+           public void reduce(Text key, Iterator&lt;IntWritable&gt; values,
+                              OutputCollector&lt;Text,   IntWritable&gt; output, Reporter reporter)
+                              throws IOException {
+             int sum = 0;
+             while (values.hasNext()) {
+               sum += values.next().get();
+             }
+             output.collect(key, new IntWritable(sum));
+           }
+         }
+     
+         public static void main(String[] args) throws Exception {
+           JobConf conf = new JobConf(WordCount.class);
+           conf.setJobName("wordcount");
+     
+           conf.setOutputKeyClass(Text.class);
+           conf.setOutputValueClass(IntWritable.class);
+     
+           conf.setMapperClass(Map.class);
+           conf.setCombinerClass(Reduce.class);
+           conf.setReducerClass(Reduce.class);
+     
+           conf.setInputFormat(TextInputFormat.class);
+           conf.setOutputFormat(TextOutputFormat.class);
+     
+           FileInputFormat.setInputPaths(conf, new Path(args[0]));
+           FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+     
+           JobClient.runJob(conf);
+         }
+     }
+                     
+</pre>
+
+
+
+
+
+     
+                   
+                   
+            </section>
+            
+           <section id="new" class="doc_section">
+<h4>Our Solution</h4>
+<p> Мы предлагаем решение  для создания интеллектуальных  систем, основанное 
+на языке логического программирования Prolog и распределенной системы Hadoop</p>
+При помощи него можно посчитать  допустим IP адреса  среди фактов платежей подобным образом.
+<pre>
+                     
+count_ip(Ip)  :-
+%%% по сути это и есть класс mapper аналог из Java
+ pay(Ref,X2,X3,X4,X5,X6,X7,X8,X9,X10,X11,X12,X13,X14,X15,Ip,X17,X18)   ,        
+ %%%а это часть Reduce...
+(retract(test_ip_counter(Ip,Counter1)) -> Counter is Counter1 + 1 ; Counter = 1)   ,       
+assert(test_ip_counter(Ip,Counter))   ,       
+false.
+
+count_ip(Ip)  :-
+ true.
+</pre>
+                    <p>
+                    В принципе нет нужды применять наш подход до тех пор пока вам нужно просто считать кол-во слов.
+                    </p>
+                    <p>
+                    Но если вам понадобиться сделать что-нибудь сложнее и связать нечто подобное 
+                    </p>
+                    <p>
+                    (Mapper &amp; Reducer) &amp; (Mapper &amp; Reducer) сама по себе нетривиальная задача для Java программистов,
+                    </p>
+                    <p>
+                    не говоря уже о сомнительной целесообразности запуска двух подобных задачь,
+                    </p> 
+                    <p>
+                    а если нужно сделать    (Mapper &amp; Reducer) &amp; (Mapper &amp; Reducer)&amp;(Mapper &amp; Reducer) ?
+                    </p>
+                    <p>
+                    При помощи нашего инструмента на базе Prolog-а подобные задачи не кажутся чем-то нереальным.
+                    </p>
+
+                    <p>
+                    <strong>count_ip(Ip)</strong> -  например посчитает  сколько Ip адресов присутствует среди фактов pay, и сохранит
+                    это значение в виде фактов <strong>test_ip_counter</strong>.
+                    </p>
+                    <p>
+                    А допустим если вызвать <strong>count_ip</strong>("127.0.0.1"), то вы посчитаете только ip адреса равные "127.0.0.1"
+                    </p>                   
+                                        
+     
+                        
+                        <p >
+                            Наша система позволит вам создавать системы работающие с огромными массивами данных, 
+                                формализованными  в единый граф знаний посредством языка Prolog.                       
+                        </p>
+                        <p >
+                          Мы предлагаем как low level решение на основе открытого REST API для больших промышленных систем, 
+                          так и простое решения для средних системы в виде JavaScript Widget-ов.                 
+                        </p>
+                        
+                        
+                        
+                        
+            </section>            
+           
+           
+        </div>
+
+
+</div>
+ 
+
+   
+    <!-- /container -->
+
+
+{% include 'footer.html' %}

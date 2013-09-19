@@ -16,12 +16,68 @@
 
  "use strict";
 
+ 
+ 
 /**
  * @fileoverview Common utility functionality for Google Drive Realtime API,
  * including authorization and file loading. This functionality should serve
  * mostly as a well-documented example, though is usable in its own right.
  */
+    var realtimeOptions = {
+      /**
+       * Client ID from the APIs Console.
+       */
+      clientId: '768399903870.apps.googleusercontent.com',
 
+      /**
+       * The ID of the button to click to authorize. Must be a DOM element ID.
+       */
+      authButtonElementId: 'authorizeButton',
+
+      /**
+       * Function to be called when a Realtime model is first created.
+       */
+      initializeModel: initializeModel,
+
+      /**
+       * Autocreate files right after auth automatically.
+       */
+      autoCreate: false,
+
+      /**
+       * Autocreate files right after auth automatically.
+       */
+       defaultTitle: "New  Prolog Code",
+
+      /**
+       * Function to be called every time a Realtime file is loaded.
+       */
+       onFileLoaded: onFileLoaded
+    };
+
+    /**
+     * Start the Realtime loader with the options.
+     */
+var realtimeLoader;
+
+function onFileLoaded(doc) {
+      var string = doc.getModel().getRoot().get('text');
+      string +="\n";      
+      editor.setValue(string);
+}
+
+
+
+function startRealtime(my_after_auth) {
+
+            realtimeLoader = new rtclient.RealtimeLoader(realtimeOptions);
+            realtimeLoader.start(my_after_auth);
+      
+ }
+function initializeModel(model){
+    
+          return;
+}
 
 /**
  * @namespace Realtime client utilities namespace.
@@ -54,7 +110,7 @@ rtclient.OPENID_SCOPE = 'openid'
  * MIME type for newly created Realtime files.
  * @const
  */
-rtclient.REALTIME_MIMETYPE = 'application/vnd.google-apps.drive-sdk';
+rtclient.REALTIME_MIMETYPE = 'application/vnd.google-apps.document';//'application/vnd.google-apps.drive-sdk';
 
 
 /**
@@ -112,6 +168,7 @@ rtclient.Authorizer = function(options) {
   this.clientId = rtclient.getOption(options, 'clientId');
   // Get the user ID if it's available in the state query parameter.
   this.userId = rtclient.params['userId'];
+  
   this.authButton = document.getElementById(rtclient.getOption(options, 'authButtonElementId'));
 }
 
@@ -185,11 +242,12 @@ rtclient.Authorizer.prototype.fetchUserId = function(callback) {
   gapi.client.load('oauth2', 'v2', function() {
     gapi.client.oauth2.userinfo.get().execute(function(resp) {
       if (resp.id) {
-        _this.userId = resp.id;
-      }
-      if (callback) {
-        callback();
-      }
+            _this.userId = resp.id;   
+     }
+     if (callback) {
+                callback();
+     }
+      
     });
   });
 };
@@ -304,7 +362,7 @@ rtclient.RealtimeLoader.prototype.start = function(afterAuth) {
       _this.registerTypes();
     }
     if (afterAuth) {
-      afterAuth();
+      afterAuth(  );
     }
 //     _this.load();
   });
@@ -343,8 +401,8 @@ rtclient.RealtimeLoader.prototype.new_project = function(callback, Name, Parent)
 function insert_file(Title, Code, Parent, callback_user ){
 
   var fileData = new Object();
-  fileData.fileName = Title + ".pl";
-  fileData.type = 'application/octet-stream';
+  fileData.fileName = Title;
+  fileData.type = "text/plain" //'application/octet-stream';
   
   var boundary = '-------314159265358979323846';
   var delimiter = "\r\n--" + boundary + "\r\n";
@@ -385,7 +443,7 @@ function insert_file(Title, Code, Parent, callback_user ){
     var request = gapi.client.request({
         'path': "/upload/drive/v2/files",
         'method': 'POST',
-        'params': {'uploadType': 'multipart'},
+        'params': {'uploadType': 'multipart','convert':'true'},
         'headers': {
           'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
         },
@@ -406,7 +464,7 @@ function gd_updateFile(fileId, folderId, text, callback) {
     var delimiter = "\r\n--" + boundary + "\r\n";
     var close_delim = "\r\n--" + boundary + "--";
 
-    var contentType ='application/octet-stream'; // "text/plain";
+    var contentType ="text/plain"; //'application/octet-stream'; // "text/plain";
     var metadata = {'mimeType': contentType,};
 
     var multipartRequestBody =
@@ -428,7 +486,7 @@ function gd_updateFile(fileId, folderId, text, callback) {
     gapi.client.request({
         'path': ReqStr,
         'method': 'PUT',
-        'params': {'fileId': fileId, 'uploadType': 'multipart'},
+        'params': {'fileId': fileId, 'convert':'true', 'uploadType': 'multipart'},
         'headers': {'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'},
         'body': multipartRequestBody,
         callback:callback,
@@ -455,7 +513,7 @@ rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
 	var request = gapi.client.request({
 	  'fileId': fileId,
 	   method: 'GET',
-	   path: "/drive/v2/files/"+fileId
+	   path: "/drive/v2/files/"+fileId+"?fields=exportLinks%2Cid%2Ctitle%2Cparents"
 	});
 	request.execute(function(resp) {
 	    downloadFile(resp, callback);
@@ -470,10 +528,10 @@ rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
 
 
 function downloadFile(file, callback) {
-	if (file.downloadUrl) {
+	if (file.exportLinks) {
 	  var accessToken = gapi.auth.getToken().access_token;
 	  var xhr = new XMLHttpRequest();
-	  xhr.open('GET', file.downloadUrl);
+	  xhr.open('GET', file.exportLinks['text/plain']);
 	  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
 	  xhr.onload = function() {
 	    callback(xhr.responseText, file);

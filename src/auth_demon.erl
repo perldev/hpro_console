@@ -6,7 +6,7 @@
 -export([auth/2, deauth/2, 
          get_free_namespace/0,
          return_free_namespace/1,
-         low_auth/3, try_auth/3,
+         try_auth/3,
          low_stop_auth/3,
          free_namespaces/0,
          check_auth/2,
@@ -28,23 +28,38 @@ start_link() ->
 	  
 %%TODO name spaces
 init([]) ->
-	  Auth = ets:new( auth_info, [named_table ,public ,set ] ),
-	  ets:insert(Auth, ?AUTH_LIST ),
-	  {NameSpace, Registered} = load_tables(),
+	  ets:new(?AUTH_SESSION, [named_table ,public ,set ]),
 	  generate_avail_namespaces_tables(),
 	  timer:apply_interval(?CACHE_CONNECTION, ?MODULE, cache_connections, []),
+	  registered_users(),
           { ok, #monitor{
-		      registered_namespaces = NameSpace,
-		      registered_ip = Registered,
-		      auth_info = Auth,
-		      proc_table = ets:new( proc_table, [named_table ,public ,set ] )
+		     
+		      proc_table = ets:new( proc_table_, [named_table ,public ,set ] )
 		      } 
 	  }
 .
+
+registered_users()->
+         case catch  ets:file2tab(?DETS_FILE) of
+            {ok, ?ETS_REG_USERS}->
+                ?ETS_REG_USERS;
+            _->
+                ets:new(?ETS_REG_USERS,[bag, public, named_table])
+         end,
+         case catch  ets:file2tab(?ETS_REG_USERS_WORKSPACES_DETS) of
+            {ok, ?ETS_REG_USERS_WORKSPACES}->
+                 ?ETS_REG_USERS_WORKSPACES;
+            _->
+                ets:new(?ETS_REG_USERS_WORKSPACES,[bag, public, named_table])
+         end
+         
+.
+
 generate_avail_namespaces_tables()->
           ets:new(?ETS_TABLE_USERS, [named_table, private, bag]),
           Free = lists:map(fun(E)-> {free, ?TEMP_PREFIX ++ integer_to_list(E) }  end, lists:seq(1,?LIMIT_OF_USERS) ),
           ets:insert(?ETS_TABLE_USERS, Free).
+
           
 get_free_namespace()->         
     gen_server:call(?MODULE, get_free_namespace).
@@ -55,38 +70,11 @@ free_namespaces()->
 return_free_namespace(Namespace)->         
     gen_server:cast(?MODULE, {return_free_namespace,Namespace }).      
         
-          
-          
-
-%%cach auth information
-load_tables()->
-        Registered = case catch 
-			  ets:file2tab(?REGISTERED_FILE) of
-			{ok, Tab} -> Tab;	
-			 _ -> 
-			       ets:new( registered_namespaces, [named_table ,public ,set ] )
-		    end,
-	NameSpace = case catch 
-			  ets:file2tab(?REGISTERED_NAMESPACE) of
-			{ok, Tab2} -> 
-			      ets:foldl(fun({NameSpaceName, _Time}, In)->  
-					     ?CONSOLE_LOG("load namespace ~p ~n",
-					      [ NameSpaceName]),
-					    prolog_shell:api_start(NameSpaceName),
-					    ets:insert(Tab2,  {NameSpaceName , now() }),
-					    [NameSpaceName|In]
-					 end,[], Tab2),
-			      Tab2;	
-			 _ -> 
-			       ets:new( registered_ip, [named_table ,public ,set ] )
-		    end,
-        {NameSpace, Registered}
-.
-
 
 sync_with_disc(State)->
-      ets:tab2file(State#monitor.registered_namespaces, ?REGISTERED_NAMESPACE ),
-      ets:tab2file(State#monitor.registered_ip, ?REGISTERED_FILE ).
+      ets:tab2file(?ETS_REG_USERS_WORKSPACES,?ETS_REG_USERS_WORKSPACES_DETS),
+      ets:tab2file(?ETS_REG_USERS, ?DETS_FILE )
+.
       
 
 
@@ -101,23 +89,7 @@ handle_call( get_free_namespace, _From ,State) ->
     [Head|_List] = ets:lookup(?ETS_TABLE_USERS, free ),
     {free, Name} = Head,  
     ets:delete_object(?ETS_TABLE_USERS, Head),
-    prolog_shell:api_start_anon(Name),
-    {reply, Name  ,State}
-;
-handle_call( {auth, Ip, NameSpace }, _From ,State) ->
-    Res =  try_auth(Ip, NameSpace, State  ),
-    {reply, Res ,State}
-;
-handle_call({check_auth, Ip, NameSpace }, _From ,State) ->
-    ?CONSOLE_LOG("check auth ~p ~n",
-                           [{Ip, NameSpace}]),
-    EtsRegis = State#monitor.registered_ip,
-    Res = case ets:lookup(EtsRegis, { NameSpace, Ip } ) of 
-		      [_]-> true; %normal
-		      [] ->
-			    false
-		end,
-    {reply, Res ,State}
+    {reply, Name, State}
 ;
 
 handle_call(Info,_From ,State) ->
@@ -126,46 +98,74 @@ handle_call(Info,_From ,State) ->
     {reply,nothing ,State}
 .
 
+try_auth(Ip, OutId, State)->
+    api_auth_demon:get_real_namespace_name(OutId).
 
-try_auth(Ip, NameSpace, State)->
-      Ets = State#monitor.registered_namespaces,
-      EtsRegis = State#monitor.registered_ip,
+%     case ets:lookup(?ETS_PUBLIC_SYSTEMS, OutId) of
+%         [] -> false;
+%         [{_,NameSpace, Config} ]->
+%                 try_auth(Ip, NameSpace, State, Config)
+%     
+%     end.
     
+
+try_auth(Ip, NameSpace, State, Config)->
+      Ets = State#monitor.registered_namespaces,
+      EtsIp = State#monitor.registered_ip,
       case ets:lookup(Ets, NameSpace ) of
-	  [_]-> %already registered
-	        case ets:lookup(EtsRegis, { NameSpace, Ip } ) of 
-		      [_]-> true; %already registered
-		      [] ->
-			    low_auth(State, Ip, NameSpace)
-		end;
+	  [_]-> %already loaded
+               cache_auth_ip( check_low_auth(Config, Ip ), Ip,  NameSpace, EtsIp );        
 	  []->
-	       low_auth(State, Ip, NameSpace)
+	       auth_and_load( check_low_auth(Config, Ip ),  Ip, NameSpace, Config,State)
      end	
 .
+%%default all ips
+check_low_auth({}, _)->
+    true;
+check_low_auth(Dict, Ip)->
+    case dict:find('ips', Dict ) of
+        {ok, ListIps}->
+            erlang:member(Ip, ListIps);
+        %%default all ips
+        _ -> true
+    end
+.    
+    
 
-low_auth(State, Ip, NameSpace)->
-    Ets = State#monitor.auth_info,
-    case ets:lookup(Ets, {Ip,NameSpace}) of
-	[_] -> 
-	    start_namespace(State, NameSpace, Ip  ),
-	    true;
-	[] -> false
+
+cache_auth_ip(true, Ip, NameSpace, EtsIp)->    
+    ets:insert(EtsIp, { {NameSpace, Ip}, true} ),
+    true;
+cache_auth_ip(false,_Ip,  _NameSpace, _EtsIp)->
+    false.   
+    
+auth_and_load( false, _Ip, _NameSpace, _Config, _State)->
+    false;
+auth_and_load(true,  Ip, NameSpace, Config,State)->
+    start_namespace(NameSpace, Ip, State, Config ),
+    true
+.
+
+start_namespace( NameSpace, Ip, State, Config)->
+  	  EtsNameSpace = State#monitor.registered_namespaces,
+  	  EtsIp = State#monitor.registered_ip,
+	  ets:insert(EtsIp, { {NameSpace, Ip} , now() }),
+          expert_system_start(NameSpace, Config),
+	  ets:insert(EtsNameSpace,  {NameSpace , now() }),
+          true
+.
+
+expert_system_start(NameSpace, Config)->
+    case dict:find(source, Config) of
+        {ok, { file, FileName  } } ->
+             prolog_shell:api_start_anon(NameSpace, FileName);  
+        {ok, hbase}->
+             prolog_shell:api_start(NameSpace);
+        _->
+            throw({exception, source_unavalible  })
     end
 .
 
-
-start_namespace(State, NameSpace, Ip)->
-	  EtsRegis = State#monitor.registered_ip,
-  	  EtsNameSpace = State#monitor.registered_namespaces,
-	  ets:insert(EtsRegis, { {NameSpace, Ip} , now() }),
-	  case ets:lookup(EtsNameSpace,NameSpace ) of
-		[] -> 
-		    prolog_shell:api_start(NameSpace),
-		    ets:insert(EtsNameSpace,  {NameSpace , now() }),
-		    true;
-		_->true
-	  end
-.
 
 low_stop_auth(State,  Ip, NameSpace)->
     Ets = State#monitor.registered_ip,
@@ -182,8 +182,12 @@ handle_cast({return_free_namespace, NameSpace }, MyState)->
     ets:insert(?ETS_TABLE_USERS, {free, NameSpace}),
     prolog:delete_structs(NameSpace),
     {noreply, MyState};
+    
 handle_cast(cache_connections, MyState)->
-    sync_with_disc(MyState),
+    Res = (catch sync_with_disc(MyState)),
+%     ?CONSOLE_LOG("syncing with the disk  result is ~p ~n",
+%                            [Res]),
+    
     {noreply, MyState};
 handle_cast( { deauth,  Ip, NameSpace }, MyState) ->
 	  %TODO reloading various namespaces
@@ -240,6 +244,12 @@ handle_info({'DOWN',_,_,Pid,Reason}, State)->
        ets:delete(State#monitor.proc_table, Pid),
        
        {noreply,  State}
+;
+handle_info(Info = {'ETS-TRANSFER', SomeTable, FromPid, Prefix}, State)->
+        ?CONSOLE_LOG("get finished table ~p ~n",
+                           [Info]),
+        return_free_namespace(Prefix),                   
+        {noreply,  State}
 ;
 handle_info(Info, State) ->
     ?CONSOLE_LOG("get msg  unregistered msg ~p ~n",

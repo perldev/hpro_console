@@ -31,30 +31,112 @@
     var ws_trace = new Object;
     var history = new Array();
     var index = 0;
-    var HOST = "codeide.com";//"127.0.0.1:8080";
     var editor;
     var SESSION_KEY;
     var LOADED = 0;
     var WHOST = "ws://" + HOST+"/websocket/"; //"ws://hd-test-2.ceb.loc:10100";
     function send_req(obj){
 		 var Code = $.trim(obj.value);	
-		 var Var  = "<p>| -? " + obj.value+"</p>";
+		 var Var  = "<p>" + obj.value+"</p>";
 		 var Var1 = obj.value;
 		 Var1 = Var1.replace("\n","");
 		 Var1 = Var1 + " ";
 		 obj.value ="";
-		 $("#sse").html("<p>| -? " + Var +"</p>");
+		 $("#sse").html("<p>" + Var +"</p>");
 		 history[$.trim(Var1)] = 1 ;	  
 		 index = 0;
 		 send(Var1);
 		 disable_run();     
     
     }
-    function onFileLoaded(doc) {
-      var string = doc.getModel().getRoot().get('text');
-      string +="\n";      
-      editor.setValue(string);
-    } 
+    function start_simple_system(){
+        var Params = rtclient.getParams();
+        
+    
+        $("#code").prop("disabled", false);   
+        Key = Math.random();
+        // Handler for .ready() called.
+        SESSION_KEY = Key;
+        var url ="";
+        
+        if(Params['public_key']){
+            url = WHOST+Key + "/" + Params['public_key'];
+        
+        }else{
+        
+            url = WHOST+Key;
+        }
+        
+        ws = new WebSocket(url);
+        
+        ws.onopen = function() {
+            console.log('Connected');
+        };
+        ws.onmessage = function (evt)
+        {
+            var received_msg = evt.data;
+            console.log("Received: " + received_msg);
+            var patt=/looking next/;            
+            var result=patt.test(received_msg);
+            if(result){
+                wait_answer = 1;
+                show_choose();
+               
+            }
+            patt=/aim is finished/; 
+            result=patt.test(received_msg);
+            if(result){
+               enable_run();
+            }
+            
+            
+//             else{
+//                   enable_run();
+                  
+                
+//             }            
+            if(interactive_commands(received_msg)){  
+                  return ;
+            }
+            $("#sse").append("<p>" + received_msg +"</p>");
+            
+            
+
+
+        };
+        ws.onclose = function()
+        {
+            console.log('Connection closed');
+        };
+        ws_trace = new WebSocket(WHOST+"trace/" + Key);
+        ws_trace.onopen = function() {
+            console.log('Connected');
+        };
+        ws_trace.onmessage = function (evt)
+        {
+            var received_msg = evt.data;
+            console.log("Received: " + received_msg);
+            if(interactive_commands(received_msg)){  
+                  return ;
+            }
+            if(received_msg !="finish"){
+            
+//              $("#trace_input").prop("disabled", false);
+                $("#trace_input").focus();    
+                $("<p>| -? " + received_msg +"</p>").insertBefore("#trace_sse");            
+                scroll_trace();
+
+            }
+            
+
+        };
+        ws_trace.onclose = function()
+        {
+            console.log('Connection closed');
+        };
+        
+    }
+    
     function  update_editor(string){
 	    editor.setValue(string);
     
@@ -64,9 +146,7 @@
     
 	  return;
     }
-    function my_after_auth(){
-	  $("#authorizeButton").hide("fast");
-    } 
+
    
     function but_search(){
 	  var obj = document.getElementById("code");
@@ -143,6 +223,16 @@
 		  $("#search_but").hide("slow");
     
     }
+    function stop_current_search()
+    {
+        send("no. ");
+        enable_run();  
+    }
+    function continue_current_search()
+    {
+         send("yes. ");
+    }
+    
     function interactive_commands(received_msg){
       
             //alert(received_msg);
@@ -168,35 +258,38 @@
             }
             return 0;
       
-      }
-      function draw_msg(Msg){
+    }
+    //deprecated
+    function draw_msg(Msg){
       
-            $("<p>| -? " + Msg +"</p>").insertBefore("#sse");       
-            $("#trace_input").prop("disabled", true);
-            $("#code").prop("disabled", false);
-            $("#code").focus();    
+            $("#sse").append("<p> " + Msg +"</p>");       
             
-      }
-    
-      function  draw_char_input(){
+    }
+    function  draw_char_input(){
       
-            $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)'  maxLength='1' style='width: 10px;'></p>").insertBefore("#sse");      
-            $("#trace_input").prop("disabled", true);
-            $("#code").prop("disabled", true);
+            $("#sse").append("<p> <input type=\"text\" onkeyup='user_input(this, event)'  maxLength='1' style='width: 10px;'></p>");      
       
-     }
+    }
     function  draw_input(){
       
-            $("<p>| -? <input type=\"text\" onkeyup='user_input(this, event)' size='100'></p>").insertBefore("#sse");       
-            $("#trace_input").prop("disabled", true);
-            $("#code").prop("disabled", true);
+            $("#sse").append("<p> <input type=\"text\" onkeyup='user_input(this, event)' size='100'></p>");       
+
     }
     function draw_output(Msg){
-            $("<p>| -? "+Msg+"</p>").insertBefore("#sse");          
-            $("#trace_input").prop("disabled", true);
-            $("#code").prop("disabled", true);
+            $("#sse").append("<p> "+Msg+"</p>");          
+           
       
     }
+    function user_input(obj, E){
+               if(E.keyCode == 13 ){
+                        Code = $.trim(obj.value);
+                        $("<p>| -? "+Code+" </p>").insertBefore("#sse");
+                        ws.send(Code);
+                        obj.style.display="none";
+                                
+              }
+     
+    }     
     function enable_run(){
 		  $("#code").prop("disabled", false);    
 		  $("#search_but").show("slow");
@@ -211,6 +304,7 @@
 	ws.send(send_txt);
 	console.log('Message sent');
     }
+    
     function hide_choose(){
 	
 	$("#choose_menu").hide("fast");

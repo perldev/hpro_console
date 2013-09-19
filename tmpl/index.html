@@ -1,0 +1,60 @@
+{% include 'header.html' %}
+
+      <div id='console' class="container" style='width:800px;  margin-top: 2em;'  >
+		
+		<div id="msgs" style="font-size: 16px;
+				      width: 800px;
+				      
+				      ">
+		<p class='console_p'> Using Prolog 0.6 </p>
+		 <div style="float:left">
+			    <input id="code"  style="border:1px solid #0088CC ; width:740px; height:20px;font-size:16px" 
+				      onkeyup="listen(this,event)" /> 
+			  </div> 
+	      <br/><br/>
+			<div id="sse" >
+			   
+			  
+			  
+			</div>
+			<div id='choose_menu' style='display:none; float:left;width:20em'>
+			 <a class="btn btn-danger pull-left" href="javascript:stop_current_search()"> No </a>
+			 <a class="btn btn-success pull-right" href="javascript:continue_current_search()"> Yes </a>
+
+			</div>
+		      <div id="search_but" style='float:left;margin-left:20em'> <a class="btn pull-right" href="javascript:but_search()"> Queue </a>  </div>
+
+			
+		</div>
+      </div>
+    
+
+      
+      
+   
+    </div>
+
+    <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src='/static/js/simple_que.js' ></script>
+    
+    <script>
+     function my_after_auth( ){
+          var session = gapi.auth.getToken("token",null); 
+          document.getElementById("authorizeButton").style.display="none";
+          start_simple_system();          
+          
+      }              
+      $(document).ready(function() {
+            startRealtime(my_after_auth);  
+                      
+      });
+
+   
+   
+</script>
+
+{%include 'footer.html'%}

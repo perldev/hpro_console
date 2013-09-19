@@ -3,8 +3,12 @@
         {vsn, "1"},  
         {registered, []},  
         {applications, [  
-            kernel,stdlib,crypto,cowboy,  
-            compiler,syntax_tools  
+            kernel,
+            stdlib,
+            crypto,
+            cowboy,  
+            compiler,
+            syntax_tools  
         ]},  
         {mod, { erws_app, []}},  
         {env, []}  

@@ -1,0 +1,17 @@
+<h3>{{name}}</h3>
+<p>{{description}}</p>
+<h4>Permissions:</h4>
+<pre>
+{%for ip in permissions%}
+Ip {{ip.ip}} is {{ip.perm }}
+{%endfor%}
+</pre>
+<h4>Public page of this expert system:</h4>
+<a href="{{public_url}}">{{public_url}}</a>
+<h4>Public api url:</h4>
+<a href="{{public_api_urls}}">{{public_api_urls}}</a> <br/>
+more info <a href="/dev_help.html#pro">there</a>
+
+
+
+

@@ -1,0 +1,165 @@
+{% include 'header.html' %}
+
+    
+    
+
+<!--     SECONDARY MENU -->
+
+
+
+    <div class="container" id="container" style='border-bottom: 1px solid gray' >
+        <div  id="own_expert_systems"  >
+            My Public Expert Systems :&nbsp;
+        </div>
+	  <div  id='tabs' >
+	        <a id="console_button" class='btn' style='padding-left: 1em;' href="javascript:open_console()">Console</a>
+	        <a id='create_new_project' class='btn' style='padding-left: 1em;' href="javascript:create_new_project_common()">Create Project</a>
+		<a id='online_ide_button' class='btn' style='padding-left: 1em;' href="javascript:show_online()">Code</a>
+		<a id="help_button" class='btn' style='padding-left: 1em;' href="javascript:help()">Help</a>
+
+          </div>
+     </div>    
+     
+<!--     SECONDARY MENU -->
+
+<!-- WORKING BLOCK -->
+<div class="container">
+
+                <div id='console' class="container" style='display:none; margin-top: 2em;'  >
+                            <div class="right"><!--<a  style='padding-left: 1em;' href="javascript:clear_console()">Clear</a>-->
+            <!--				    <a  style='padding-left: 1em;' href="javascript:close_console1()">Close console</a>-->
+                                                </div>  
+                            <p>*Type 'help' for listing inner commands </p>
+                            
+                            <div id="msgs" style="font-size: 14px;padding:12px; height:300px;
+                                                width: 800px;border:1px solid black;
+                                                overflow: auto;
+                                                ">
+                            <p class='console_p'> Prolog 0.5 </p>
+                            
+                            
+                        
+                                    <div id="sse" >
+                                    <div style="float:left;font-size: 14px;">| - ?&nbsp;</div>
+                                        <div style="float:left">
+                                        <input id="code"  style="border:1px solid #0088CC;line-height:1.5em;
+                                                                width:775px; height:20px;font-size:14px" 
+                                                onkeyup="listen(this,event)" />
+                                    </div>                                     
+                                    </div>
+                                    
+                            </div>
+                </div>
+                <div id='right_part'  class="container" style="margin-top:2em;">
+                <div id='trace'  style="display:none" >
+                <h4>Trace :  </h4>
+                            <div id="trace_msg" style=" overflow: auto;font-size: 12px;height:200px; width: 800px;border:1px solid black;">
+                            
+                            
+                            
+                                            <div id="trace_sse" >
+                                            <div style="float:left;font-size: 12px;">| - ?&nbsp;</div>
+                                            <div style="float:left">
+                                                <input id="trace_input" rows='3' style="border:1px solid #0088CC;
+                                                                width:775px; height:20px; 
+                                                                font-size:12px" 
+                                                                onkeyup="listen_trace(this,event)" />
+                                            </div> 
+                                        </div>
+                                
+                                
+                                
+                                
+                                
+                            </div>
+                </div>
+
+            
+                </div> <!--right part-->
+            
+                <div id='container_help' class="container" > 
+                
+                                    <div class="hero-unit">
+                                        {% include 'prolog_doc.html' %}
+
+                                    </div>
+
+                                    
+                
+                
+                </div>
+
+                
+                    <div id='container_editor' class="container left" style="display: none; width: 810px;"> 
+                    
+                                        <div class='right' id='project_files'>  
+                                                            <h5> Project's files: </h5>
+                                                            
+                                        </div>
+                                        
+                                        <h4> Editor  </h4>
+                                        
+                                        <div class="left" id='project_title'> 
+                                    
+                                        </div> 
+                                        
+                                        <div class="right">
+                <!--			<a  style='padding-left: 1em;' href="javascript:load_code()">Run</a>-->
+                                        <a class="btn btn-primary"  style='padding-left: 1em;' id='new_file_button' href="javascript:new_file()">New</a>
+                                        <a class="btn btn-primary"  style='padding-left: 1em;'  href="javascript:compile_project()">Run Project</a>
+                                        <a class="btn btn-primary"  style='padding-left: 1em;'  href="javascript:save_an_load_file()">Run File</a>
+                                        <a class="btn btn-primary"  style='padding-left: 1em;' id='make_public_button' href="javascript:make_public()" >Make Public</a>
+                                        <a class="btn btn-primary"  style='padding-left: 1em;display:none' id='save_to_public_button' href="javascript:save_public()" >Save To Public</a>
+                                        <a class="btn btn-info"  style='padding-left: 1em;' id='filePicker' href="javascript:choose_drive()">GoogleDrive</a>
+                <!--      			<a  style='padding-left: 1em;' href="javascript:close_editor()">Close editor</a> -->
+                                    
+                                    </div> 
+                                    
+
+                                    
+                
+                                   <div id='editor' style="height: 700px;
+                                                                position: relative;
+                                                                width: 700px;
+                                                                font-size:14px">
+                                   </div>
+                
+                    </div>
+
+
+	
+
+   
+    </div>
+
+    <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <script type="text/javascript" src="/static/js/client_ide.js"></script>
+    <script type="text/javascript" src="/static/js/samples.js"></script>
+
+    <script src="/static/js/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+    
+       function my_after_auth( ){
+          var session = gapi.auth.getToken("token",null); 
+          document.getElementById("authorizeButton").style.display="none";
+          create_server_session(session);         
+          show_online();          
+          
+       }              
+      $(document).ready(function() {
+            startRealtime(my_after_auth);  
+        });
+    //
+
+     
+
+	
+	
+</script>
+{% include 'footer.html' %}
+ 

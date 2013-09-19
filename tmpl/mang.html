@@ -1,0 +1,48 @@
+{% include 'header.html' %}
+
+
+    <div class="doc_content_box">
+        <div class="span3 bs-docs-sidebar doc_menu_fixed">
+            <h4>Your expert systems :</h4>
+            <ul class="nav nav-list bs-docs-sidenav" style="display: block;" id="you_expert_systems">   
+                
+               
+                                    
+            </ul>
+        </div>    
+        
+        <section class="doc_section" id="panel">
+        
+        
+
+           
+        </section>   
+        </div>
+
+
+</div>
+  <script src="/static/js/managing.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        function my_after_auth( ){
+          document.getElementById("authorizeButton").style.display="none";
+          ManagePanel.start();         
+          
+      }              
+      $(document).ready(function() {
+            startRealtime(my_after_auth);  
+                      
+      });
+    
+    //
+
+     
+
+        
+        
+</script>
+
+   
+    <!-- /container -->
+
+
+{% include 'footer.html' %}

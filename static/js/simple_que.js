@@ -59,8 +59,8 @@
         SESSION_KEY = Key;
         var url ="";
         
-        if(Params['public_key']){
-            url = WHOST+Key + "/" + Params['public_key'];
+        if('public_key' in Params){
+            url = WHOST+Key + "/" + Params['public_key']+'/';
         
         }else{
         

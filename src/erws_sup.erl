@@ -17,7 +17,7 @@ init([]) ->
              permanent, infinity, worker , [ converter_monitor]
         },
         AuthDemon = {
-        "api_auth_demon",
+                "api_auth_demon",
                 {api_auth_demon, start_link, [erws] },
                 permanent, infinity, worker , [ api_auth_demon]
         

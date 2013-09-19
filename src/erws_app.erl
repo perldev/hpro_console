@@ -40,7 +40,7 @@ start(_StartType, _StartArgs) ->
                              ok = erlydtl:compile(Name, ModuleName)
                        end, ?TMPLS),			  
 				  
-	{ok, _} = cowboy:start_http(http, 10, [{port, ?LISTEN_PORT}],
+	{ok, _} = cowboy:start_http(http, 1000, [{port, ?LISTEN_PORT}],
 						 [
                                                     {env, [{dispatch, Dispatch}]},
                                                     {onresponse, fun respond/4}

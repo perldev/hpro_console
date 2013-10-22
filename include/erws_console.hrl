@@ -1,5 +1,7 @@
 -define('CONSOLE_LOG'(Str, Params), lager:info(Str, Params) ).
--define(LISTEN_PORT,8080).
+
+-define(INIT_APPLY_TIMEOUT, 1000).
+
 
 -define(REGISTERED_FILE, "../consoledb/registered.ets" ).
 -define(REGISTERED_NAMESPACE, "../consoledb/namespaces.ets" ).
@@ -7,8 +9,8 @@
 -define(DETS_FILE, "../consoledb/regis_users.dets").
 -define(ETS_REG_USERS, regis_users).
 -define(ETS_REG_USERS_WORKSPACES, path_regis_users).
-
 -define(ETS_REG_USERS_WORKSPACES_DETS, "../consoledb/path_regis_users.dets").
+
 
 
 -define(MSG_FOOTER, <<"looking next ?">>).

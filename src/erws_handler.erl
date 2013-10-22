@@ -365,11 +365,11 @@ wait_result(Back, TreeEts, TraceStatus)->
 				      ; 
 				{result,  write, Something } ->
 				      ?CONSOLE_LOG("~p write predicate  ~p to ~n",[{?MODULE,?LINE}, Something ]),
-				      Binary = list_to_binary(Something),
+				      Binary = unicode:characters_to_binary(Something),
 				      Back ! {result, write, <<"prolog_write,",Binary/binary >>  },
 				      wait_write_ping(),
 				      wait_result(Back, TreeEts, TraceStatus)
-				      ;
+				      ;  
 				{result,  get_char, BackPid } ->
 				      Back ! {result, get_char },
 				      ets:insert(TreeEts, {BackPid, next,   get_char} ),
@@ -498,7 +498,7 @@ server_loop(P0, TreeEts, WebPid, TracePid, TraceStatus) ->
 .
 
 web_parse_code(P0)->
-    {ok, Terms , _L1} = erlog_scan:string( binary_to_list( P0 ) ),
+    {ok, Terms , _L1} = erlog_scan:string( unicode:characters_to_list( P0 ) ),
     erlog_parse:term(Terms).
     
 process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts)->

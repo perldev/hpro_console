@@ -245,14 +245,20 @@
             patt = /^get_char/;
             result = patt.test(received_msg);
             if(result){
+                
                 draw_char_input();
+                
                 return 1;
             }
             patt = /^prolog_write/;
             result = patt.test(received_msg);
             if(result){
                 var Msg = received_msg.split(",");
-                draw_output(Msg[1]);
+                
+                for(var index =1; index < Msg.length; index++  ){
+                    draw_output(Msg[index]);
+                }
+                
                 ws.send("prolog_write_pong");
                 return 1;
             }

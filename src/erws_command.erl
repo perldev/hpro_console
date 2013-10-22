@@ -175,7 +175,7 @@ echo( [ <<"create_managing_command_session">>, Session ], Req, State)->
 echo( [ <<"create_command_session">>, Session ], Req, State)->
 
      SessKey = binary_to_list(Session),
-     UserId =      google_api:google_get_user_id(SessKey), 
+     UserId =  google_api:google_get_user_id(SessKey), 
      %%TODO process exception
      ets:insert(?AUTH_SESSION, {SessKey, UserId } ),
      NameSpaces  = get_list_namespaces(UserId),

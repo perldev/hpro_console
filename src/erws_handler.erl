@@ -438,6 +438,8 @@ get_help()->
 %% solution.
 server_loop(P0, TreeEts, WebPid, TracePid, TraceStatus) ->
     process_flag(trap_exit, true),
+    put( ?DYNAMIC_STRUCTS, common:get_logical_name(TreeEts, ?DYNAMIC_STRUCTS) ),
+
     ParseGoal = (catch web_parse_code(P0) ),  
     ?CONSOLE_LOG(" get aim ~p",[ParseGoal]),
     {_,T,T1} = now(),

@@ -1,51 +1,13 @@
 -module(erws_app).  
 -behaviour(application).  
--export([start/2, stop/1, start/0]).  
+-export([start/2, stop/1, start/0, web_start/0]).  
 
 -include("erws_console.hrl").
 
 start(_StartType, _StartArgs) ->  
-%% {Host, list({Path, Handler, Opts})}  
-%% Dispatch the requests (whatever the host is) to  
-%% erws_handler, without any additional options.  
-%         Dispatch = [{'_', [  
-%             {'_', erws_handler, []}  
-%         ]}],  
-        %% Name, NbAcceptors, Transport, TransOpts, Protocol, ProtoOpts  
-        %% Listen in 10100/tcp for http connections.  
-%         cowboy:start_listener(erws_websocket, 100,  
-%             cowboy_tcp_transport, [{port, 10000}],  
-%             cowboy_http_protocol, [{dispatch, Dispatch}]  
-%         ),  
-        Dispatch = cowboy_router:compile([
-				  {'_', [
-                                        {"/command/[...]", erws_command, []},
-                                        {"/websocket/[...]", erws_handler, []},
-                                        {"/prolog/[...]", api_erws_handler, []},%% for using api 
-                                        {"/static/[...]", cowboy_static, [
-                                        {directory, <<"static">>},
-                                        {mimetypes, 
-                                        [
-                                        {<<".png">>, [<<"image/png">>]},
-                                        {<<".jpg">>, [<<"image/jpeg">>]},
-                                        {<<".css">>, [<<"text/css">>]},
-                                        {<<".js">>, [<<"application/javascript">>]}]
-                                        }
-                                        ]},
-                                        {"/[...]", erws_pages, []}
-
-                                    ]}
-				  ]),
-	lists:foreach( fun({Name, ModuleName})->
-                             ok = erlydtl:compile(Name, ModuleName)
-                       end, ?TMPLS),			  
-				  
-	{ok, _} = cowboy:start_http(http, 1000, [{port, ?LISTEN_PORT}],
-						 [
-                                                    {env, [{dispatch, Dispatch}]},
-                                                    {onresponse, fun respond/4}
-						 ]),						 
-% 	log4erl:conf("log.conf"),	
+	  
+	timer:apply_after(?INIT_APPLY_TIMEOUT,?MODULE,web_start,[]),
+	
         erws_sup:start_link().  
         
         
@@ -65,6 +27,40 @@ respond(Code, Headers, <<>>, Req) when is_integer(Code), Code >= 400 ->
 respond(_Code, _Headers, _Body, Req) ->
         Req.
         
+
+        
+web_start()->
+        
+        Dispatch = cowboy_router:compile([
+                                  {'_', [
+                                        {"/command/[...]", erws_command, []},
+                                        {"/websocket/[...]", erws_handler, []},
+                                        {"/prolog/[...]", api_erws_handler, []},%% for using api 
+                                        {"/static/[...]", cowboy_static, [
+                                        {directory, <<"static">>},
+                                        {mimetypes, 
+                                        [
+                                        {<<".png">>, [<<"image/png">>]},
+                                        {<<".jpg">>, [<<"image/jpeg">>]},
+                                        {<<".css">>, [<<"text/css">>]},
+                                        {<<".js">>, [<<"application/javascript">>]}]
+                                        }
+                                        ]},
+                                        {"/[...]", erws_pages, []}
+
+                                    ]}
+                                  ]),
+        lists:foreach(  fun({Name, ModuleName})->
+                             ok = erlydtl:compile(Name, ModuleName)
+                        end, ?TMPLS ),
+        {ok, Port } = application:get_env(erws, work_port),       
+        {ok, _} = cowboy:start_http(http, 1000, [{port, Port }],
+                                                 [
+                                                    {env, [{dispatch, Dispatch}]},
+                                                    {onresponse, fun respond/4}
+                                                 ])
+                                                 
+.
         
         
 start()->

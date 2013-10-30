@@ -3,12 +3,14 @@
         {vsn, "1"},  
         {registered, []},  
         {applications, [  
+            
             kernel,
             stdlib,
             crypto,
             cowboy,  
             compiler,
-            syntax_tools  
+            syntax_tools,
+            eprolog
         ]},  
         {mod, { erws_app, []}},  
         {env, []}  

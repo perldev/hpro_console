@@ -10,28 +10,29 @@
          low_stop_auth/3,
          free_namespaces/0,
          check_auth/2,
-         cache_connections/0]).
+         cache_connections/0,
+         post_load/0,
+         sync_with_disc/0]).
 
 
 -record(monitor,{
 		  registered_namespaces,
 		  registered_ip,
 		  auth_info,
-		  proc_table		  
+		  proc_table	  
                 }
                 ).
 -include("erws_console.hrl").
 
 start_link() ->
 	  gen_server:start_link({local, ?MODULE},?MODULE, [],[]).
-
 	  
 %%TODO name spaces
 init([]) ->
 	  ets:new(?AUTH_SESSION, [named_table ,public ,set ]),
-	  generate_avail_namespaces_tables(),
-	  timer:apply_interval(?CACHE_CONNECTION, ?MODULE, cache_connections, []),
-	  registered_users(),
+          ets:new(?ERWS_LINK, [set, public,named_table ]),
+          timer:apply_after(2500, ?MODULE, post_load,[]),
+	
           { ok, #monitor{
 		     
 		      proc_table = ets:new( proc_table_, [named_table ,public ,set ] )
@@ -39,25 +40,49 @@ init([]) ->
 	  }
 .
 
+post_load()->
+    gen_server:cast(?MODULE, post_load)
+.
+
+
 registered_users()->
-         case catch  ets:file2tab(?DETS_FILE) of
+         {ok, DetsFile} = application:get_env(erws, registered_users_dets  ),
+         {ok, RegWorkSpaces} = application:get_env(erws, registered_user_workspaces_dets  ),
+
+         case catch  ets:file2tab(DetsFile) of
             {ok, ?ETS_REG_USERS}->
                 ?ETS_REG_USERS;
             _->
-                ets:new(?ETS_REG_USERS,[bag, public, named_table])
+                load_backup(registered_users_dets)
          end,
-         case catch  ets:file2tab(?ETS_REG_USERS_WORKSPACES_DETS) of
+         case catch  ets:file2tab(RegWorkSpaces) of
             {ok, ?ETS_REG_USERS_WORKSPACES}->
                  ?ETS_REG_USERS_WORKSPACES;
             _->
-                ets:new(?ETS_REG_USERS_WORKSPACES,[bag, public, named_table])
-         end
-         
+               load_backup(registered_user_workspaces_dets)
+               
+         end         
 .
 
+load_backup(registered_users_dets)->
+     {ok, REGISTERED_FILE} = application:get_env(erws, registered_users_dets_backup),
+      io:format("~p",[REGISTERED_FILE]),
+     {ok, Tab} = ets:file2tab(REGISTERED_FILE),
+     Tab;
+load_backup(registered_user_workspaces_dets)->
+     {ok, REGISTERED_NAMESPACE} = application:get_env(erws, registered_user_workspaces_dets_backup),
+     io:format("~p",[REGISTERED_NAMESPACE]),	
+     {ok, Tab} =ets:file2tab(REGISTERED_NAMESPACE),
+     Tab.
+
+     
+     
+     
+     
 generate_avail_namespaces_tables()->
+          {ok, Limit}  = application:get_env(erws, limit_of_users),
           ets:new(?ETS_TABLE_USERS, [named_table, private, bag]),
-          Free = lists:map(fun(E)-> {free, ?TEMP_PREFIX ++ integer_to_list(E) }  end, lists:seq(1,?LIMIT_OF_USERS) ),
+          Free = lists:map(fun(E)-> {free, ?TEMP_PREFIX ++ integer_to_list(E) }  end, lists:seq(1,Limit) ),
           ets:insert(?ETS_TABLE_USERS, Free).
 
           
@@ -71,9 +96,12 @@ return_free_namespace(Namespace)->
     gen_server:cast(?MODULE, {return_free_namespace,Namespace }).      
         
 
-sync_with_disc(State)->
-      ets:tab2file(?ETS_REG_USERS_WORKSPACES,?ETS_REG_USERS_WORKSPACES_DETS),
-      ets:tab2file(?ETS_REG_USERS, ?DETS_FILE )
+sync_with_disc()->
+      {ok, DetsFile} = application:get_env(erws, registered_users_dets  ),
+      {ok, RegWorkSpaces} = application:get_env(erws, registered_user_workspaces_dets  ),
+        
+      ets:tab2file(?ETS_REG_USERS_WORKSPACES,RegWorkSpaces),
+      ets:tab2file(?ETS_REG_USERS, DetsFile )
 .
       
 
@@ -175,7 +203,13 @@ low_stop_auth(State,  Ip, NameSpace)->
 stop() ->
     gen_server:cast(?MODULE, stop).
     
-    
+handle_cast(post_load, MyState)->
+          generate_avail_namespaces_tables(),
+          {ok, CacheConnection} = application:get_env(erws, cache_connection),
+          registered_users(),
+          timer:apply_interval(CacheConnection, ?MODULE, cache_connections, []),
+          {noreply, MyState}
+    ;
 handle_cast({return_free_namespace, NameSpace }, MyState)->
     ?CONSOLE_LOG("return namespace to the pool msg call ~p ~n",
                            [NameSpace]),
@@ -184,7 +218,7 @@ handle_cast({return_free_namespace, NameSpace }, MyState)->
     {noreply, MyState};
     
 handle_cast(cache_connections, MyState)->
-    Res = (catch sync_with_disc(MyState)),
+    Res = (catch sync_with_disc()),
 %     ?CONSOLE_LOG("syncing with the disk  result is ~p ~n",
 %                            [Res]),
     
@@ -290,7 +324,7 @@ check_auth(Ip, NameSpace)->
 .
 
 cache_connections()->
-  gen_server:cast(?MODULE,cache_connections).
+  gen_server:cast(?MODULE, cache_connections).
   
     
 regis_timer_restart(Pid)->

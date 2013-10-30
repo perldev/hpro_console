@@ -231,7 +231,7 @@ echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 
           CodeList = binary:split(NewBinary, [<<".">>],[global]),
           ?CONSOLE_LOG("~p after spliting code is ~p ~n",[?LINE,CodeList]),
-
+          {ok, PATH_TO_SYSTEM} = application:get_env(erws, path_users_systems),
           [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
           List = ets:lookup(?ETS_REG_USERS, UserId ),
           Result = case  lists:keysearch(ForeinId, 3, List) of
@@ -244,7 +244,7 @@ echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 				case catch  compile_foldl( CodeList, EtsTable ) of
 				    true->
 	                                ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Id } ),
-    		                        api_auth_demon:regis_public_system(Id, LForeign, {file, ?PATH_TO_SYSTEM++"/"++LForeign } ),
+    		                        api_auth_demon:regis_public_system(Id, LForeign, {file,PATH_TO_SYSTEM ++"/"++LForeign } ),
             		                api_auth_demon:save_public_system( Id, LForeign, EtsTable),
             		                <<"yes">>;
             		             Res->

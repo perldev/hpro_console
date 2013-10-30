@@ -5,9 +5,7 @@
 -include("erws_console.hrl").
 
 start(_StartType, _StartArgs) ->  
-	  
 	timer:apply_after(?INIT_APPLY_TIMEOUT,?MODULE,web_start,[]),
-	
         erws_sup:start_link().  
         
         
@@ -30,8 +28,43 @@ respond(_Code, _Headers, _Body, Req) ->
 
         
 web_start()->
-        
-        Dispatch = cowboy_router:compile([
+        Dispatch = ?ROUTES,                                  
+        lists:foreach(  fun({Name, ModuleName})->
+                             ok = erlydtl:compile(Name, ModuleName)
+                        end, ?TMPLS ),
+        {ok, Port } = application:get_env(erws, work_port),       
+	{ok, Count} = application:get_env(erws,count_listeners),
+        {ok, _} = cowboy:start_http(http, Count, [{port, Port }],
+                                                 [
+                                                    {env, [{dispatch, Dispatch}]},
+                                                    {onresponse, fun respond/4}
+                                                 ])
+                                                 
+.
+test_routes()->
+        cowboy_router:compile([
+                                        {'_', [
+                                                {"/test/command/[...]", erws_command, []},
+                                                {"/test/websocket/[...]", erws_handler, []},
+                                                {"/test/prolog/[...]", api_erws_handler, []},%% for using api 
+                                                {"/test/static/[...]", cowboy_static, [
+                                                {directory, <<"static">>},
+                                                {mimetypes, 
+                                                [
+                                                {<<".png">>, [<<"image/png">>]},
+                                                {<<".jpg">>, [<<"image/jpeg">>]},
+                                                {<<".css">>, [<<"text/css">>]},
+                                                {<<".js">>, [<<"application/javascript">>]}]
+                                                }
+                                                ]},
+                                                {"/test/[...]", erws_pages, []}
+
+                                            ]}
+                                        ]).
+
+
+routes()->
+        cowboy_router:compile([
                                   {'_', [
                                         {"/command/[...]", erws_command, []},
                                         {"/websocket/[...]", erws_handler, []},
@@ -49,19 +82,8 @@ web_start()->
                                         {"/[...]", erws_pages, []}
 
                                     ]}
-                                  ]),
-        lists:foreach(  fun({Name, ModuleName})->
-                             ok = erlydtl:compile(Name, ModuleName)
-                        end, ?TMPLS ),
-        {ok, Port } = application:get_env(erws, work_port),       
-        {ok, _} = cowboy:start_http(http, 1000, [{port, Port }],
-                                                 [
-                                                    {env, [{dispatch, Dispatch}]},
-                                                    {onresponse, fun respond/4}
-                                                 ])
-                                                 
-.
-        
+                                  ]).
+
         
 start()->
   inets:start(),
@@ -74,6 +96,7 @@ start()->
   ok = application:start(compiler),
   ok = application:start(syntax_tools),
   ok = application:start(lager),
+  application:start(eprolog),
   application:start(erws)
 
 .

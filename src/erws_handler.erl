@@ -129,9 +129,6 @@ delete_session(StatePid)->
 .
  
 process_req(StatePid, Msg)->
-%            ets:insert(?ERWS_LINK,{Pid, PidTrace,'main', SessKey}  ),       
-%         ets:insert(?ERWS_LINK,{PidTrace, Pid,'trace', SessKey} ),    
-
       case ets:lookup(?ERWS_LINK, StatePid) of
 	  [ {StatePid, PidTrace,'main', SessKey} ]->
 		StatePid ! {some_code, erlang:self(), Msg, PidTrace},
@@ -263,7 +260,7 @@ compile_patterns(<<>>)->
     true
 ;
 compile_patterns( OnePattern )->
-%       #%# hack for numbers
+%       #%# hack for numbers with dot
       NewBinary = binary:replace(OnePattern,[<<"#%#">>],<<".">>, [ global ] ),
       HackNormalPattern =  <<NewBinary/binary, " . ">>,
       ?CONSOLE_LOG("~p begin process one pattern   ~p ~n",[ {?MODULE,?LINE}, HackNormalPattern ] ),

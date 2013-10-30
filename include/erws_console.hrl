@@ -3,24 +3,26 @@
 -define(INIT_APPLY_TIMEOUT, 1000).
 
 
--define(REGISTERED_FILE, "../consoledb/registered.ets" ).
--define(REGISTERED_NAMESPACE, "../consoledb/namespaces.ets" ).
+%-define(REGISTERED_FILE, "./expert_system/registered.ets" ).
+-define(REGISTERED_NAMESPACE, "./expert_system/namespaces.ets" ).
 -define(CACHE_CONNECTION, 10000 ).%miliseconds
--define(DETS_FILE, "../consoledb/regis_users.dets").
+-define(DETS_FILE, "./expert_system/regis_users.dets").
 -define(ETS_REG_USERS, regis_users).
 -define(ETS_REG_USERS_WORKSPACES, path_regis_users).
--define(ETS_REG_USERS_WORKSPACES_DETS, "../consoledb/path_regis_users.dets").
-
-
+-define(ETS_REG_USERS_WORKSPACES_DETS, "./expert_system/path_regis_users.dets").
 
 -define(MSG_FOOTER, <<"looking next ?">>).
 
+-define(ERWS_LINK, erws_link_trace).
+
 
 -define(AUTH_SESSION, google_inner_session).  %%connect google and inner session
--define(PATH_TO_SYSTEM, "../consoledb/expert_system").
+-define(PATH_TO_SYSTEM, "./expert_system").
 -define(TEMP_PREFIX, "temp_namespace").
 -define(LIMIT_OF_USERS, 1000).
 -define(ETS_TABLE_USERS, multi_user_limit).
+
+-define(ROUTES, routes() ).
 
 -define( TMPLS,[
             { "tmpl/header.html", header },

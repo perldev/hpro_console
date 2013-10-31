@@ -188,7 +188,7 @@ echo( [ <<"create_command_session">>, Session ], Req, State)->
 ;
 echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           SessKey = binary_to_list(AuthSession),
-          Got = cowboy_req:body_qs(Req),
+          Got = cowboy_req:body_qs(1600000, Req),
           LForeign = binary_to_list(ForeinId),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
@@ -221,7 +221,7 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
 echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 
           SessKey = binary_to_list(AuthSession),
-          Got = cowboy_req:body_qs(Req),
+          Got = cowboy_req:body_qs(1600000, Req),
           LForeign = binary_to_list(ForeinId),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
@@ -262,7 +262,7 @@ echo([<<"reload">>], Req, State)->
 	  echo([<<"show_code">>], Req, State)
 ; 
 echo([<<"upload_code">>, Session], Req, _State)->
-	   Got = cowboy_req:body_qs(Req),
+	   Got = cowboy_req:body_qs(1600000, Req),
 	   SessKey = binary_to_list(Session),
 	   ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
 	   {ok, PostVals, Req2}  = Got, 

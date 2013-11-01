@@ -270,6 +270,8 @@ compile_patterns( OnePattern )->
 
 start_shell_process( Prefix, public)->
       TreeEts = ets:new(some,[ public, set, { keypos, 2 } ] ),
+      IsHbase =   api_auth_demon:get_source(Prefix),
+      ets:insert(TreeEts, {system_record, hbase, IsHbase}),
       shell_loop(TreeEts, ?TRACE_OFF, Prefix);
 start_shell_process( Prefix, temp)->
       Pid = erlang:whereis(auth_demon), 

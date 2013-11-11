@@ -29,10 +29,8 @@ init({tcp, http}, Req, _Opts) ->
 terminate(_Req, _State) ->
     ok.
  
-start_link_session([ <<"trace">>, Session])->
-        
+start_link_session([ <<"trace">>, Session])->        
         PidTrace = spawn(?MODULE, start_trace_process, []),
-        
         SessKey = binary_to_list(Session),
         [ {SessKey, Pid, ?UNDEF, NameSpace} ] = ets:lookup(?ERWS_LINK, SessKey),%%do not use one session
         ets:insert(?ERWS_LINK,{SessKey, Pid, PidTrace, NameSpace} ),     %%save all links  

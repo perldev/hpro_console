@@ -22,11 +22,9 @@ respond(Code, Headers, <<>>, Req) when is_integer(Code), Code >= 400 ->
                 {<<"content-length">>, integer_to_list(iolist_size(Body))}),
         {ok, Req2} = cowboy_req:reply(Code, Headers2, Body, Req),
         Req2;
-respond(_Code, _Headers, _Body, Req) ->
-        Req.
-        
-
-        
+respond(_Code, _Headers, _Body, Req2) ->
+         Req2.
+               
 web_start()->
         Dispatch = ?ROUTES,                                  
         lists:foreach(  fun({Name, ModuleName})->
@@ -41,6 +39,7 @@ web_start()->
                                                  ])
                                                  
 .
+
 test_routes()->
         cowboy_router:compile([
                                         {'_', [

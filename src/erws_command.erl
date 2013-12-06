@@ -27,9 +27,16 @@ init({tcp, http}, Req, _Opts) ->
     
 terminate(_Req, _State, _Reason) ->
     ok.
- 
 
-    
+headers_text_plain()->
+        [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"text/plain">>} ].
+        
+headers_text_html()->
+        [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"text/html">>}  ].      
+
+headers_json_plain()->
+        [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"application/json">>} ].
+        
 % Should never get here.
 handle(Req, State) ->
      { Path, Req1} = cowboy_req:path_info(Req),
@@ -114,13 +121,27 @@ get_list_namespaces_public(UserId)->
     end
 .
 
+
+echo([<<"google_proxy">>, Session ], Req, State)->
+         
+         SessKey = binary_to_list(Session),
+         [{SessKey, _UserId }]  = ets:lookup(?AUTH_SESSION, SessKey ),
+        
+        {Url, Req2} = cowboy_req:qs_val(<<"url">>, Req),
+        ?CONSOLE_LOG("~p go to the  ~p ~n",[?LINE, Url]),
+
+        Text  = google_api:google_download_request( binary_to_list(Url), SessKey ),
+        cowboy_req:reply(200, headers_text_plain(),
+                                        Text, Req2)
+;
+
 echo([<<"list_namespace">>, Session ], Req, State)->
 
      SessKey = binary_to_list(Session),
      [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
      NameSpaces  = get_list_namespaces(UserId),
      ?CONSOLE_LOG("~p list of namespaces ~p ~n",[?LINE,NameSpaces]),
-     cowboy_req:reply(200, [ {<<"Content-Type">>, <<"application/json">>} ],
+     cowboy_req:reply(200, headers_json_plain(),
                                         NameSpaces, Req)
 ;
 echo( [ <<"find_workspace">>, Session ], Req, State)->
@@ -130,7 +151,7 @@ echo( [ <<"find_workspace">>, Session ], Req, State)->
      WorkSpace  =      google_api:google_get_user_workspace(SessKey, UserId), 
      %%TODO process exception
      ?CONSOLE_LOG("~p find workspace ~p ~n",[?LINE,WorkSpace]),
-     cowboy_req:reply(200, [ {<<"Content-Type">>, <<"text/plain">>} ],
+     cowboy_req:reply(200, headers_text_plain(),
                                         WorkSpace, Req)
     
 
@@ -147,10 +168,10 @@ echo( [ <<"get_expert_info">>, Session, NameSpaceB ], Req, State)->
                                 ?CONSOLE_LOG("~p get info from namespace ~p ~n",[?LINE,NameSpace]),
 
                                 HtmlText  = get_namespace_info(Record),
-                                cowboy_req:reply(200, [ {<<"Content-Type">>, <<"text/html">>} ],
+                                cowboy_req:reply(200, headers_text_html(),
                                                                     HtmlText, Req);
                          _->
-                            cowboy_req:reply(200, [ {<<"Content-Type">>, <<"text/plain">>} ],
+                            cowboy_req:reply(200, headers_text_plain(),
                                                                     <<"nothing">>, Req)
                          
     end
@@ -166,7 +187,7 @@ echo( [ <<"create_managing_command_session">>, Session ], Req, State)->
      ?CONSOLE_LOG("~p find workspace ~p ~n",[?LINE,UserId]),
      NameSpaces  = get_list_namespaces_public(UserId),
      ?CONSOLE_LOG("~p list of namespaces ~p ~n",[?LINE,NameSpaces]),
-     cowboy_req:reply(200, [ {<<"Content-Type">>, <<"application/json">>} ],
+     cowboy_req:reply(200, headers_json_plain(),
                                         NameSpaces, Req)
     
 
@@ -181,7 +202,7 @@ echo( [ <<"create_command_session">>, Session ], Req, State)->
      NameSpaces  = get_list_namespaces(UserId),
      
      ?CONSOLE_LOG("~p list of namespaces ~p ~n",[?LINE,NameSpaces]),
-     cowboy_req:reply(200, [ {<<"Content-Type">>, <<"application/json">>} ],
+     cowboy_req:reply(200, headers_json_plain(),
                                         NameSpaces, Req)
     
 
@@ -214,7 +235,7 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
                         false ->
                                 <<"not_found">>
                    end,     
-          cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/plain">>}],
+          cowboy_req:reply(200, headers_text_plain() ,
                                         Result, Req2)
 ; 
 
@@ -251,7 +272,7 @@ echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 	                                list_to_binary(Res)                 
 	                	end
                    end,     
-          cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/plain">>}],
+          cowboy_req:reply(200, headers_text_plain(),
                                         Result, Req2)
 ; 
 
@@ -283,19 +304,19 @@ echo([<<"upload_code">>, Session], Req, _State)->
 			Rsss -> Rsss
 		   end,
            ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Code]),
-    	   cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
+    	   cowboy_req:reply(200, headers_text_html(),
 					Res, Req2)
     
 ;
 echo([<<"show_code">>], Req, _State)->
 	   ResBin = prolog_shell:get_code_memory_html(),		  
-    	   cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
+    	   cowboy_req:reply(200, headers_text_html(),
 					ResBin, Req)
     
 ;
 echo([<<"plain_code">>], Req, _State)->
 	   ResBin = prolog_shell:get_code_memory(),		  
-    	   cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/plain">>}],
+    	   cowboy_req:reply(200, headers_text_plain(),
 					ResBin, Req)
     
 ;
@@ -306,7 +327,7 @@ echo(Path1, Req, _State)->
           Type = mochiweb_mime:from_extension(filename:extension( Path ) ),
           case file(Path) of
 		{error,_} ->
-		        cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
+		        cowboy_req:reply(200, headers_text_html(),
                         <<"<html><head><title>may be i m working</title></head></html>">>,Req);
                 Val ->
                         ?CONSOLE_LOG("~p  find file ~p ~n",[?LINE, Type ]),

@@ -1,8 +1,32 @@
 -module(google_api).
--export([google_get_user_id/1, google_get_user_workspace/2]).
+-export([google_get_user_id/1, google_get_user_workspace/2, google_download_request/2  ]).
 -include("erws_console.hrl").
 
 
+google_download_request(Url, Session)->
+
+    case catch  httpc:request( get, { Url,
+                                          [ 
+                                            {"Authorization", "Bearer "++ Session},
+                                            {"Content-Type","text/plain" },
+                                            {"Accept","text/plain"}
+                                          ] 
+                                      },
+                                          [ { connect_timeout,1000 },
+                                            { timeout, 1000 }],
+                                          [ { sync, true},
+                                            { body_format, binary } 
+                                          ] ) of
+                          { ok, { {_NewVersion, 200, _NewReasonPhrase}, _NewHeaders, Text1 } } ->
+                                  ?CONSOLE_LOG("~p got response from google ~p ~n",[ {?MODULE,?LINE}, {Text1, Url} ] ),
+                                  Text1;
+                          Res ->
+                                  ?CONSOLE_LOG("~p got unexpected ~p ~n",[ {?MODULE,?LINE}, Res ] ),
+                                   throw({google_auth_exception, Res})  %%TODO add count of fail and fail exception may be no
+      end
+
+
+.
 
 google_get_user_id(Session)->
     

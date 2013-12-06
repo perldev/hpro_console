@@ -207,6 +207,7 @@ echo( [ <<"create_command_session">>, Session ], Req, State)->
     
 
 ;
+%%there is a permissions bug problem
 echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           SessKey = binary_to_list(AuthSession),
           Got = cowboy_req:body_qs(1600000, Req),
@@ -238,45 +239,22 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           cowboy_req:reply(200, headers_text_plain() ,
                                         Result, Req2)
 ; 
-
+%%there is a permissions bug problem
 echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 
           SessKey = binary_to_list(AuthSession),
           Got = cowboy_req:body_qs(1600000, Req),
-          LForeign = binary_to_list(ForeinId),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
           Code = proplists:get_value(<<"code">>, PostVals),
-          NewBinary = binary:replace(Code, [<<"\n">>,<<"\t">>], <<"">>, [ global ] ),
-          ?CONSOLE_LOG("~p after processing code is ~p ~n",[?LINE,NewBinary]),
-
-          CodeList = binary:split(NewBinary, [<<".">>],[global]),
-          ?CONSOLE_LOG("~p after spliting code is ~p ~n",[?LINE,CodeList]),
-          {ok, PATH_TO_SYSTEM} = application:get_env(erws, path_users_systems),
+         
           [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
-          List = ets:lookup(?ETS_REG_USERS, UserId ),
-          Result = case  lists:keysearch(ForeinId, 3, List) of
-                        {value, _ } -> <<"already_existed">>;
-                        false ->
-                                Id = id_generator(),
-                                ResCreate = (catch prolog:create_inner_structs( Id ) ),
-                                ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{Id, ResCreate}]),
-                                EtsTable = common:get_logical_name(Id, ?RULES),
-				case catch  compile_foldl( CodeList, EtsTable ) of
-				    true->
-	                                ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Id } ),
-    		                        api_auth_demon:regis_public_system(Id, LForeign, {file,PATH_TO_SYSTEM ++"/"++LForeign } ),
-            		                api_auth_demon:save_public_system( Id, LForeign, EtsTable),
-            		                <<"yes">>;
-            		             Res->
-	                                list_to_binary(Res)                 
-	                	end
-                   end,     
+          List = ets:tab2list(?ETS_REG_USERS ),
+          ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,List]),
+          Result = check_workspace(List, UserId, ForeinId, BName, Code),
           cowboy_req:reply(200, headers_text_plain(),
                                         Result, Req2)
 ; 
-
-
 echo([<<"reload">>], Req, State)->
 	  prolog:delete_inner_structs(),
 	  ?INCLUDE_HBASE(""),    
@@ -319,36 +297,50 @@ echo([<<"plain_code">>], Req, _State)->
     	   cowboy_req:reply(200, headers_text_plain(),
 					ResBin, Req)
     
-;
+.
 
-echo(Path1, Req, _State)->
-	  Path = "static/not_.html",	
-          ?CONSOLE_LOG("~p try to find file ~p",[?LINE,Path1]),
-          Type = mochiweb_mime:from_extension(filename:extension( Path ) ),
-          case file(Path) of
-		{error,_} ->
-		        cowboy_req:reply(200, headers_text_html(),
-                        <<"<html><head><title>may be i m working</title></head></html>">>,Req);
-                Val ->
-                        ?CONSOLE_LOG("~p  find file ~p ~n",[?LINE, Type ]),
-         		cowboy_req:reply(200, [{<<"Content-Type">>, Type }], Val, Req)
-          end.
-          
-file(Fname) ->
-            case file:open(Fname, [read, raw, binary]) of
-		{ok, Fd} ->
-		    scan_file(Fd, <<>>, file:read(Fd, 1024));
-		{error, Reason} ->
-		    {error, Reason}
-            end.
-scan_file(Fd, Occurs, {ok, Binary}) ->
-    scan_file(Fd, <<Occurs/binary, Binary/binary>>, file:read(Fd, 1024));
-scan_file(Fd, Occurs, eof) ->
-    file:close(Fd),
-    Occurs;
-scan_file(Fd, _Occurs, {error, Reason}) ->
-    file:close(Fd),
-    {error, Reason}.
+
+%%%TODO add checkin permission on google dir
+check_workspace([], UserId, ForeinId, BName, Code)->
+    Id = id_generator(),
+    NewBinary = binary:replace(Code, [<<"\n">>,<<"\t">>], <<"">>, [ global ] ),
+    ?CONSOLE_LOG("~p after processing code is ~p ~n",[?LINE,NewBinary]),
+    CodeList = binary:split(NewBinary, [<<".">>],[global]),
+    ?CONSOLE_LOG("~p after spliting code is ~p ~n",[?LINE,CodeList]),
+    {ok, PATH_TO_SYSTEM} = application:get_env(erws, path_users_systems),
+    ResCreate = (catch prolog:create_inner_structs( Id ) ),
+    ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{Id, ResCreate}]),
+    EtsTable = common:get_logical_name(Id, ?RULES),
+    LForeign = binary_to_list(ForeinId),
+    case catch  compile_foldl( CodeList, EtsTable ) of
+        true->
+            ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Id } ),
+            api_auth_demon:regis_public_system( Id, LForeign, {file, PATH_TO_SYSTEM ++"/"++LForeign } ),
+            api_auth_demon:save_public_system( Id, LForeign, EtsTable),
+            <<"yes">>;
+         Res->
+            list_to_binary(Res)                 
+    end;
+check_workspace([Head | Tail], UserId, ForeinId, BName, Code)->          
+                    case  Head of
+                        { UserId, _Name, ForeinId, _ } -> <<"yes">>;
+                        { _AnotherUserId, _SomeName, ForeinId, Prefix } ->                      
+                            check_user_workspace(UserId, ForeinId, BName, Prefix);
+                        _SomeAnother ->
+                            check_workspace(Tail, UserId, ForeinId, BName, Code)
+                   end
+. 
+
+check_user_workspace(UserId, ForeinId, BName, Prefix )->
+    SubList = ets:lookup(?ETS_REG_USERS, UserId ),
+    case   lists:keysearch(ForeinId, 3, SubList) of
+        {value, _Record}->
+                <<"yes">>;
+        false->        
+                ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Prefix } ),
+                <<"yes">>
+    end
+.  
   
   
 compile_foldl([Head|Tail], Prefix )->

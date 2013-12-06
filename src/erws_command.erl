@@ -1,8 +1,5 @@
 -module(erws_command).
 
-
--import(lists, [foldl/3,foreach/2]).
-
 -include("erws_console.hrl").
 -include_lib("eprolog/include/prolog.hrl").
 
@@ -28,13 +25,13 @@ init({tcp, http}, Req, _Opts) ->
 terminate(_Req, _State, _Reason) ->
     ok.
 
-headers_text_plain()->
+headers_text_plain() ->
         [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"text/plain">>} ].
         
-headers_text_html()->
+headers_text_html() ->
         [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"text/html">>}  ].      
 
-headers_json_plain()->
+headers_json_plain() ->
         [ {<<"access-control-allow-origin">>, <<"*">>},  {<<"Content-Type">>, <<"application/json">>} ].
         
 % Should never get here.
@@ -52,20 +49,19 @@ handle(Req, State) ->
       { ok,NewReq,State}
       
 .
-generate_api_url(Page)->
+generate_api_url(Page) ->
     "http://codeide.com/prolog/auth/"++Page
 .
-generate_page_url(Page)->
+generate_page_url(Page) ->
     "http://codeide.com/index.html?public_key=" ++ Page
 .
 
-key_list2dict(List)->
-    lists:foldl(fun( {Key,Value}, Dict )->
-                     dict:store(Key,Value,Dict)
-                end,  dict:new(), List)
-.
+key_list2dict(List) ->
+    lists:foldl(fun( {Key, Value}, Dict ) ->
+                     dict:store(Key, Value, Dict)
+                end,  dict:new(), List).
 
-process_ip_perm({ {N1,N2,N3,N4},  Perm })->
+process_ip_perm({ {N1, N2, N3,  N4},  Perm }) ->
     Ip = lists:flatten( io_lib:format("~p.~p.~p.~p",[N1,N2,N3,N4]) ),
     key_list2dict([{ip, Ip},{perm, Perm} ])
 ;

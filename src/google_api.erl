@@ -3,8 +3,7 @@
 -include("erws_console.hrl").
 
 
-google_download_request(Url, Session)->
-
+google_download_request(Url, Session) ->
     case catch  httpc:request( get, { Url,
                                           [ 
                                             {"Authorization", "Bearer "++ Session},
@@ -28,7 +27,7 @@ google_download_request(Url, Session)->
 
 .
 
-google_get_user_id(Session)->
+google_get_user_id(Session) ->
     
 %}     curl https://www.googleapis.com/oauth2/v1/userinfo?access_token=ya29.AHES6ZQBzuP3HKraZ8KOytJfAscUFfpPrkKkzK94N7EKgrMiDn2KKPP3
 % {
@@ -50,16 +49,15 @@ google_get_user_id(Session)->
                           Res ->
                                   ?CONSOLE_LOG("~p got unexpected ~p ~n",[ {?MODULE,?LINE}, Res ] ),
                                    throw({google_auth_exception, Res})  %%TODO add count of fail and fail exception may be no
-      end
-.
-google_get_user_workspace(SessKey, UserId)->
+      end.
+      
+google_get_user_workspace(SessKey, UserId) ->
         case catch ets:lookup(?ETS_REG_USERS_WORKSPACES, UserId) of
-                [ ]-> create_google_workspace(SessKey, UserId);
-                [{UserId, WorkSpace} ]-> WorkSpace       
-        end
-
-.
-create_google_workspace(SessKey, UserId)->
+                [ ] -> create_google_workspace(SessKey, UserId);
+                [{UserId, WorkSpace} ] -> WorkSpace       
+        end.
+        
+create_google_workspace(SessKey, UserId) ->
 
 % {"title":"ProjectName1","mimeType":"application/vnd.google-apps.folder",
 %"parents":[{"kind":"drive#parentReference","id":"0B-GDhU5T7c8ka0FoMDVaSlRWZEU","isRoot":false}]}

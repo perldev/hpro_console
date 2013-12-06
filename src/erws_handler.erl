@@ -29,7 +29,7 @@ init({tcp, http}, Req, _Opts) ->
 terminate(_Req, _State) ->
     ok.
  
-start_link_session([ <<"trace">>, Session])->        
+start_link_session([ <<"trace">>, Session]) ->        
         PidTrace = spawn(?MODULE, start_trace_process, []),
         SessKey = binary_to_list(Session),
         [ {SessKey, Pid, ?UNDEF, NameSpace} ] = ets:lookup(?ERWS_LINK, SessKey),%%do not use one session
@@ -37,7 +37,7 @@ start_link_session([ <<"trace">>, Session])->
         ets:insert(?ERWS_LINK,{Pid, PidTrace,'main', SessKey}  ),       
         ets:insert(?ERWS_LINK,{PidTrace, Pid,'trace', SessKey} ),    
 	PidTrace;
-start_link_session([ <<"trace">>, Session, OutNameSpace])->
+start_link_session([ <<"trace">>, Session, OutNameSpace]) ->
         OutNameSpaceL = binary_to_list(OutNameSpace),
         PidTrace = spawn(?MODULE, start_trace_process, [ ] ),
         SessKey = binary_to_list(Session),
@@ -49,13 +49,12 @@ start_link_session([ <<"trace">>, Session, OutNameSpace])->
 start_link_session([ Session, OutNameSpace ]) ->
         %%TODO add changable namespace
         OutNameSpaceL = binary_to_list(OutNameSpace),
-        
         Pid = spawn(?MODULE, start_shell_process, [ OutNameSpaceL, public ]),
         SessKey = binary_to_list(Session),
         [  ] = ets:lookup(?ERWS_LINK, SessKey), %%do not use one session
         ets:insert(?ERWS_LINK,{SessKey, Pid, ?UNDEF, OutNameSpaceL } ),       
         Pid;	
-start_link_session([ Session])->
+start_link_session([ Session]) ->
         %%TODO add changable namespace
         NameSpace =  auth_demon:get_free_namespace(),
         Pid = spawn(?MODULE, start_shell_process, [ NameSpace, temp ]),
@@ -94,7 +93,6 @@ websocket_handle({text, Msg}, Req, StatePid ) ->
 websocket_handle(Any, Req, State) ->
     ?CONSOLE_LOG("unexpected: ~p ~n ~p~n~n", [Any, State]),
     {ok, Req, State}.
-
 % Other messages from the system are handled here.
 websocket_info(_Info, Req, State) ->
     ?CONSOLE_LOG("info: ~p ~n ~p~n~n", [Req, State]),
@@ -105,9 +103,9 @@ websocket_terminate(Reason, Req, State) ->
     delete_session(State),
     ok.
  
-delete_session(StatePid)->
+delete_session(StatePid) ->
       case ets:lookup(?ERWS_LINK, StatePid) of
-	  [ {StatePid, PidTrace,'main', SessKey} ]->
+	  [ {StatePid, PidTrace,'main', SessKey} ] ->
 		  
 		  ets:delete(?ERWS_LINK, StatePid ),
 		  [ {_, _, _, NameSpace}  ] = ets:lookup(?ERWS_LINK, SessKey),
@@ -115,22 +113,22 @@ delete_session(StatePid)->
                   exit(PidTrace, kill ),
 		  exit(StatePid, kill );
 		  
-	  [ {StatePid, Pid,'trace', SessKey} ]->
+	  [ {StatePid, Pid,'trace', SessKey} ] ->
 	  
 		  ets:delete(?ERWS_LINK, StatePid ),
 		  exit(Pid, kill ),
 		  exit(StatePid, kill );
-	  []->
+	  [] ->
 		  ?CONSOLE_LOG("~p exception ~p",[{?MODULE,?LINE},StatePid  ]),
 		  exit(bad)
       end
 .
  
-process_req(StatePid, Msg)->
+process_req(StatePid, Msg) ->
       case ets:lookup(?ERWS_LINK, StatePid) of
-	  [ {StatePid, PidTrace,'main', SessKey} ]->
+	  [ {StatePid, PidTrace,'main', SessKey} ] ->
 		StatePid ! {some_code, erlang:self(), Msg, PidTrace},
-		Res =   receive 
+		Res = receive 
 			    {result, get_char} ->
 				    <<"get_char">>
 				    ; 
@@ -146,7 +144,7 @@ process_req(StatePid, Msg)->
 			end,
 		 ?CONSOLE_LOG("send back: ~p ~n ~p~n~n", [Res, StatePid]),
 		 Res;
-	  [ { StatePid, Pid, 'trace', SessKey} ]->
+	  [ { StatePid, Pid, 'trace', SessKey} ] ->
 		  ?CONSOLE_LOG("trace: ~p ~n ~p~n~n", [Msg, StatePid]),  
 		  StatePid ! {binary_to_list(Msg), erlang:self() },
 		  Res =  receive 
@@ -157,27 +155,26 @@ process_req(StatePid, Msg)->
 			  end,
 		 ?CONSOLE_LOG("send back: ~p ~n ~p~n~n", [Res, StatePid]),
 		 Res;
-	  []->
+	  [] ->
 		?CONSOLE_LOG("~p exception ~p",[{?MODULE,?LINE},StatePid  ]),
 		exit(bad)
-      end
-.
+      end.
 
-start_trace_process()->
+start_trace_process() ->
     trace_loop(wait_user, ?UNDEF ).
 
 
-trace_loop(wait_user, ?UNDEF )->
+trace_loop(wait_user, ?UNDEF ) ->
     ?CONSOLE_LOG(" tracer wait user next or finish: ~p ~n", [{?MODULE,?LINE}]),
     receive 
-	{"next", Pid}-> %%first
+	{"next", Pid} -> %%first
 	    trace_loop(wait_aim, Pid )
     end;       
 
-trace_loop(wait_user, BackPid )->
+trace_loop(wait_user, BackPid ) ->
    ?CONSOLE_LOG("tracer wait user yes/no: ~p ~n", [{?MODULE,?LINE}]),
    receive 
-	{Line, Pid}->
+	{Line, Pid} ->
 		  ?CONSOLE_LOG("got from user: ~p ~n", [{?MODULE,?LINE,Line}]),
 		  case Line of
 		      [$y,$e,$s| _ ] ->
@@ -193,7 +190,7 @@ trace_loop(wait_user, BackPid )->
     end
 ;
 
-trace_loop(wait_aim, Pid )->
+trace_loop(wait_aim, Pid ) ->
 	?CONSOLE_LOG("~p tracer wait result of aim ~p ~n",[{?MODULE,?LINE}, Pid ]), 
 
 	receive 
@@ -227,18 +224,15 @@ trace_loop(wait_aim, Pid )->
         end
 .
 
-
-
-  
-compile_foldl([Head|Tail] )->
+compile_foldl([Head|Tail] ) ->
     Res = compile_patterns(Head),
     compile_foldl(Tail,[ Res ], Res)
 .
-compile_foldl(_,_, Res = {error, _} )->
+compile_foldl(_,_, Res = {error, _} ) ->
     io_lib:format("~p ~n",[Res])
 ;
 %%there Head will be true see compile_patterns bellow
-compile_foldl([  ], [Head | ListRes], _)->
+compile_foldl([  ], [Head | ListRes], _) ->
       Fun = fun( { ok, Term } )->
 		prolog:process_term(Term)
 	    end,
@@ -247,17 +241,16 @@ compile_foldl([  ], [Head | ListRes], _)->
      "yes"
 ;
 
-compile_foldl([Head| Tail], ListRes ,_Res )->
+compile_foldl([Head| Tail], ListRes ,_Res ) ->
      Res = compile_patterns(Head),
      ?CONSOLE_LOG("~p  got term ~p ~n",[?LINE, Res ]),
      compile_foldl(Tail, [ Res| ListRes ], Res)
 .
 
-
-compile_patterns(<<>>)->
+compile_patterns(<<>>) ->
     true
 ;
-compile_patterns( OnePattern )->
+compile_patterns( OnePattern ) ->
 %       #%# hack for numbers with dot
       NewBinary = binary:replace(OnePattern,[<<"#%#">>],<<".">>, [ global ] ),
       HackNormalPattern =  <<NewBinary/binary, " . ">>,
@@ -266,31 +259,31 @@ compile_patterns( OnePattern )->
       erlog_parse:term(Terms)
 .
 
-start_shell_process( Prefix, public)->
+start_shell_process( Prefix, public) ->
       TreeEts = ets:new(some,[ public, set, { keypos, 2 } ] ),
       IsHbase =   api_auth_demon:get_source(Prefix),
       ets:insert(TreeEts, {system_record, hbase, IsHbase}),
       shell_loop(TreeEts, ?TRACE_OFF, Prefix);
-start_shell_process( Prefix, temp)->
+start_shell_process( Prefix, temp) ->
       Pid = erlang:whereis(auth_demon), 
       prolog_shell:api_start_anon(Prefix, {heir, Pid} ),
       TreeEts = ets:new(some,[ public, set, { keypos, 2 } ] ),
       shell_loop(TreeEts, ?TRACE_OFF, Prefix).
-
+      
 shell_loop(TreeEts, TraceStatus, Prefix) ->
     %%REWRITE it like trace
     ets:insert(TreeEts, {system_record,?PREFIX, Prefix}),
     ?CONSOLE_LOG("~p working with  namespace ~p",[{?MODULE,?LINE} ,Prefix ]),
     case ets:lookup(TreeEts, 'next') of 
-	  [{  NextPid, next,  Type }]->
+	  [{  NextPid, next,  Type }] ->
 	      ?CONSOLE_LOG("~p wait answer from user ~p",[{?MODULE,?LINE} ,NextPid ]),
 	      ets:delete(TreeEts, 'next'),
 	      TraceStatusNew =  wait_user_input(Type, TraceStatus, TreeEts, NextPid),
 	      shell_loop(TreeEts, TraceStatusNew, check_namespace(TreeEts) );
-	  []-> %%if we wait new aim
+	  [] -> %%if we wait new aim
 	    ?CONSOLE_LOG("~p wait new aim from user ~p",[{?MODULE,?LINE}, TreeEts ]),
 	    receive 
-		  {some_code, Back, Code, TracePid}->	  
+		  {some_code, Back, Code, TracePid} ->	  
 			  ?CONSOLE_LOG("~p wait new aim from user ~p",[ {?MODULE,?LINE},Code ]),
 			  common:regis_io_server( TreeEts, self() ),
  			  spawn(?MODULE, server_loop, [ Code, TreeEts, self(), TracePid, TraceStatus ] ),%%begin new aim
@@ -301,27 +294,27 @@ shell_loop(TreeEts, TraceStatus, Prefix) ->
 .
 %%%if call use_namespace predicate
 %%TODO make it safier
-check_namespace(TreeEts)->
+check_namespace(TreeEts) ->
     [{system_record,?PREFIX, Prefix}] = ets:lookup(TreeEts, ?PREFIX),Prefix
 .
 
 %%it's like finite state machine
 %%standard answer to prolog console
-wait_user_input(wait, TraceStatus, TreeEts, NextPid)->
+wait_user_input(wait, TraceStatus, TreeEts, NextPid) ->
 	      receive  
-		  { some_code, Back, <<$y, _Some/binary >>, _Trace}->
+		  { some_code, Back, <<$y, _Some/binary >>, _Trace} ->
 		        ?CONSOLE_LOG("~p send yes to ~p",[{?MODULE,?LINE}, NextPid ]),  
 		        NextPid ! { next, self() },
 		        wait_result(Back, TreeEts, TraceStatus);
-		  { some_code, Back, _, _Trace}->
+		  { some_code, Back, _, _Trace} ->
 		        NextPid ! { finish, self() },
 			wait_result(Back, TreeEts, TraceStatus)
 	      end
 ;
 %%get char meta predicate to  prolog console
-wait_user_input(get_char, TraceStatus, TreeEts, NextPid)->
+wait_user_input(get_char, TraceStatus, TreeEts, NextPid) ->
 	      receive  
-		  { some_code, Back, Some, Trace}->
+		  { some_code, Back, Some, Trace} ->
 		        ?CONSOLE_LOG("~p send ~p to ~p",[{?MODULE,?LINE}, Some, NextPid ]),  
 		        NextPid ! { char, Some },
 		        wait_result(Back, TreeEts, TraceStatus);
@@ -331,7 +324,7 @@ wait_user_input(get_char, TraceStatus, TreeEts, NextPid)->
 	      end
 ;
 %%read meta predicate to  prolog console
-wait_user_input(read, TraceStatus, TreeEts, NextPid)->
+wait_user_input(read, TraceStatus, TreeEts, NextPid) ->
 	      receive  
 		  { some_code, Back, Some, Trace } ->
 		        ?CONSOLE_LOG("~p send ~p to ~p",[{?MODULE,?LINE}, Some, NextPid ]),  
@@ -343,9 +336,7 @@ wait_user_input(read, TraceStatus, TreeEts, NextPid)->
 	      end
 .
 
-
-
-wait_result(Back, TreeEts, TraceStatus)->
+wait_result(Back, TreeEts, TraceStatus) ->
 	    ?CONSOLE_LOG("~p wait  in ~p",[{?MODULE,?LINE} , self() ]),
 	    %%%there will be  commands for web console input command
 	    
@@ -378,15 +369,14 @@ wait_result(Back, TreeEts, TraceStatus)->
 				      TraceStatus
 				      ;
 
-				{?TRACE_ON, finish }->
+				{?TRACE_ON, finish } ->
 				      Back ! {result, <<"Trace on \n">> },
 				      ?TRACE_ON
 				      ;
-				{?TRACE_OFF, finish }->
+				{?TRACE_OFF, finish } ->
 				      Back ! {result, <<"Trace off \n">> },
 				      ?TRACE_OFF
 				      ;
-				      
 				Unexpected ->
 				        ?CONSOLE_LOG("~p got  ~p",[{?MODULE,?LINE}, Unexpected ]),
 				        NormalReason = result( Unexpected ),
@@ -400,17 +390,14 @@ result(R) when  is_binary(R) ->
 result(R)  ->
   list_to_binary ( lists:flatten( io_lib:format("~p",[R]) ) ).
   
-wait_write_ping()->    
+wait_write_ping() ->    
     receive 
        {some_code, _Back, Code, _TracePid}->
 	       ?CONSOLE_LOG("~p write pong  ~p",[{?MODULE,?LINE}, Code ]),
 		next
     end
-
 .
 
-	   
-	   
 get_help()->
       <<"This is help...<br/>",
 	"Use menu Online IDE above for load your own code to the memory <br/> ",
@@ -445,43 +432,30 @@ server_loop(P0, TreeEts, WebPid, TracePid, TraceStatus) ->
 	{ok,halt} ->  
 		WebPid ! { <<"No,aim is finished<br/>">>, finish };
 	{ok,trace_on} ->  
-		WebPid ! { ?TRACE_ON, finish }
-	;	    
+		WebPid ! { ?TRACE_ON, finish };	    
 	{ok,trace_off} ->  
-		WebPid ! { ?TRACE_OFF, finish }
-      
-	;
+		WebPid ! { ?TRACE_OFF, finish };
 	{ok, listing} ->  
-                
                 ResBin = prolog_shell:get_code_memory_html(TreeEts),
                 Footer =?MSG_FOOTER,
-                WebPid ! {result, <<ResBin/binary," aim is finished<br/>" >> ,finish, self() }
-      
-	;
+                WebPid ! {result, <<ResBin/binary," aim is finished<br/>" >> ,finish, self() };
 	{ok, help} ->  
                 ResBin = get_help(),
                 Footer = ?MSG_FOOTER,
-		WebPid ! {result,<<ResBin/binary," aim is finished<br/>" >>  ,finish, self() }
-	;
+		WebPid ! {result,<<ResBin/binary," aim is finished<br/>" >>  ,finish, self() };
 	{ok, Goal = {':-',_,_ } } ->
-		
 		WebPid ! {result, <<"No, use online IDE for making rules,aim is finished<br/>">>, finish, self() };
-		
 	{ok,Goal} when is_tuple(Goal)->
                { TempAim, _ShellContext }=  prolog_shell:make_temp_aim(Goal), 
                ?CONSOLE_LOG("TempAim : ~p~n", [TempAim]),
                prolog_trace:trace_on(TraceStatus, TreeEts, TracePid ),              
-
                ?CONSOLE_LOG("~p make temp aim ~p ~n",[ {?MODULE,?LINE}, TempAim]),
                StartTime = erlang:now(),
                Res = (catch prolog:aim( finish, ?ROOT, Goal,  dict:new(), 
                                                 1, TreeEts, ?ROOT) ),
-               process_prove_erws(TempAim, Goal, Res, WebPid, StartTime , TreeEts);
-               
+               process_prove_erws(TempAim, Goal, Res, WebPid, StartTime, TreeEts);
         {ok,Goal} ->
-        
-		WebPid ! {result, <<"No, use online IDE for making rules, aim is finished<br/>">>, finish, self() }
-	;
+		WebPid ! {result, <<"No, use online IDE for making rules, aim is finished<br/>">>, finish, self() };
 	{error,P = {_, Em, E }} ->
 	    ?CONSOLE_LOG(" GOT FROM THER prolog ~p <br/>",[P]),
 	    NormalP = result(P),
@@ -494,15 +468,14 @@ server_loop(P0, TreeEts, WebPid, TracePid, TraceStatus) ->
     ?CONSOLE_LOG(" finish temp ~p ~n",[TreeEts])
 .
 
-web_parse_code(P0)->
+web_parse_code(P0) ->
     {ok, Terms , _L1} = erlog_scan:string( unicode:characters_to_list( P0 ) ),
     erlog_parse:term(Terms).
     
-process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts)->
+process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts) ->
       ProtoType = common:my_delete_element(1, Goal),
       case Res of 
-
-	    {'EXIT',FromPid,Reason}->
+	    {'EXIT',FromPid,Reason} ->
 		  ?CONSOLE_LOG(" ~p exit aim ~p~n",[?LINE, FromPid]),
 		  MainRes = io_lib:format("No<br/> ~p, aim is finished",[Reason]),
 		  FinishTime = erlang:now(),
@@ -516,7 +489,7 @@ process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts)->
     		   ElapsedTime = time_string(FinishTime, StartTime),
     		   Main =  concat_result( [MainRes,ElapsedTime] ),
 		   WebPid ! {result, Main, finish, self() };
-	    {true, SomeContext, Prev }->
+	    {true, SomeContext, Prev } ->
    		   ?CONSOLE_LOG("~p got from prolog shell aim ~p~n",[?LINE, { ProtoType, SomeContext} ]),
 		  FinishTime = erlang:now(),
                   New = prolog_matching:bound_body( 
@@ -537,14 +510,14 @@ process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts)->
 			      finish ->
 				    VarRes = io_lib:format("Yes~n",[]),
 				    WebPid ! {result, concat_result(VarRes), finish, self() };
-                             _->
+                             _ ->
 				    ?CONSOLE_LOG("~p send next to pid ~n",[{?MODULE,?LINE}]),
 				    process_prove_erws( TempAim , Goal, 
 				    (catch prolog:next_aim(Prev, TreeEts )), 
 				    NewWebPid, erlang:now(), TreeEts )		    
 			  end
 		  end;
-             Unexpected->
+             Unexpected ->
                   ?CONSOLE_LOG(" ~p exit aim ~p~n",[?LINE, Unexpected]),
                   MainRes = io_lib:format("No<br/> ~p, aim is finished",[Unexpected]),
                   FinishTime = erlang:now(),
@@ -555,7 +528,6 @@ process_prove_erws(TempAim , Goal, Res, WebPid,  StartTime, TreeEts)->
                   WebPid ! {result, Main, finish, self() }
       end     
 .
-
 
 concat_result(List)->
     list_to_binary(lists:flatten(List)).
@@ -569,35 +541,32 @@ concat_result(List)->
 % shell_var_match_str({ { Key }, Val} ) when is_binary(Val) -> 
 % 			    shell_var_match_str({ { Key }, unicode:characters_to_list(Val) } );
 			    
-shell_var_match_str({ { Key }, []} )-> 
+shell_var_match_str({ { Key }, []} ) -> 
     io_lib:format("<strong>~p</strong> = nothing ~n", [Key ])
 ;
-shell_var_match_str({ { Key }, Val1} )-> 
+shell_var_match_str({ { Key }, Val1} ) -> 
     Val  = lists:flatten( erlog_io:write1( Val1 ) ),
     ?CONSOLE_LOG("~p fill shell vars ~p",[{?MODULE,?LINE}, {  Key , Val, Val1} ]),
     case shell_check(Val) of
 	true ->
-	    
 	    io_lib:format("<strong>~p</strong> = ~ts ~n", [Key, Val]);
-	false->
+	false ->
 	    io_lib:format("<strong>~p</strong> = ~p ~n", [Key, Val])
     end; 
     
-shell_var_match_str( V )->
+shell_var_match_str( V ) ->
     "".    
-    
-shell_check([])->
+shell_check([]) ->
     true;
-shell_check([Head|Tail]) when Head<20->
+shell_check([Head|Tail]) when Head<20 ->
     false
 ;
-shell_check([Head|Tail]) when is_integer(Head)->
+shell_check([Head|Tail]) when is_integer(Head) ->
     shell_check(Tail)
 ;
-
-shell_check(_L)->
+shell_check(_L) ->
     false
 .
-time_string(FinishTime, StartTime)->
+time_string(FinishTime, StartTime) ->
   io_lib:format("<br/><span class='time'> elapsed time ~p secs </span><br/>", [ timer:now_diff(FinishTime, StartTime)*0.000001 ] )
 .

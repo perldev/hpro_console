@@ -1,8 +1,5 @@
 -module(erws_pages).
 
-
--import(lists, [foldl/3,foreach/2]).
-
 -include("erws_console.hrl").
 
 
@@ -37,49 +34,49 @@ handle(Req, State) ->
       { ok, NewReq, State}
 .
 
-echo(Path1 = [<<"dev_help.html">>], Req, _State)->
+echo(Path1 = [<<"dev_help.html">>], Req, _State) ->
            Result = tmpl_dev_help:render([]),          
           ?CONSOLE_LOG("~p try to find file ~p",[?LINE,{Path1 }]),
           {ok, List} = Result,
-          ListsFlatten  = lists:flatten(List),
+          ListsFlatten = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                 ListsFlatten, Req);
                                 
-echo(Path1 = [<<"console.html">>], Req, _State)->
+echo(Path1 = [<<"console.html">>], Req, _State) ->
            Result = tmpl_console:render([]),          
           ?CONSOLE_LOG("~p try to find file ~p",[?LINE,{Path1}]),
           {ok, List} = Result,
           ListsFlatten  = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                 ListsFlatten, Req);                                
-echo(Path1 = [<<"mang.html">>], Req, _State)->
-          {ok, List}= tmpl_mang:render([]),          
+echo(Path1 = [<<"mang.html">>], Req, _State) ->
+          {ok, List} = tmpl_mang:render([]),          
           ?CONSOLE_LOG("~p try to find file ~p",[?LINE,Path1]),
-          ListsFlatten  = lists:flatten(List),
+          ListsFlatten = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                          ListsFlatten, Req);                                      
-echo(Path1 = [<<"what.html">>], Req, _State)->
-          {ok, List}= tmpl_about:render([]),          
+echo(Path1 = [<<"what.html">>], Req, _State) ->
+          {ok, List} = tmpl_about:render([]),          
           ?CONSOLE_LOG("~p try to find file ~p",[?LINE,Path1]),
-          ListsFlatten  = lists:flatten(List),
+          ListsFlatten = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                          ListsFlatten, Req);                                         
-echo(Path1 = [<<"index.html">>], Req, _State)->
+echo(Path1 = [<<"index.html">>], Req, _State) ->
           ?CONSOLE_LOG("~p try to find file ~p",[?LINE,Path1]),
-          {ok, List}= tmpl_index:render([]),          
-          ListsFlatten  = lists:flatten(List),
+          {ok, List} = tmpl_index:render([]),          
+          ListsFlatten = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                          ListsFlatten, Req);
-echo([], Req, _State)->
+echo([], Req, _State) ->
           ?CONSOLE_LOG("~p empty path",[?LINE]),
           {ok, List}= tmpl_index:render([]),          
 
           ListsFlatten  = lists:flatten(List),
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                          ListsFlatten, Req);
-echo([<<"favicon.ico">>], Req, _State)->
+echo([<<"favicon.ico">>], Req, _State) ->
           ?CONSOLE_LOG("~p favicon ",[?LINE]),
-           ListsFlatten  = "",
+          ListsFlatten = "",
           cowboy_req:reply(200, [{<<"Content-Type">>, <<"text/html">>}],
                                          ListsFlatten, Req).
            

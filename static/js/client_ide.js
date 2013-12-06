@@ -886,7 +886,7 @@
 	  upload_v.setIncludeFolders(true);
 	  
 //  	  if(PARENT_DIRECTORY && PARENT_DIRECTORY != "")
-          view_d.setParent(PARENT_DIRECTORY);  
+//           view_d.setParent(PARENT_DIRECTORY);  
                 
                 
 //       view.setMimeTypes("txt/plain");    

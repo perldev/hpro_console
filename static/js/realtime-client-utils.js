@@ -545,11 +545,7 @@ function downloadFile(file, callback) {
                         url: "/command/google_proxy/"+accessToken+"/?url=" + encodeURIComponent( file.exportLinks['text/plain'] ),
                         success:  function(Data) {
                                     callback(Data, file);
-                                },
-                        error: function(Data){
-                                alert("Error during working with the server try again");
-                            }
-                        }
+                                }
                       );
           
           

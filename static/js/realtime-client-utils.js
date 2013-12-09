@@ -537,7 +537,7 @@ function downloadFile(file, callback) {
 	    callback(xhr.responseText, file);
 	  };
 	  xhr.onerror = function() {
-	    callback(null,file);
+                alert(" try again to get file  ");
 	  };
 	  xhr.send();
 	} else {

@@ -890,12 +890,8 @@
                 
                 
 //       view.setMimeTypes("txt/plain");    
-// 	  var access_token = gapi.auth.getToken("token",null);
-// 	  view.setIncludeFolders(true);
 	  picker = new google.picker.PickerBuilder()
 	     
-//           .enableFeature(google.picker.Feature.NAV_HIDDEN)
-//           .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
           .setAppId('768399903870')
 // 	  .setOAuthToken(access_token) //Optional: The auth token used in the current Drive API session.
 //           .addView(view)
@@ -920,6 +916,8 @@
     function  update_editor(string, meta){
 	  editor.setValue(clean_br(string));	    
 	  CURRENT_NAME = meta.title;
+          CURRENT_DOCUMENT = meta.id;
+
   	  SUB_DIRECTORY =  meta.parents[0].id;
           if(NAME_SPACES[SUB_DIRECTORY]){
               
@@ -964,7 +962,6 @@
       if (data.action == google.picker.Action.PICKED) {
 	  var fileId = data.docs[0].id;
 	  
-	  CURRENT_DOCUMENT = fileId;
           realtimeLoader.get_file(fileId, update_editor);
       }
     }
@@ -1002,8 +999,7 @@
             
     }
     function open_file(FileId){
-            realtimeLoader.get_file(FileId, update_editor);
-            CURRENT_DOCUMENT = FileId;      
+            realtimeLoader.get_file(FileId, update_editor);  
             createCookie(LastProjectCookieName, FileId);
     }
     function process(Result){
@@ -1118,8 +1114,10 @@
 
     }   
     function save_file(Code){
-	    Code =  clean_br(Code);
-
+	   Code =  clean_br(Code); 
+///ДЕБИЛИЗМ СОХРАНЯТЬ ФАЙЛЫ И В Google Doc 
+           
+           
            if(CURRENT_DOCUMENT){
                     gd_updateFile(CURRENT_DOCUMENT, SUB_DIRECTORY, Code, 0 );
            }else{

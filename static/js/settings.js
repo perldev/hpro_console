@@ -1,4 +1,4 @@
-    var HOST = "app-oracul-1.ceb.loc:8080";//"codeide.com" ;"test.codeide.com:8080";//
+    var HOST = "127.0.0.1:8080";//"codeide.com" ;"test.codeide.com:8080";//
     var QS = (function(a) {
     if (a == "") return {};
     var b = {};
@@ -28,9 +28,12 @@ function  my_alert(  Msg ){
     }
     $("#msg").html(Msg); 
     $("#my_alert").show("fast");
-    
-    
+    hide_block_div();
 }
+function default_alert(){
+    my_alert("Ошибка в работе с сервером, попробуйте еще раз");
+}
+
 function hide(id){
     $("#"+id).hide("fast");
 }

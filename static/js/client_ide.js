@@ -422,6 +422,7 @@
 			    contentType: 'text/plain',
 			    url: "http://" + HOST +"/command/plain_code" ,
 			    success: new_function,
+                            error: default_alert
 			    }
 		);
 	    }
@@ -439,8 +440,7 @@
                             return ;
                       }  
         
-                      $("#database_name_"+CurrentDataBase).removeClass('btn-warning');
-                      $("#database_name_"+CurrentDataBase).addClass('btn-info');
+          
                       open_directory(id);
         
     }
@@ -453,10 +453,16 @@
         
     }
     function read_file_names(Result){
-        
-           for(item in Result){
-                    open_file(Result[item].id);
-                    return ;
+
+            for(item in Result){
+
+                    if(Result[item]){
+                        open_file(Result[item].id);
+                        return ;
+                    }else{
+                            my_alert("I can't read the content of directory");
+                    }
+                    
             }
     }
     function list_namespace(){
@@ -474,7 +480,8 @@
                             {
                                 dataType: "json",
                                 url: "http://" + HOST +"/command/list_namespace/"+google_session,
-                                success: new_function
+                                success: new_function,
+                                error: default_alert
                             }
                         );
            }
@@ -492,10 +499,8 @@
     
     function make_public(){
       if(SUB_DIRECTORY){
-            $( "div#block_window" ).show("fast");
             gapi.client.load('drive', 'v2', function() {
                 retrieveAllFiles(public_whole_system, SUB_DIRECTORY);
-            
             });          
         }else{
             my_alert("You didn't choose the project")
@@ -509,13 +514,10 @@
                     
             }
             for(item in Result){
-        //             Str += "<a class=\"btn\" href=\"javascript:open_file('"+Result[item].id+"')\">"+ Result[item].title +" </a>";
                         var id = Result[item].id;
                         realtimeLoader.get_file(Result[item].id, 
                                 function(Data, Meta){
-                                    
-                                    TMP_BUFFER_RESULT[Meta['id']] = {"ready":"yes","result": Data};
-                                   
+                                    TMP_BUFFER_RESULT[Meta['id']] = {"ready":"yes","result": Data};                                   
                                 }                                    
                         );
                 
@@ -545,8 +547,7 @@
 //                        $("<p>| -? " + Data +"</p>").appendTo("#msgs");
                           my_alert("Project '" + SUB_DIRECTORY_NAME + "' is avalible now at the network, you can manage it in tab 'Managing' " );
                           list_namespace();
-                          $( "div#block_window" ).hide("fast");
-                          // TODO get_namespace_list
+                          hide_block_div();                          
                     }
                     //hack for numbers
                     Code = clean_code(Code);
@@ -563,8 +564,8 @@
                                         type: "POST",
                                         url: "http://" + HOST +"/command/make_public/"+ google_session +"/"+SUB_DIRECTORY_NAME +"/"+SUB_DIRECTORY,
                                         data: params,
-                                        success: new_function
-                                        
+                                        success: new_function,
+                                        error: default_alert
                                         }
                                     );
                           }else{
@@ -648,8 +649,8 @@
                                         type: "POST",
                                         url: "http://" + HOST +"/command/save_public/"+ google_session +"/"+SUB_DIRECTORY_NAME +"/"+SUB_DIRECTORY,
                                         data: params,
-                                        success: new_function
-                                        
+                                        success: new_function,
+                                        error: default_alert
                                         }
                                     );
                           }else{
@@ -660,10 +661,8 @@
     }    
     function load_code(){
 		    var new_function = function(Data){
-// 			  $("<p>| -? " + Data +"</p>").appendTo("#msgs");
                           clear_console();
                           to_console_alert(CURRENT_NAME + " is loaded, type 'help.' for getting started");
-
 			  open_console();
 		    }
 		    var Code = editor.getValue(),
@@ -675,8 +674,8 @@
                         type: "POST",
                         url: "http://" + HOST +"/command/upload_code/"+ SESSION_KEY,
                         data: params,
-                        success: new_function
-                        
+                        success: new_function,
+                        error: default_alert
                         }
                       );
     
@@ -807,7 +806,8 @@
                                                 $.ajax(
                                                   {
                                                     url: "http://" + HOST +"/command/find_workspace/"+Session,
-                                                    success: new_function1
+                                                    success: new_function1,
+                                                    error: default_alert
                                                  }
                                                ); 
                                                 
@@ -819,7 +819,7 @@
                                 dataType: "json",
                                 url: "http://" + HOST +"/command/create_command_session/"+Session,
                                 success: new_function,
-                                
+                                error: default_alert
                             }
                         ).fail(function() { 
                                             var new_function1 = function(Data){        
@@ -833,7 +833,8 @@
                                                 $.ajax(
                                                   {
                                                     url: "http://" + HOST +"/command/find_workspace/"+Session,
-                                                    success: new_function1
+                                                    success: new_function1,
+                                                    error: default_alert
                                                  }
                                                ); 
                             
@@ -907,7 +908,7 @@
           CURRENT_NAME = meta.title;
           CURRENT_DOCUMENT = meta.id;     
           SUB_DIRECTORY =  meta.parents[0].id;
-          $( "div#block_window" ).hide("fast");
+          hide_block_div();
           createCookie(LastProjectCookieName, CURRENT_DOCUMENT);
           update_name_title(CURRENT_NAME);
           
@@ -920,6 +921,8 @@
 
   	  SUB_DIRECTORY =  meta.parents[0].id;
           if(NAME_SPACES[SUB_DIRECTORY]){
+                      $("#database_name_" + CurrentDataBase).removeClass('btn-warning');
+                      $("#database_name_" + CurrentDataBase).addClass('btn-info');  
               
                       CurrentDataBase = SUB_DIRECTORY;   
                       $("#database_name_"+CurrentDataBase).addClass('btn-warning');
@@ -935,6 +938,7 @@
               
           }
 	  update_title();
+          hide_block_div();
 	  fill_project_list(SUB_DIRECTORY);
     
     }
@@ -961,7 +965,6 @@
     function pickerCallback(data) {
       if (data.action == google.picker.Action.PICKED) {
 	  var fileId = data.docs[0].id;
-	  
           realtimeLoader.get_file(fileId, update_editor);
       }
     }
@@ -992,11 +995,17 @@
             if(FileId == CURRENT_DOCUMENT)
                     return;
         
-            $( "div#block_window" ).show("fast");
-            save_file(   editor.getValue()  );
+            
+            save_file(  editor.getValue()  );
             realtimeLoader.get_file(FileId, update_editor_soft);
             
             
+    }
+    function hide_block_div(){
+         $( "div#block_window" ).hide("fast");
+    }
+    function show_block_div(){
+        $( "div#block_window" ).show("fast");
     }
     function open_file(FileId){
             realtimeLoader.get_file(FileId, update_editor);  
@@ -1029,8 +1038,8 @@
                 }
                 
             }
-           $( "div#block_window" ).show("fast");
             gapi.client.load('drive', 'v2', function() {
+                show_block_div();
                 retrieveAllFiles(compile_system, SUB_DIRECTORY);
             
             });          
@@ -1046,9 +1055,7 @@
                     TMP_BUFFER_RESULT[Result[item].id] = {"ready":"wait", "result": ""};
                     
             }
-            
             for(item in Result){
-        //             Str += "<a class=\"btn\" href=\"javascript:open_file('"+Result[item].id+"')\">"+ Result[item].title +" </a>";
                         var id = Result[item].id;
                         realtimeLoader.get_file(Result[item].id, 
                                 function(Data, Meta){
@@ -1090,7 +1097,8 @@
 				my_alert("there is mistake during compilation" + Data);
 
 			  }
-			  $( "div#block_window" ).hide("fast");
+                          hide_block_div();
+                        
                     }
                     //hack for numbers
                     Code = clean_code(Code);
@@ -1100,8 +1108,8 @@
                         type: "POST",
                         url: "http://" + HOST +"/command/upload_code/"+ SESSION_KEY,
                         data: params,
-                        success: new_function
-                        
+                        success: new_function,
+                        error: default_alert
                         }
                       );
     

@@ -529,28 +529,22 @@ rtclient.RealtimeLoader.prototype.get_file =  function(fileId, callback){
 
 function downloadFile(file, callback) {
 	if (file.exportLinks) {
-	  var accessToken = gapi.auth.getToken().access_token;
-// 	  var xhr = new XMLHttpRequest();
-// 	  xhr.open('GET',"/command/google_proxy/"+accessToken+"/?url=" + encodeURIComponent( file.exportLinks['text/plain'] ) );
-// // 	  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-// 	  xhr.onload =
-// 	  xhr.onerror = function() {
-//                 alert(" try again to get file  ");
-// 	  };
-// 	  xhr.send();
-          
+	   var accessToken = gapi.auth.getToken().access_token;
+           show_block_div();
           
            $.ajax({
                         type: "GET",
                         url: "/command/google_proxy/"+accessToken+"/?url=" + encodeURIComponent( file.exportLinks['text/plain'] ),
                         success:  function(Data) {
                                     callback(Data, file);
-                                }
-                      );
+                                },
+                        error: default_alert
+                     }
+                  );
           
           
 	} else {
-	  alert("There is some error during download meta info")
+	  my_alert("There is some error during download meta info")
 	}
 }
 

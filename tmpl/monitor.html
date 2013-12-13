@@ -1,0 +1,89 @@
+<div id="monitoring" style="display:none">
+
+    <div style=" background: none repeat scroll 0 0 black;
+    display: none;
+    height: 9999px;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 9999px;
+    z-index: 10000;
+    opacity: 0.3;
+    " 
+    id='block' >
+    
+    </div>
+  
+ 
+
+<div class="container" >
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="well sidebar-nav" id="monitor_menu">
+            <ul class="nav nav-list">
+              <li class="nav-header">Показатели Статистики</li>
+              <li class="active"><a id="requests" href="#" data-page="sidebar">Запросы в работе</a></li>
+              <li><a href="#"   id="system_state" data-page="sidebar">Состояние cистемы</a></li>
+              <li><a href="#" id="graph" data-page="sidebar">Факты</a></li>
+              <li><a href="#" id="code_memory" data-page="sidebar">Код ядра</a></li>
+              <!--<li><a href="#">Link</a></li> -->
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span9">
+            <div id="namespaces" style="margin-top: 1em;"></div> 
+        <div class="row-fluid">
+            
+        </div><!--/span-->
+    <div class="container">
+
+    <!--
+      <h1>Bootstrap starter template</h1>
+      <p>Use this document as a way to quick start any new project.<br> 
+         All you get is this message and a barebones HTML document.</p> -->    
+        <div id="graph_page" class="span9">
+                <div class="container" id='graph_container' style="width: 120%; height: 100%"> </div>
+                <div class="container" id="requests_container"> </div> <!--/requests-->          
+                <div class="container" id="system_state_container"> </div> <!--/system_state-->
+                <div class="container" id="code_memory_container"> </div> <!--/code_memory-->
+        </div><!--/span9-->
+
+
+    </div> <!-- /container -->
+    
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/api_static/js/jquery.serializeObject.js"></script>
+    <script src="/api_static/js/lib/pure.min.js"></script>
+    <script src="/api_static/js/graph.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      
+        $(document).ready(function() {
+        var WHOST = "ws://"+HOST+"/api_stat";            
+        // need change host
+        vm_statistic.ws = new WebSocket(WHOST);
+
+        // vm_statistic.ws = new WebSocket("ws://localhost:8313/websocket");
+        vm_statistic.ws.onopen = function(evt){
+            console.log("Socket open");
+            vm_statistic.eventData();
+//             vm_statistic.ws.send(JSON.stringify({action: "get", cmd: "namespaces"}));
+            
+        }
+        vm_statistic.ws.onclose = function(){
+            console.log("Socket closed"); 
+        }
+
+        $('a').on('click', vm_statistic.events.pageChange);
+//         $("a[id='button']").on('click', vm_statistic.events.buttonChange);
+            
+            
+        });
+        
+        
+    </script>
+
+</div>

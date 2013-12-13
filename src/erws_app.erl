@@ -66,8 +66,24 @@ test_routes() ->
 
 routes() ->
     cowboy_router:compile([{'_',
-			    [{"/command/[...]", erws_command, []},
+			    [
+			     {"/command/[...]", erws_command, []},
 			     {"/websocket/[...]", erws_handler, []},
+			     {"/api_stat/[...]", prolog_open_api_monitor_ws_handler, []},
+                             {"/api_static/[...]", cowboy_static, 
+                              [
+                               { directory, <<"deps/prolog_open_api/static">>},
+                                { mimetypes,
+                                [
+                                 { <<".png">>, [<<"image/png">>]},
+                                 { <<".jpg">>, [<<"image/jpeg">>]},
+                                 { <<".css">>, [<<"text/css">>]},
+                                 { <<".js">>,
+                                 [ <<"application/javascript">>]} 
+                                ]
+                                }
+                              ]
+                             },
 			     {"/prolog/[...]", api_erws_handler,
 			      []},%% for using api
 			     {"/static/[...]", cowboy_static,

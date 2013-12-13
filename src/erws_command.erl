@@ -74,16 +74,20 @@ get_namespace_info(Record)->
          Name = erlang:element(2, Record),
         {NameSpace, _GoogleFolder, Config}  = api_auth_demon:get_name_space_info(NameSpace),
         {ok, ListPerms} = dict:find(ips, Config),
-        Desc = 
-                case  dict:find(description, Config) of    
+        Desc =  case  dict:find(description, Config) of    
                     error-><<>>;
                     {ok, Value}-> Value
+                end,
+         Salt = case  dict:find(salt, Config) of    
+                    error-><<>>;
+                    {ok, Value1}-> list_to_binary( Value1 )
                 end,
          ProcPermList = lists:map(fun process_ip_perm/1, ListPerms),
         
          {ok, IoList}= tmpl_managing_panel:render([
                       {name, Name},
                       {id, NameSpace},
+                      {salt, Salt},
                       {description, Desc},
                       {permissions, ProcPermList},
                       {public_url,generate_page_url(NameSpace) },
@@ -151,6 +155,51 @@ echo( [ <<"find_workspace">>, Session ], Req, State)->
                                         WorkSpace, Req)
     
 
+;
+echo( [<<"update_salt">>, Session, NameSpaceB ], Req, State)->
+      NameSpace = binary_to_list(NameSpaceB),
+      SessKey = binary_to_list(Session),
+      [ { SessKey, UserId }]  = ets:lookup(?AUTH_SESSION, SessKey ),
+      Got = cowboy_req:body_qs(1600000, Req),
+      {ok, PostVals, Req2}  = Got, 
+      Value = proplists:get_value(<<"salt">>, PostVals),
+      List = ets:lookup(?ETS_REG_USERS, UserId ),      
+      case  lists:keysearch(NameSpace, 4, List) of
+                        {value, Record } -> 
+                                case Value of
+                                     <<>> ->
+                                            ?CONSOLE_LOG("~p delete salt  ~p ~n",[?LINE, NameSpace]),
+                                            api_auth_demon:delete_config(NameSpace, salt);
+                                      _ ->  
+                                            ?CONSOLE_LOG("~p adding  salt  ~p ~n",[?LINE, NameSpace]),
+                                            api_auth_demon:update_config(NameSpace, salt, binary_to_list(Value) )
+                                end,
+                                cowboy_req:reply(200, headers_text_html(),
+                                                                    <<"ok">>, Req2);
+                         _->
+                                cowboy_req:reply(500, headers_text_plain(),
+                                                                    <<"not_found">>, Req2)
+                         
+     end
+;
+echo( [<<"update_desc">>, Session, NameSpaceB ], Req, State)->
+      NameSpace = binary_to_list(NameSpaceB),
+      SessKey = binary_to_list(Session),
+      [ { SessKey, UserId }]  = ets:lookup(?AUTH_SESSION, SessKey ),
+      Got = cowboy_req:body_qs(1600000, Req),
+      {ok, PostVals, Req2}  = Got, 
+      Value = proplists:get_value(<<"description">>, PostVals),
+      List = ets:lookup(?ETS_REG_USERS, UserId ),      
+      case  lists:keysearch(NameSpace, 4, List) of
+                        {value, Record } -> 
+                                api_auth_demon:update_config(NameSpace, description, Value),
+                                cowboy_req:reply(200, headers_text_html(),
+                                                                    <<"ok">>, Req2);
+                         _->
+                                cowboy_req:reply(500, headers_text_plain(),
+                                                                    <<"not_found">>, Req2)
+                         
+     end
 ;
 echo( [ <<"get_expert_info">>, Session, NameSpaceB ], Req, State)->
      NameSpace = binary_to_list(NameSpaceB),

@@ -9,6 +9,17 @@
    margin-top:1em;
    padding-left:1em;
 }
+#change_description_textarea{
+    width: 36em;
+    height: 4em
+}
+#change_description_form span.btn{
+    padding-bottom:5px
+    
+}
+#panel pre{
+    width: 40em;
+}
 
 body{
     padding-top:60px;

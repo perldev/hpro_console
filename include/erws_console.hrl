@@ -32,7 +32,10 @@
             { "tmpl/console.html", tmpl_console },
             { "tmpl/mang.html", tmpl_mang},
             { "tmpl/footer.html", footer},
-            { "tmpl/managing_panel.html", tmpl_managing_panel}
+            { "tmpl/managing_panel.html", tmpl_managing_panel},
+            { "tmpl/monitor.html", tmpl_monitor}
+
+            
     ]
 
 ).

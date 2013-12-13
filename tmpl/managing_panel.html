@@ -1,5 +1,26 @@
 <h3>{{name}}</h3>
-<p>{{description}}</p>
+<h4>Describe your system :</h4>
+<pre  id="description">
+       <span id="description_text"> {{ description }}</span> <span class="btn pull-right" onclick="ManagePanel.open_description()">Edit</span>
+
+</pre>
+<pre id="change_description_form" style="display:none; width: 40em;">
+            <textarea id="change_description_textarea" >
+                {{ description }}
+            </textarea>
+            <span class="btn pull-left" onclick="ManagePanel.restore_description()">Cancel</span><span class="btn pull-right btn-success"  onclick="ManagePanel.save_description('{{id}}')">Save</span>
+</pre>
+
+<h4>Auth Salt :</h4>
+<pre onclick="ManagePanel.open_salt('{{id}}')" id="salt">
+           <span id="salt_text"> **** </span> <span class="btn pull-right" onclick="ManagePanel.open_salt()">Show</span>
+
+</pre>
+<pre id="change_salt_form" style="display:none; width: 40em;">
+            <input id="change_salt_text" type="text" size="40" value="{{salt}}" />
+            <span class="btn pull-left" onclick="ManagePanel.restore_salt()">Cancel</span><span class="btn pull-right btn-success"  onclick="ManagePanel.save_salt('{{id}}')">Save</span>
+</pre>
+
 <h4>Permissions:</h4>
 <pre>
 {%for ip in permissions%}
@@ -12,6 +33,11 @@ Ip {{ip.ip}} is {{ip.perm }}
 <a href="{{public_api_urls}}">{{public_api_urls}}</a> <br/>
 more info <a href="/dev_help.html#pro">there</a>
 
+<h4>Monitoring api:</h4>
+<span class="btn pull-left" onclick="$('#monitoring').show('fast')">Show</span>
+<br/>
+<br/>
+<br/>
 
 
 

@@ -42,8 +42,8 @@ google_get_user_id(Session) ->
                                             { body_format, binary } 
                                           ] ) of
                           { ok, { {_NewVersion, 200, _NewReasonPhrase}, _NewHeaders, Text1 } } ->
-                                  [{_Res, Key}] = jsx:decode(Text1),
-
+                                  JsonList = jsx:decode(Text1),
+                                  {value, { _, Key } }   = lists:keysearch(<<"id">>, 1, JsonList),
                                   ?CONSOLE_LOG("~p got response from google ~p ~n",[ {?MODULE,?LINE}, {Text1, Key} ] ),
                                   binary_to_list(Key);
                           Res ->

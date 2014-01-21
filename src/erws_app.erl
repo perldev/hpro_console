@@ -38,7 +38,7 @@ respond(_Code, _Headers, _Body, Req2) -> Req2.
 web_start() ->
     Dispatch = (?ROUTES),
     lists:foreach(fun ({Name, ModuleName}) ->
-			  ok = erlydtl:compile(Name, ModuleName)
+			  erlydtl:compile(Name, ModuleName)
 		  end,
 		  ?TMPLS),
     {ok, Port} = application:get_env(erws, work_port),

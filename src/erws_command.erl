@@ -160,7 +160,7 @@ echo( [<<"update_salt">>, Session, NameSpaceB ], Req, State)->
       NameSpace = binary_to_list(NameSpaceB),
       SessKey = binary_to_list(Session),
       [ { SessKey, UserId }]  = ets:lookup(?AUTH_SESSION, SessKey ),
-      Got = cowboy_req:body_qs(1600000, Req),
+      Got = cowboy_req:body_qs(16000000, Req),
       {ok, PostVals, Req2}  = Got, 
       Value = proplists:get_value(<<"salt">>, PostVals),
       List = ets:lookup(?ETS_REG_USERS, UserId ),      
@@ -186,7 +186,7 @@ echo( [<<"update_desc">>, Session, NameSpaceB ], Req, State)->
       NameSpace = binary_to_list(NameSpaceB),
       SessKey = binary_to_list(Session),
       [ { SessKey, UserId }]  = ets:lookup(?AUTH_SESSION, SessKey ),
-      Got = cowboy_req:body_qs(1600000, Req),
+      Got = cowboy_req:body_qs(16000000, Req),
       {ok, PostVals, Req2}  = Got, 
       Value = proplists:get_value(<<"description">>, PostVals),
       List = ets:lookup(?ETS_REG_USERS, UserId ),      
@@ -255,7 +255,7 @@ echo( [ <<"create_command_session">>, Session ], Req, State)->
 %%there is a permissions bug problem
 echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           SessKey = binary_to_list(AuthSession),
-          Got = cowboy_req:body_qs(1600000, Req),
+          Got = cowboy_req:body_qs(16000000, Req),
           LForeign = binary_to_list(ForeinId),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
@@ -288,7 +288,7 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
 echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
 
           SessKey = binary_to_list(AuthSession),
-          Got = cowboy_req:body_qs(1600000, Req),
+          Got = cowboy_req:body_qs(16000000, Req),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
           Code = proplists:get_value(<<"code">>, PostVals),
@@ -306,7 +306,7 @@ echo([<<"reload">>], Req, State)->
 	  echo([<<"show_code">>], Req, State)
 ; 
 echo([<<"upload_code">>, Session], Req, _State)->
-	   Got = cowboy_req:body_qs(1600000, Req),
+	   Got = cowboy_req:body_qs(16000000, Req),
 	   SessKey = binary_to_list(Session),
 	   ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
 	   {ok, PostVals, Req2}  = Got, 

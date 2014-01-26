@@ -11,8 +11,8 @@ google_download_request(Url, Session) ->
                                             {"Accept","text/plain"}
                                           ] 
                                       },
-                                          [ { connect_timeout,5000 },
-                                            { timeout, 5000 }],
+                                          [ { connect_timeout,?GOOGLE_TIMEOUT },
+                                            { timeout, ?GOOGLE_TIMEOUT }],
                                           [ { sync, true},
                                             { body_format, binary } 
                                           ] ) of
@@ -36,8 +36,8 @@ google_get_user_id(Session) ->
       case catch  httpc:request( get, { "https://www.googleapis.com/oauth2/v1/userinfo?access_token="++Session,
                                           [ ] 
                                       },
-                                          [ { connect_timeout,5000 },
-                                            { timeout, 5000 }],
+                                          [ { connect_timeout,?GOOGLE_TIMEOUT },
+                                            { timeout, ?GOOGLE_TIMEOUT }],
                                           [ { sync, true},
                                             { body_format, binary } 
                                           ] ) of
@@ -73,8 +73,8 @@ create_google_workspace(SessKey, UserId) ->
                                           Post
                                           
                                       },
-                                          [ { connect_timeout,5000 },
-                                            { timeout, 5000 }],
+                                          [ { connect_timeout,?GOOGLE_TIMEOUT },
+                                            { timeout, ?GOOGLE_TIMEOUT }],
                                           [ { sync, true},
                                             { body_format, binary } 
                                           ] ) of

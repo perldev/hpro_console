@@ -21,7 +21,7 @@
 -define(TEMP_PREFIX, "temp_namespace").
 -define(LIMIT_OF_USERS, 1000).
 -define(ETS_TABLE_USERS, multi_user_limit).
-
+-define(GOOGLE_TIMEOUT,50000).
 -define(ROUTES, routes() ).
 
 -define( TMPLS,[

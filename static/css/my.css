@@ -5,6 +5,14 @@
     margin-top:1em;
     
 }
+div#sse{
+        font-family: verdana, arial;
+        font-size: 12px;
+}
+input#code{
+        font-size: 16px;
+        letter-spacing: 0.12em;
+}
 #own_expert_systems{
    margin-top:1em;
    padding-left:1em;

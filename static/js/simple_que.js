@@ -43,7 +43,8 @@
 		 Var1 = Var1 + " ";
 		 obj.value ="";
 		 $("#sse").html("<p>" + Var +"</p>");
-		 history[$.trim(Var1)] = 1 ;	  
+		 history[$.trim(Var1)] = 1;
+                 
 		 index = 0;
 		 send(Var1);
 		 disable_run();     
@@ -52,9 +53,12 @@
     function start_simple_system(){
         var Params = rtclient.getParams();
         
+        
     
         $("#code").prop("disabled", false);   
         Key = Math.random();
+        
+        
         // Handler for .ready() called.
         SESSION_KEY = Key;
         var url ="";
@@ -66,6 +70,7 @@
         
             url = WHOST+Key;
         }
+        
         
         ws = new WebSocket(url);
         
@@ -87,14 +92,7 @@
             result=patt.test(received_msg);
             if(result){
                enable_run();
-            }
-            
-            
-//             else{
-//                   enable_run();
-                  
-                
-//             }            
+            }        
             if(interactive_commands(received_msg)){  
                   return ;
             }

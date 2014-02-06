@@ -39,7 +39,7 @@ handle(Req, State) ->
      { Path, Req1} = cowboy_req:path_info(Req),
      ?CONSOLE_LOG("Unexpected request: ~p~n", [Path]),
 %      {Username, Password, Req2} = credentials(Req1),
-      {ok, NewReq} = ( catch echo(Path, Req, State) ),
+      {ok, NewReq} =  echo(Path, Req, State) ,
 %     case {Username, Password} of
 %             {?USERNAME, ?PASSWORD} ->
 %                  echo(my_join(Path), Req2, State);
@@ -48,7 +48,8 @@ handle(Req, State) ->
 %     end,    
       { ok,NewReq,State}
       
-.
+
+      .
 generate_api_url(Page) ->
     "http://codeide.com/prolog/auth/"++Page
 .

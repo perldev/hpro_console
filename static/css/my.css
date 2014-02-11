@@ -5,9 +5,15 @@
     margin-top:1em;
     
 }
-div#sse{
-        font-family: verdana, arial;
-        font-size: 12px;
+div#msgs{
+         font-size: 16px;
+         width: 800px;
+         overflow-wrap: normal;  /* не поддерживает IE, Firefox; является копией word-wrap */ 
+         word-wrap: normal;
+         word-break: normal;  /* не поддерживает Opera12.14, значение keep-all не поддерживается IE, Chrome */ 
+         line-break: auto;  /* нет поддержки для русского языка */ 
+         hyphens: manual;
+                                   
 }
 input#code{
         font-size: 16px;

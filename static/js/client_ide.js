@@ -280,8 +280,8 @@
 	  
     }
      function scroll_console(){
-	 $("#msgs").animate({
-			      scrollTop: $("#msgs").get(0).scrollHeight
+	 $("#msgs_ide").animate({
+			      scrollTop: $("#msgs_ide").get(0).scrollHeight
 			    }, 100);
 	  
     
@@ -723,7 +723,7 @@
         {
             var received_msg = evt.data;
             console.log("Received: " + received_msg);
-            var obj =  document.getElementById('msgs');
+            var obj =  document.getElementById('msgs_ide');
             
 //          $("<p>| -? " + received_msg +"</p>").appendTo("#msgs");
             var patt=/looking next \?/;
@@ -1087,7 +1087,6 @@
     function load_string_code(Code ){
         
                     var new_function = function(Data){
-//                        $("<p>| -? " + Data +"</p>").appendTo("#msgs");
                           if(Data =="yes"){
                               clear_console();
                               to_console_alert("Project '"+SUB_DIRECTORY_NAME+"'is loaded type 'help.' for getting started");

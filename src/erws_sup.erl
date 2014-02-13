@@ -15,9 +15,15 @@ init([]) ->
                 permanent, infinity, worker , [ api_auth_demon]
         
         },
+        Api_table_holder ={
+                "api_table_holder",
+             {api_table_holder, start_link, [] },
+             permanent, infinity, worker , [ api_table_holder]   
+        
+        },
         Auth = {
             "auth_demon",
            { auth_demon, start_link, [  ] },
             permanent, infinity, worker , [ auth_demon ]
         },
-        {ok, { {one_for_one, 5, 10}, [ AuthDemon,  Auth ] } }.  
+        {ok, { {one_for_one, 5, 10}, [ AuthDemon,  Auth, Api_table_holder ] } }.  

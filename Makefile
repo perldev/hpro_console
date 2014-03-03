@@ -1,8 +1,7 @@
 REBAR=`which rebar || echo ./rebar`
 DIALYZER = dialyzer
 
-all: 
-	@$(REBAR) get-deps
+all: get-deps compile 
 
 get-deps:
 	@$(REBAR) get-deps

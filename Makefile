@@ -2,7 +2,6 @@ REBAR=`which rebar || echo ./rebar`
 DIALYZER = dialyzer
 
 all: 
-	rm -Rf deps/prolog_open_api
 	@$(REBAR) get-deps
 
 get-deps:

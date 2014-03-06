@@ -267,7 +267,9 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
                         	    ok ->
 	                                api_auth_demon:save_public_system(Id, LForeign, EtsTable ),
 	                                <<"yes">>;
-	                            Re-> list_to_binary(Re)    
+	                            Re -> 
+                                        ?CONSOLE_LOG("~p ERROR load code  ~p ~n",[{?MODULE,?LINE},Re]),
+                                        list_to_binary(Re)    
 	                        end;                          
                         false ->
                                 <<"not_found">>
@@ -320,7 +322,9 @@ echo([<<"upload_code">>, Session], Req, _State)->
 % 	   {ok, Terms }
 	   Res =  case catch prolog:compile(NameSpace, File) of
 			ok -> <<"yes">>;
-			Rsss -> Rsss
+			Rsss -> 
+                                ?CONSOLE_LOG("~p ERROR load code  ~p ~n",[{?MODULE,?LINE}, Rsss]),
+                                Rsss
 		   end,
            ?CONSOLE_LOG("~p code here ~p ~n",[{?MODULE, ?LINE},{Res, Code}]),
     	   cowboy_req:reply(200, headers_text_html(),

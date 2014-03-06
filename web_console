@@ -12,6 +12,7 @@ TYPE="name"
  
 ERL="erl +A 4 +K true" #-config siteheart"
 
+
 start()
 {
 	echo "starting Erlang visor Server"
@@ -22,12 +23,12 @@ start()
 	-noinput -detached \
 	-boot start_sasl \
 	-s $APP  \
-	-$TYPE $NODE@$HOST
+	-$TYPE $NODE@$HOST\
 	-config sys
 }
 start_debug(){
 	echo "starting debug"
-	$ERL    $HOME_P  -s $APP  -kernel error_logger false    -boot start_sasl  -$TYPE debug_$NODE@$HOST -config sys
+	$ERL    $HOME_P  -s $APP  -kernel error_logger false    -boot start_sasl  -$TYPE debug_$NODE@$HOST -config test_config
 
 
 }

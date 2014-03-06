@@ -27,10 +27,10 @@
    function clean_code(Code){
                     if(Code){
 //                	alert(Code);
-                        Code = Code.replace(/%.+/mg,"");
-			Code = Code.replace(/\r/mg,"");
-                        Code = Code.replace(/(\d+)\.(\d+)/mg,"$1#%#$2");
-                        Code = Code.replace(/=\.\./mg,"#%=#");
+//                         Code = Code.replace(/%.+/mg,"");
+// 			Code = Code.replace(/\r/mg,"");
+//                         Code = Code.replace(/(\d+)\.(\d+)/mg,"$1#%#$2");
+//                         Code = Code.replace(/=\.\./mg,"#%=#");
                         Code = Code.replace(/[“”]/mg,"\"");
                         Code = $.trim(Code);
                         return Code;
@@ -247,8 +247,6 @@
 			  if(i+1 == index){
 			   
 			  	document.getElementById("code").value = key;
-
-// 				$("#code").attr( { "value": key } );
 				index = i;
 				return ;
 
@@ -438,9 +436,7 @@
                       if(id == CurrentDataBase){
                             show_online();
                             return ;
-                      }  
-        
-          
+                      }          
                       open_directory(id);
         
     }
@@ -1080,7 +1076,7 @@
          }   
          var tmp="";
          for(item in TMP_BUFFER_RESULT){
-            tmp += TMP_BUFFER_RESULT[item]["result"];             
+            tmp += "\n" + TMP_BUFFER_RESULT[item]["result"];             
          }
          load_string_code(tmp);
     }

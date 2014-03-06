@@ -39,17 +39,11 @@ handle(Req, State) ->
      { Path, Req1} = cowboy_req:path_info(Req),
      ?CONSOLE_LOG("Unexpected request: ~p~n", [Path]),
 %      {Username, Password, Req2} = credentials(Req1),
-      {ok, NewReq} =  ( catch echo(Path, Req, State) ),
-%     case {Username, Password} of
-%             {?USERNAME, ?PASSWORD} ->
-%                  echo(my_join(Path), Req2, State);
-%             _ ->
-%                 unauthorized(Req2)
-%     end,    
-      { ok,NewReq,State}
+      Res =  ( catch echo(Path, Req, State) ),
+      ?CONSOLE_LOG("got request: ~p~n", [Res]),
+      {ok, NewReq} = Res,      
+      { ok,NewReq,State}.
       
-
-      .
 generate_api_url(Page) ->
     "http://codeide.com/prolog/auth/"++Page
 .
@@ -261,20 +255,16 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
           Code = proplists:get_value(<<"code">>, PostVals),
-          NewBinary = binary:replace(Code, [<<"\n">>,<<"\t">>], <<"">>, [ global ] ),
-          ?CONSOLE_LOG("~p after processing code is ~p ~n",[?LINE,NewBinary]),
-          CodeList = binary:split(NewBinary, [<<".">>],[global]),
-          ?CONSOLE_LOG("~p after spliting code is ~p ~n",[?LINE,CodeList]),
           [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
           List = ets:lookup(?ETS_REG_USERS, UserId ),
           Result = case  lists:keysearch(ForeinId, 3, List) of
                         {value, Record } -> 
                                 Id = erlang:element(4, Record), 
                                 EtsTable = common:get_logical_name(Id, ?RULES),    
-                                ResDelete = ( catch ets:delete_all_objects( EtsTable) ),
-                                ?CONSOLE_LOG("~p delete prev database ~p ~n",[?LINE,{Id, ResDelete}]),                                                          
-                                case catch  compile_foldl( CodeList, EtsTable ) of
-                        	    true->
+                                File = tmp_export_file(),
+                                file:write_file(File, Code),                                
+                                case catch  prolog:compile( Id, File ) of
+                        	    ok ->
 	                                api_auth_demon:save_public_system(Id, LForeign, EtsTable ),
 	                                <<"yes">>;
 	                            Re-> list_to_binary(Re)    
@@ -309,25 +299,30 @@ echo([<<"reload">>], Req, State)->
 echo([<<"upload_code">>, Session], Req, _State)->
 	   Got = cowboy_req:body_qs(?MAX_UPLOAD, Req),
 	   SessKey = binary_to_list(Session),
-	   ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
+	   
 	   {ok, PostVals, Req2}  = Got, 
 	   Code = proplists:get_value(<<"code">>, PostVals),
-	   NewBinary = binary:replace(Code,[<<"\n">>,<<"\t">>],<<"">>, [ global ] ),
-	   CodeList = binary:split(NewBinary, [<<".">>],[global]),
-           ?CONSOLE_LOG("~p code chuncks ~p ~n",[?LINE,CodeList]),
-           [ {SessKey, _Pid, _Pid2, NameSpace } ] = ets:lookup(?ERWS_LINK, SessKey),
-           
-	   ResDelete = ( catch prolog:delete_structs( NameSpace ) ),
-	   ?CONSOLE_LOG("~p delete prev database ~p ~n",[?LINE,{NameSpace, ResDelete}]),
-	   ResCreate = ( catch prolog:create_inner_structs( NameSpace )),
-	   ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{NameSpace, ResCreate}]),
-	   EtsTable = common:get_logical_name(NameSpace, ?RULES),
-	   Res =
-		   case catch compile_foldl(CodeList, EtsTable) of
-			true -> <<"yes">>;
+	   File = tmp_export_file(),
+	   file:write_file(File, Code),
+	   [ {SessKey, _Pid, _Pid2, NameSpace } ] = ets:lookup(?ERWS_LINK, SessKey),
+% 	   io:format("~p code here ~p ~n",[?LINE,Code]),
+% 	   {ok, Terms, L} = erlog_scan:string(Code),
+% 	   ?CONSOLE_LOG("~p ~n",[  (catch erlog_parse:term(Terms))]),   
+% 	   NewBinary = binary:replace(Code,[<<"\n">>,<<"\t">>],<<"">>, [ global ] ),
+% 	   CodeList = binary:split(NewBinary, [<<".">>],[global]),
+%            ?CONSOLE_LOG("~p code chuncks ~p ~n",[?LINE,CodeList]),
+%          
+% 	   ResDelete = ( catch prolog:delete_structs( NameSpace ) ),
+% 	   ?CONSOLE_LOG("~p delete prev database ~p ~n",[?LINE,{NameSpace, ResDelete}]),
+% 	   ResCreate = ( catch prolog:create_inner_structs( NameSpace )),
+% 	   ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{NameSpace, ResCreate}]),
+% 	   EtsTable = common:get_logical_name(NameSpace, ?RULES),
+% 	   {ok, Terms }
+	   Res =  case catch prolog:compile(NameSpace, File) of
+			ok -> <<"yes">>;
 			Rsss -> Rsss
 		   end,
-           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Code]),
+           ?CONSOLE_LOG("~p code here ~p ~n",[{?MODULE, ?LINE},{Res, Code}]),
     	   cowboy_req:reply(200, headers_text_html(),
 					Res, Req2)
     
@@ -349,17 +344,15 @@ echo([<<"plain_code">>], Req, _State)->
 %%%TODO add checkin permission on google dir
 check_workspace([], UserId, ForeinId, BName, Code)->
     Id = id_generator(),
-    NewBinary = binary:replace(Code, [<<"\n">>,<<"\t">>], <<"">>, [ global ] ),
-    ?CONSOLE_LOG("~p after processing code is ~p ~n",[?LINE,NewBinary]),
-    CodeList = binary:split(NewBinary, [<<".">>],[global]),
-    ?CONSOLE_LOG("~p after spliting code is ~p ~n",[?LINE,CodeList]),
     {ok, PATH_TO_SYSTEM} = application:get_env(erws, path_users_systems),
     ResCreate = (catch prolog:create_inner_structs( Id ) ),
     ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{Id, ResCreate}]),
     EtsTable = common:get_logical_name(Id, ?RULES),
     LForeign = binary_to_list(ForeinId),
-    case catch  compile_foldl( CodeList, EtsTable ) of
-        true->
+    File = tmp_export_file(),
+    file:write_file(File, Code),
+    case prolog:compile(Id, File) of
+         ok ->
             ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Id } ),
             api_auth_demon:regis_public_system( Id, LForeign, {file, PATH_TO_SYSTEM ++"/"++LForeign } ),
             api_auth_demon:save_public_system( Id, LForeign, EtsTable),
@@ -389,44 +382,44 @@ check_user_workspace(UserId, ForeinId, BName, Prefix )->
 .  
   
   
-compile_foldl([Head|Tail], Prefix )->
-    Res = compile_patterns(Head),
-    compile_foldl(Tail,[ Res ], Res, Prefix, Head)
-.
-%TODO mistakes to web console
-compile_foldl(_,_, Res = {error, _}, Prefix, Prev )->
-    io_lib:format("~p - ~p ~n",[Res, Prev ])
-;
-%%there Head will be true see compile_patterns bellow
-compile_foldl([  ], [Head | ListRes], _, Prefix, _Prev)->
-      Fun = fun( { ok, Term }, Prefix )->
-                 prolog:process_term(Term, Prefix)
-	    end,
-     Terms  = lists:reverse(ListRes),
-     lists:foldl(Fun, {Prefix , 1 }, Terms ),
-     true
-;
-
-compile_foldl([Head| Tail], ListRes ,_Res, Prefix, _ )->
-     Res = compile_patterns(Head),
-     ?CONSOLE_LOG("~p  got term ~p ~n",[?LINE, Res ]),
-     compile_foldl(Tail, [ Res| ListRes ], Res, Prefix, Head)
-.
-
-
-compile_patterns(<<>>)->
-    true
-;
-compile_patterns( OnePattern)->
-%       #%# hack for numbers
-      NewBinary1 = binary:replace(OnePattern,[<<"#%#">>],<<".">>, [ global ] ),
-      %% hack for =.. builtin predicate
-      NewBinary = binary:replace(NewBinary1,[<<"#%=#">>],<<"=..">>, [ global ] ),
-      HackNormalPattern =  <<NewBinary/binary, " . ">>,
-      ?CONSOLE_LOG("~p begin process one pattern   ~p ~n",[ {?MODULE,?LINE}, HackNormalPattern ] ),
-      {ok, Terms , L1} = erlog_scan:string( binary_to_list(HackNormalPattern) ),
-      erlog_parse:term(Terms)
-.
+% compile_foldl([Head|Tail], Prefix )->
+%     Res = compile_patterns(Head),
+%     compile_foldl(Tail,[ Res ], Res, Prefix, Head)
+% .
+% %TODO mistakes to web console
+% compile_foldl(_,_, Res = {error, _}, Prefix, Prev )->
+%     io_lib:format("~p - ~p ~n",[Res, Prev ])
+% ;
+% %%there Head will be true see compile_patterns bellow
+% compile_foldl([  ], [Head | ListRes], _, Prefix, _Prev)->
+%       Fun = fun( { ok, Term }, Prefix )->
+%                  prolog:process_term(Term, Prefix)
+% 	    end,
+%      Terms  = lists:reverse(ListRes),
+%      lists:foldl(Fun, {Prefix , 1 }, Terms ),
+%      true
+% ;
+% 
+% compile_foldl([Head| Tail], ListRes ,_Res, Prefix, _ )->
+%      Res = compile_patterns(Head),
+%      ?CONSOLE_LOG("~p  got term ~p ~n",[?LINE, Res ]),
+%      compile_foldl(Tail, [ Res| ListRes ], Res, Prefix, Head)
+% .
+% 
+% 
+% compile_patterns(<<>>)->
+%     true
+% ;
+% compile_patterns( OnePattern)->
+% %       #%# hack for numbers
+%       NewBinary1 = binary:replace(OnePattern,[<<"#%#">>],<<".">>, [ global ] ),
+%       %% hack for =.. builtin predicate
+%       NewBinary = binary:replace(NewBinary1,[<<"#%=#">>],<<"=..">>, [ global ] ),
+%       HackNormalPattern =  <<NewBinary/binary, " . ">>,
+%       ?CONSOLE_LOG("~p begin process one pattern   ~p ~n",[ {?MODULE,?LINE}, HackNormalPattern ] ),
+%       {ok, Terms , L1} = erlog_scan:string( binary_to_list(HackNormalPattern) ),
+%       erlog_parse:term(Terms)
+% .
 
 id_generator()->
     {T1,T2,T3 } = erlang:now(),  
@@ -434,9 +427,10 @@ id_generator()->
     List
 .
 
-
-	   
-	   
+tmp_export_file()->
+        Base = id_generator(),
+        "/tmp/prolog_tmp_"++Base++".pl".
+ 
 get_help()->
       <<"This is help...<br/>",
 	"Use menu Online IDE above for load your own code to the memory <br/> ",

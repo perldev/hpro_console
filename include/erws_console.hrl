@@ -15,7 +15,7 @@
 
 -define(ERWS_LINK, erws_link_trace).
 
--define(MAX_UPLOAD, 1000000).
+-define(MAX_UPLOAD, 1600000).
 -define(AUTH_SESSION, google_inner_session).  %%connect google and inner session
 -define(PATH_TO_SYSTEM, "./expert_system").
 -define(TEMP_PREFIX, "temp_namespace").

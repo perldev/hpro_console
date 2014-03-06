@@ -254,7 +254,8 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
           LForeign = binary_to_list(ForeinId),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
-          Code = proplists:get_value(<<"code">>, PostVals),
+          BCode = proplists:get_value(<<"code">>, PostVals),
+          Code = <<BCode/binary,"\n">>,
           [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
           List = ets:lookup(?ETS_REG_USERS, UserId ),
           Result = case  lists:keysearch(ForeinId, 3, List) of
@@ -263,7 +264,7 @@ echo( [ <<"save_public">>, AuthSession, BName, ForeinId ], Req, State )->
                                 EtsTable = common:get_logical_name(Id, ?RULES),    
                                 File = tmp_export_file(),
                                 file:write_file(File, Code),                                
-                                case catch  prolog:compile( Id, File ) of
+                                case catch  prolog:compile( Id, File, 0 ) of
                         	    ok ->
 	                                api_auth_demon:save_public_system(Id, LForeign, EtsTable ),
 	                                <<"yes">>;
@@ -284,8 +285,8 @@ echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
           Got = cowboy_req:body_qs(?MAX_UPLOAD, Req),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,Got]),
           {ok, PostVals, Req2}  = Got, 
-          Code = proplists:get_value(<<"code">>, PostVals),
-         
+          BCode = proplists:get_value(<<"code">>, PostVals),
+          Code = <<BCode/binary,"\n">>,
           [ {_,  UserId} ] = ets:lookup(?AUTH_SESSION, SessKey),
           List = ets:tab2list(?ETS_REG_USERS ),
           ?CONSOLE_LOG("~p code here ~p ~n",[?LINE,List]),
@@ -293,6 +294,7 @@ echo( [ <<"make_public">>, AuthSession, BName, ForeinId ], Req, State )->
           cowboy_req:reply(200, headers_text_plain(),
                                         Result, Req2)
 ; 
+% DEPRECATED
 echo([<<"reload">>], Req, State)->
 	  prolog:delete_inner_structs(),
 	  ?INCLUDE_HBASE(""),    
@@ -303,23 +305,11 @@ echo([<<"upload_code">>, Session], Req, _State)->
 	   SessKey = binary_to_list(Session),
 	   
 	   {ok, PostVals, Req2}  = Got, 
-	   Code = proplists:get_value(<<"code">>, PostVals),
+	   BCode = proplists:get_value(<<"code">>, PostVals),
+	   Code = <<BCode/binary,"\n">>,
 	   File = tmp_export_file(),
 	   file:write_file(File, Code),
 	   [ {SessKey, _Pid, _Pid2, NameSpace } ] = ets:lookup(?ERWS_LINK, SessKey),
-% 	   io:format("~p code here ~p ~n",[?LINE,Code]),
-% 	   {ok, Terms, L} = erlog_scan:string(Code),
-% 	   ?CONSOLE_LOG("~p ~n",[  (catch erlog_parse:term(Terms))]),   
-% 	   NewBinary = binary:replace(Code,[<<"\n">>,<<"\t">>],<<"">>, [ global ] ),
-% 	   CodeList = binary:split(NewBinary, [<<".">>],[global]),
-%            ?CONSOLE_LOG("~p code chuncks ~p ~n",[?LINE,CodeList]),
-%          
-% 	   ResDelete = ( catch prolog:delete_structs( NameSpace ) ),
-% 	   ?CONSOLE_LOG("~p delete prev database ~p ~n",[?LINE,{NameSpace, ResDelete}]),
-% 	   ResCreate = ( catch prolog:create_inner_structs( NameSpace )),
-% 	   ?CONSOLE_LOG("~p create prev database ~p ~n",[?LINE,{NameSpace, ResCreate}]),
-% 	   EtsTable = common:get_logical_name(NameSpace, ?RULES),
-% 	   {ok, Terms }
 	   Res =  case catch prolog:compile(NameSpace, File) of
 			ok -> <<"yes">>;
 			Rsss -> 
@@ -355,7 +345,7 @@ check_workspace([], UserId, ForeinId, BName, Code)->
     LForeign = binary_to_list(ForeinId),
     File = tmp_export_file(),
     file:write_file(File, Code),
-    case prolog:compile(Id, File) of
+    case prolog:compile(Id, File, 0) of
          ok ->
             ets:insert(?ETS_REG_USERS, { UserId,  BName, ForeinId, Id } ),
             api_auth_demon:regis_public_system( Id, LForeign, {file, PATH_TO_SYSTEM ++"/"++LForeign } ),

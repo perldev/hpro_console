@@ -2,6 +2,7 @@
 #
 NODE=test_console
 HOST=app-oracul-1.ceb.loc
+HOST_TEST=localhost.localdomain
 APP=erws_app
 EBIN_DIR=ebin
 HOME_D=deps
@@ -28,7 +29,7 @@ start()
 }
 start_debug(){
 	echo "starting debug"
-	$ERL    $HOME_P  -s $APP  -kernel error_logger false    -boot start_sasl  -$TYPE debug_$NODE@$HOST -config test_config
+	$ERL    $HOME_P  -s $APP  -kernel error_logger false    -boot start_sasl  -$TYPE debug_$NODE@$HOST_TEST -config test_config
 
 
 }

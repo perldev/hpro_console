@@ -533,7 +533,7 @@
          }   
          var tmp="";
          for(item in TMP_BUFFER_RESULT){
-            tmp += TMP_BUFFER_RESULT[item]["result"];             
+            tmp +="\n\n\n" + TMP_BUFFER_RESULT[item]["result"];             
          }
          make_public_low(tmp);
     } 
@@ -619,7 +619,7 @@
          }   
          var tmp="";
          for(item in TMP_BUFFER_RESULT){
-            tmp += TMP_BUFFER_RESULT[item]["result"];             
+            tmp += "\n\n\n" + TMP_BUFFER_RESULT[item]["result"];             
          }
          save_public_low(tmp);
     } 
@@ -1076,7 +1076,7 @@
          }   
          var tmp="";
          for(item in TMP_BUFFER_RESULT){
-            tmp += "\n" + TMP_BUFFER_RESULT[item]["result"];             
+            tmp += "\n\n\n" + TMP_BUFFER_RESULT[item]["result"];             
          }
          load_string_code(tmp);
     }

@@ -302,8 +302,7 @@ echo([<<"reload">>], Req, State)->
 ; 
 echo([<<"upload_code">>, Session], Req, _State)->
 	   Got = cowboy_req:body_qs(?MAX_UPLOAD, Req),
-	   SessKey = binary_to_list(Session),
-	   
+	   SessKey = binary_to_list(Session),	   
 	   {ok, PostVals, Req2}  = Got, 
 	   BCode = proplists:get_value(<<"code">>, PostVals),
 	   Code = <<BCode/binary,"\n">>,
@@ -312,9 +311,10 @@ echo([<<"upload_code">>, Session], Req, _State)->
 	   [ {SessKey, _Pid, _Pid2, NameSpace } ] = ets:lookup(?ERWS_LINK, SessKey),
 	   Res =  case catch prolog:compile(NameSpace, File) of
 			ok -> <<"yes">>;
-			Rsss -> 
+% 			 {badmatch,{error,{1,erlog_parse,{expected,')'}}}}
+			Rsss  ={'EXIT', { Mistake, _Stack } }-> 
                                 ?CONSOLE_LOG("~p ERROR load code  ~p ~n",[{?MODULE,?LINE}, Rsss]),
-                                Rsss
+                                unicode:characters_to_list( io_lib:format("~p",[Mistake] ) )
 		   end,
            ?CONSOLE_LOG("~p code here ~p ~n",[{?MODULE, ?LINE},{Res, Code}]),
     	   cowboy_req:reply(200, headers_text_html(),

@@ -1,4 +1,4 @@
-    var HOST = "app-oracul-1.ceb.loc:8080";//"codeide.com" ;"test.codeide.com:8080";//
+    var HOST ="app-oracul-1.ceb.loc:8080"; //"127.0.0.1:8080";//"codeide.com" ;"test.codeide.com:8080";//
     var QS = (function(a) {
     if (a == "") return {};
     var b = {};
@@ -20,7 +20,7 @@ function  my_alert(  Msg ){
                           .css("border","1px solid black")
                           .css("padding","25px")
                           .css("line-height","40px")
-                          .css("position","absolute")
+                          .css("position","fixed")
                           .css("top","20%").css("left","40%")
                           .css("z-index","1001")
                           .css("width","300px");            

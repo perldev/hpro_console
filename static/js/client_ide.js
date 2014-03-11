@@ -653,15 +653,23 @@
     }    
     function load_code(){
                
+		
 		    var new_function = function(Data){
-                          clear_console();
-                          to_console_alert(CURRENT_NAME + " is loaded, type 'help.' for getting started");
-			  open_console();
-		    }
+                          if(Data =="yes"){
+                              clear_console();
+                              to_console_alert(CURRENT_NAME + " is loaded, type 'help.' for getting started");
+                              open_console();
+                          }else{
+                                my_alert("there is mistake during compilation" + Data);
+
+                          }
+                          hide_block_div();
+                        
+                    }
+		    
 		    var Code = editor.getValue();
 		    //hack for numbers
                     Code = clean_code(Code);
-                    console.log(Code);
 
 		    var  params = { code: Code   };
 	            $.ajax({

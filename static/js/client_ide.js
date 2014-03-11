@@ -26,11 +26,7 @@
     var TMP_BUFFER_RESULT={};
    function clean_code(Code){
                     if(Code){
-//                	alert(Code);
-//                         Code = Code.replace(/%.+/mg,"");
-// 			Code = Code.replace(/\r/mg,"");
-//                         Code = Code.replace(/(\d+)\.(\d+)/mg,"$1#%#$2");
-//                         Code = Code.replace(/=\.\./mg,"#%=#");
+ 			Code = Code.replace(/\r/mg,"\n");
                         Code = Code.replace(/[“”]/mg,"\"");
                         Code = $.trim(Code);
                         return Code;
@@ -656,14 +652,16 @@
                     }               
     }    
     function load_code(){
+               
 		    var new_function = function(Data){
                           clear_console();
                           to_console_alert(CURRENT_NAME + " is loaded, type 'help.' for getting started");
 			  open_console();
 		    }
-		    var Code = editor.getValue(),
+		    var Code = editor.getValue();
 		    //hack for numbers
                     Code = clean_code(Code);
+                    console.log(Code);
 
 		    var  params = { code: Code   };
 	            $.ajax({

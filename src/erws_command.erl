@@ -98,7 +98,7 @@ get_list_namespaces(UserId)->
     List = ets:lookup(?ETS_REG_USERS, UserId ),
     case List of
             [] ->
-                 "";
+                 jsx:encode([]);
             _L ->
                  NameSpaceName = lists:map(fun(E)->   { UserId, Name, Id, _PublicId } = E, {Id, Name } end, List),
                  jsx:encode(NameSpaceName)
@@ -109,7 +109,7 @@ get_list_namespaces_public(UserId)->
     List = ets:lookup(?ETS_REG_USERS, UserId ),
     case List of
             [] ->
-                 "";
+                 jsx:encode([]);
             _L ->
                  NameSpaceName = lists:map(fun(E)->   { UserId, Name, _Id, PublicId } = E, {list_to_binary(PublicId), Name } end, List),
                  jsx:encode(NameSpaceName)

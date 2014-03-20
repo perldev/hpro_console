@@ -226,34 +226,7 @@ trace_loop(wait_aim, Pid) ->
 	  trace_loop(wait_user, ?UNDEF)
     end.
 
-compile_foldl([Head | Tail]) ->
-    Res = compile_patterns(Head),
-    compile_foldl(Tail, [Res], Res).
 
-compile_foldl(_, _, Res = {error, _}) ->
-    io_lib:format("~p ~n", [Res]);
-%%there Head will be true see compile_patterns bellow
-compile_foldl([], [Head | ListRes], _) ->
-    Fun = fun ({ok, Term}) -> prolog:process_term(Term) end,
-    Terms = lists:reverse(ListRes),
-    lists:foreach(Fun, Terms),
-    "yes";
-compile_foldl([Head | Tail], ListRes, _Res) ->
-    Res = compile_patterns(Head),
-    ?CONSOLE_LOG("~p  got term ~p ~n", [?LINE, Res]),
-    compile_foldl(Tail, [Res | ListRes], Res).
-
-compile_patterns(<<>>) -> true;
-compile_patterns(OnePattern) ->
-    %       #%# hack for numbers with dot
-    NewBinary = binary:replace(OnePattern, [<<"#%#">>],
-			       <<".">>, [global]),
-    HackNormalPattern = <<NewBinary/binary, " . ">>,
-    ?CONSOLE_LOG("~p begin process one pattern   ~p ~n",
-		 [{?MODULE, ?LINE}, HackNormalPattern]),
-    {ok, Terms, L1} =
-	erlog_scan:string(binary_to_list(HackNormalPattern)),
-    erlog_parse:term(Terms).
 
 start_shell_process(Prefix, public) ->
     TreeEts = ets:new(some, [public, set, {keypos, 2}]),
@@ -458,6 +431,7 @@ server_loop(P0, TreeEts, WebPid, TracePid,
 		     ?CONSOLE_LOG("~p make temp aim ~p ~n",
 				  [{?MODULE, ?LINE}, TempAim]),
 		     StartTime = erlang:now(),
+		     %%use prolog:call instead
 		     Res = (catch prolog:aim(finish, ?ROOT, Goal, dict:new(),
 					     1, TreeEts, ?ROOT)),
 		     process_prove_erws(TempAim, Goal, Res, WebPid,

@@ -145,31 +145,7 @@ handle_cast({deauth, Ip, NameSpace}, MyState) ->
     %TODO reloading various namespaces
     low_stop_auth(MyState, Ip, NameSpace),
     {noreply, MyState};
-% handle_cast( { regis_timer_restart,  Pid }, MyState) ->
-%  	 ?CONSOLE_LOG("~p start monitor ~p ~n",
-%                            [ { ?MODULE, ?LINE }, Pid ]),
-%          erlang:monitor( process,Pid ),
-%          timer:apply_after(?RESTART_CONVERTER,
-%                                   ?MODULE,
-%                                   kill_process_after, [ Pid ]
-%                                  ),
-%          ets:insert(MyState#monitor.proc_table, {Pid, timer}),
-%
-%          {noreply, MyState};
-% handle_cast( { kill_process_after,  Pid }, MyState) ->
-%  	?CONSOLE_LOG("~p start monitor ~p ~n",
-%                            [ { ?MODULE, ?LINE }, Pid ]),
-% 	 %demonitor(Pid),
-%          erlang:exit(Pid, by_timer),
-%          ets:delete(MyState#monitor.proc_table, Pid),
-%          {noreply, MyState};
-% handle_cast( { regis,  Pid, Description }, MyState) ->
-%  	?CONSOLE_LOG("~p start monitor ~p ~n",
-%                            [ { ?MODULE, ?LINE }, Pid ]),
-%          erlang:monitor( process, Pid ),
-%          ets:insert(MyState#monitor.proc_table, { Pid, Description }),
-%          {noreply, MyState};
-%
+
 handle_cast({regis, Pid}, MyState) ->
     ?CONSOLE_LOG("~p start monitor ~p ~n",
 		 [{?MODULE, ?LINE}, Pid]),

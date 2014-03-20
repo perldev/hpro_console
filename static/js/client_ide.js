@@ -16,7 +16,7 @@
     var LOADED = 1;
     var CookieName = "ide_doc_path_prolog";  
     var LastProjectCookieName = "ide_last_project_path_prolog";  
-
+    var TimeOut = null;
     var CURRENT_DOCUMENT = "";
     var CURRENT_NAME = "";
     var PARENT_DIRECTORY="";
@@ -883,6 +883,8 @@
        */
 
       function createPicker() {
+              
+          var access_token = gapi.auth.getToken("token",null);
 // 	  var view = new google.picker.View(google.picker.ViewId.DOCS);
 	  var view_d = new google.picker.View(google.picker.ViewId.FOLDERS);
 	  var upload_v = new google.picker.DocsUploadView();
@@ -896,7 +898,7 @@
 	  picker = new google.picker.PickerBuilder()
 	     
           .setAppId('768399903870')
-// 	  .setOAuthToken(access_token) //Optional: The auth token used in the current Drive API session.
+ 	  .setOAuthToken(access_token.access_token) //Optional: The auth token used in the current Drive API session.
 //           .addView(view)
 	  .addView(view_d)
           .addView(upload_v)
@@ -993,11 +995,16 @@
 	retrievePageOfFiles(initialRequest, []);
 	
     }
+    function save_def_file(){
+             save_file(  editor.getValue()  );           
+    }
     function interface_open_file(FileId){
             if(FileId == CURRENT_DOCUMENT)
                     return;
-        
-            
+            if(TimeOut){
+                clearTimeout(TimeOut);
+            }
+            TimeOut = setTimeout( save_def_file ,60000);
             save_file(  editor.getValue()  );
             realtimeLoader.get_file(FileId, update_editor_soft);
             
@@ -1256,11 +1263,6 @@
 	$("#code").focus();
         $("#console_button").addClass("btn-info");
 	show_trace();
-// // 	document.getElementById("code").value='';
-// 	$("#code").focus();
-	
-
-	/* @todo: Change to your own server IP address */
 	
     } 
 
